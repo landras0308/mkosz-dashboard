@@ -490,7 +490,7 @@ def main():
                              for c in sorted(info["comps"], key=lambda c: (comp_phase(c) == "cup", comp_phase(c), c))],
             "matches": matches,
             "players": season_players(conn, cfg, tp, competition_of) if league else [],
-            "team": season_team(conn, cfg, tp, competition_of) if league else None,
+            "team_stats": season_team(conn, cfg, tp, competition_of) if league else None,
         }
         previous = fetch_previous(args.previous_base, f"{season}/standings.json")
         standings = standings_json(season, league, season == current, previous)

@@ -9,1283 +9,8 @@
       "description": "Formátum-verzió."
     },
     "team": {
-      "type": [
-        "object",
-        "null"
-      ],
-      "description": "Csapatszint (null, ha a szezonban még nincs bajnoki meccs).",
-      "properties": {
-        "views": {
-          "type": "object",
-          "description": "Nézetek: összes, hazai, idegen.",
-          "properties": {
-            "all": {
-              "type": "object",
-              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
-              "properties": {
-                "record": {
-                  "type": "object",
-                  "description": "Mérleg.",
-                  "properties": {
-                    "games": {
-                      "type": "integer",
-                      "description": "Meccs."
-                    },
-                    "wins": {
-                      "type": "integer",
-                      "description": "Győzelem."
-                    },
-                    "losses": {
-                      "type": "integer",
-                      "description": "Vereség."
-                    },
-                    "scored": {
-                      "type": "integer",
-                      "description": "Dobott pont."
-                    },
-                    "allowed": {
-                      "type": "integer",
-                      "description": "Kapott pont."
-                    },
-                    "ppg": {
-                      "type": "number",
-                      "description": "Dobott/meccs."
-                    },
-                    "opp_ppg": {
-                      "type": "number",
-                      "description": "Kapott/meccs."
-                    },
-                    "diff_per_game": {
-                      "type": "number",
-                      "description": "Különbség/meccs."
-                    },
-                    "best_score": {
-                      "type": "integer",
-                      "description": "Legtöbb dobott pont egy meccsen."
-                    },
-                    "most_allowed": {
-                      "type": "integer",
-                      "description": "Legtöbb kapott pont egy meccsen."
-                    },
-                    "players_used": {
-                      "type": "integer",
-                      "description": "Pályára lépett játékosok száma."
-                    },
-                    "home_wins": {
-                      "type": "integer",
-                      "description": "Hazai győzelem."
-                    },
-                    "home_games": {
-                      "type": "integer",
-                      "description": "Hazai meccs."
-                    },
-                    "away_wins": {
-                      "type": "integer",
-                      "description": "Idegenbeli győzelem."
-                    },
-                    "away_games": {
-                      "type": "integer",
-                      "description": "Idegenbeli meccs."
-                    }
-                  },
-                  "required": [
-                    "games",
-                    "wins",
-                    "losses",
-                    "scored",
-                    "allowed",
-                    "ppg",
-                    "opp_ppg",
-                    "diff_per_game",
-                    "best_score",
-                    "most_allowed",
-                    "players_used",
-                    "home_wins",
-                    "home_games",
-                    "away_wins",
-                    "away_games"
-                  ],
-                  "additionalProperties": false
-                },
-                "games": {
-                  "type": "array",
-                  "description": "A meccsek, időrendben.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy meccs.",
-                    "properties": {
-                      "gamecode": {
-                        "type": "string",
-                        "description": "A meccs kulcsa."
-                      },
-                      "competition": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
-                        "description": "Bajnokság-kód."
-                      },
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "is_home": {
-                        "type": "boolean",
-                        "description": "Hazai-e."
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "kozgaz_score": {
-                        "type": "integer",
-                        "description": "Közgáz pont."
-                      },
-                      "opponent_score": {
-                        "type": "integer",
-                        "description": "Ellenfél pont."
-                      },
-                      "result": {
-                        "type": "string",
-                        "enum": [
-                          "W",
-                          "L"
-                        ],
-                        "description": "W / L."
-                      }
-                    },
-                    "required": [
-                      "gamecode",
-                      "competition",
-                      "date",
-                      "is_home",
-                      "opponent",
-                      "opponent_short",
-                      "kozgaz_score",
-                      "opponent_score",
-                      "result"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "quarters": {
-                  "type": "array",
-                  "description": "Negyedátlagok.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy negyed.",
-                    "properties": {
-                      "quarter": {
-                        "type": "integer",
-                        "description": "Negyed (1–4)."
-                      },
-                      "kozgaz_avg": {
-                        "type": "number",
-                        "description": "Közgáz pont/meccs a negyedben."
-                      },
-                      "opponent_avg": {
-                        "type": "number",
-                        "description": "Ellenfél pont/meccs a negyedben."
-                      },
-                      "won": {
-                        "type": "integer",
-                        "description": "Megnyert negyedek száma."
-                      },
-                      "lost": {
-                        "type": "integer",
-                        "description": "Elvesztett negyedek száma."
-                      }
-                    },
-                    "required": [
-                      "quarter",
-                      "kozgaz_avg",
-                      "opponent_avg",
-                      "won",
-                      "lost"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "scenarios": {
-                  "type": "array",
-                  "description": "Félidős és 3 negyed utáni forgatókönyvek.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy forgatókönyv.",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "enum": [
-                          "HT_LEAD",
-                          "HT_TRAIL",
-                          "3Q_LEAD",
-                          "3Q_TRAIL"
-                        ],
-                        "description": "HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Felirat."
-                      },
-                      "games": {
-                        "type": "integer",
-                        "description": "Ennyi meccsen állt így."
-                      },
-                      "wins": {
-                        "type": "integer",
-                        "description": "Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás)."
-                      }
-                    },
-                    "required": [
-                      "key",
-                      "label",
-                      "games",
-                      "wins"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "scoring_split": {
-                  "type": "object",
-                  "description": "Pontmegoszlás dobástípus szerint.",
-                  "properties": {
-                    "points_2": {
-                      "type": "integer",
-                      "description": "Kétpontosokból."
-                    },
-                    "points_3": {
-                      "type": "integer",
-                      "description": "Hárompontosokból."
-                    },
-                    "points_ft": {
-                      "type": "integer",
-                      "description": "Büntetőből."
-                    },
-                    "pct_2": {
-                      "type": "integer",
-                      "description": "Kétpontosok aránya, %."
-                    },
-                    "pct_3": {
-                      "type": "integer",
-                      "description": "Hárompontosok aránya, %."
-                    },
-                    "pct_ft": {
-                      "type": "integer",
-                      "description": "Büntetők aránya, %."
-                    },
-                    "ft_made": {
-                      "type": "integer",
-                      "description": "Bedobott büntető."
-                    },
-                    "ft_att": {
-                      "type": "integer",
-                      "description": "Büntető-kísérlet."
-                    }
-                  },
-                  "required": [
-                    "points_2",
-                    "points_3",
-                    "points_ft",
-                    "pct_2",
-                    "pct_3",
-                    "pct_ft",
-                    "ft_made",
-                    "ft_att"
-                  ],
-                  "additionalProperties": false
-                },
-                "runs_for": {
-                  "type": "array",
-                  "description": "Top 5 saját run.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy run (válasz nélküli pontsorozat).",
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "start_quarter": {
-                        "type": "integer",
-                        "description": "Kezdő negyed."
-                      },
-                      "end_quarter": {
-                        "type": "integer",
-                        "description": "Záró negyed."
-                      },
-                      "points": {
-                        "type": "integer",
-                        "description": "Pont a runban."
-                      },
-                      "baskets": {
-                        "type": "integer",
-                        "description": "Kosarak száma a runban."
-                      }
-                    },
-                    "required": [
-                      "date",
-                      "opponent",
-                      "opponent_short",
-                      "start_quarter",
-                      "end_quarter",
-                      "points",
-                      "baskets"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "runs_against": {
-                  "type": "array",
-                  "description": "Top 5 kapott run.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy run (válasz nélküli pontsorozat).",
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "start_quarter": {
-                        "type": "integer",
-                        "description": "Kezdő negyed."
-                      },
-                      "end_quarter": {
-                        "type": "integer",
-                        "description": "Záró negyed."
-                      },
-                      "points": {
-                        "type": "integer",
-                        "description": "Pont a runban."
-                      },
-                      "baskets": {
-                        "type": "integer",
-                        "description": "Kosarak száma a runban."
-                      }
-                    },
-                    "required": [
-                      "date",
-                      "opponent",
-                      "opponent_short",
-                      "start_quarter",
-                      "end_quarter",
-                      "points",
-                      "baskets"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "facts": {
-                  "type": "array",
-                  "description": "Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true).",
-                  "items": {
-                    "type": "array",
-                    "description": "Egy fact.",
-                    "items": {
-                      "type": "object",
-                      "description": "Szövegrész.",
-                      "properties": {
-                        "text": {
-                          "type": "string",
-                          "description": "Szöveg."
-                        },
-                        "bold": {
-                          "type": "boolean",
-                          "description": "Kiemelt-e."
-                        }
-                      },
-                      "required": [
-                        "text",
-                        "bold"
-                      ],
-                      "additionalProperties": false
-                    }
-                  }
-                }
-              },
-              "required": [
-                "record",
-                "games",
-                "quarters",
-                "scenarios",
-                "scoring_split",
-                "runs_for",
-                "runs_against",
-                "facts"
-              ],
-              "additionalProperties": false
-            },
-            "home": {
-              "type": "object",
-              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
-              "properties": {
-                "record": {
-                  "type": "object",
-                  "description": "Mérleg.",
-                  "properties": {
-                    "games": {
-                      "type": "integer",
-                      "description": "Meccs."
-                    },
-                    "wins": {
-                      "type": "integer",
-                      "description": "Győzelem."
-                    },
-                    "losses": {
-                      "type": "integer",
-                      "description": "Vereség."
-                    },
-                    "scored": {
-                      "type": "integer",
-                      "description": "Dobott pont."
-                    },
-                    "allowed": {
-                      "type": "integer",
-                      "description": "Kapott pont."
-                    },
-                    "ppg": {
-                      "type": "number",
-                      "description": "Dobott/meccs."
-                    },
-                    "opp_ppg": {
-                      "type": "number",
-                      "description": "Kapott/meccs."
-                    },
-                    "diff_per_game": {
-                      "type": "number",
-                      "description": "Különbség/meccs."
-                    },
-                    "best_score": {
-                      "type": "integer",
-                      "description": "Legtöbb dobott pont egy meccsen."
-                    },
-                    "most_allowed": {
-                      "type": "integer",
-                      "description": "Legtöbb kapott pont egy meccsen."
-                    },
-                    "players_used": {
-                      "type": "integer",
-                      "description": "Pályára lépett játékosok száma."
-                    },
-                    "home_wins": {
-                      "type": "integer",
-                      "description": "Hazai győzelem."
-                    },
-                    "home_games": {
-                      "type": "integer",
-                      "description": "Hazai meccs."
-                    },
-                    "away_wins": {
-                      "type": "integer",
-                      "description": "Idegenbeli győzelem."
-                    },
-                    "away_games": {
-                      "type": "integer",
-                      "description": "Idegenbeli meccs."
-                    }
-                  },
-                  "required": [
-                    "games",
-                    "wins",
-                    "losses",
-                    "scored",
-                    "allowed",
-                    "ppg",
-                    "opp_ppg",
-                    "diff_per_game",
-                    "best_score",
-                    "most_allowed",
-                    "players_used",
-                    "home_wins",
-                    "home_games",
-                    "away_wins",
-                    "away_games"
-                  ],
-                  "additionalProperties": false
-                },
-                "games": {
-                  "type": "array",
-                  "description": "A meccsek, időrendben.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy meccs.",
-                    "properties": {
-                      "gamecode": {
-                        "type": "string",
-                        "description": "A meccs kulcsa."
-                      },
-                      "competition": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
-                        "description": "Bajnokság-kód."
-                      },
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "is_home": {
-                        "type": "boolean",
-                        "description": "Hazai-e."
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "kozgaz_score": {
-                        "type": "integer",
-                        "description": "Közgáz pont."
-                      },
-                      "opponent_score": {
-                        "type": "integer",
-                        "description": "Ellenfél pont."
-                      },
-                      "result": {
-                        "type": "string",
-                        "enum": [
-                          "W",
-                          "L"
-                        ],
-                        "description": "W / L."
-                      }
-                    },
-                    "required": [
-                      "gamecode",
-                      "competition",
-                      "date",
-                      "is_home",
-                      "opponent",
-                      "opponent_short",
-                      "kozgaz_score",
-                      "opponent_score",
-                      "result"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "quarters": {
-                  "type": "array",
-                  "description": "Negyedátlagok.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy negyed.",
-                    "properties": {
-                      "quarter": {
-                        "type": "integer",
-                        "description": "Negyed (1–4)."
-                      },
-                      "kozgaz_avg": {
-                        "type": "number",
-                        "description": "Közgáz pont/meccs a negyedben."
-                      },
-                      "opponent_avg": {
-                        "type": "number",
-                        "description": "Ellenfél pont/meccs a negyedben."
-                      },
-                      "won": {
-                        "type": "integer",
-                        "description": "Megnyert negyedek száma."
-                      },
-                      "lost": {
-                        "type": "integer",
-                        "description": "Elvesztett negyedek száma."
-                      }
-                    },
-                    "required": [
-                      "quarter",
-                      "kozgaz_avg",
-                      "opponent_avg",
-                      "won",
-                      "lost"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "scenarios": {
-                  "type": "array",
-                  "description": "Félidős és 3 negyed utáni forgatókönyvek.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy forgatókönyv.",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "enum": [
-                          "HT_LEAD",
-                          "HT_TRAIL",
-                          "3Q_LEAD",
-                          "3Q_TRAIL"
-                        ],
-                        "description": "HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Felirat."
-                      },
-                      "games": {
-                        "type": "integer",
-                        "description": "Ennyi meccsen állt így."
-                      },
-                      "wins": {
-                        "type": "integer",
-                        "description": "Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás)."
-                      }
-                    },
-                    "required": [
-                      "key",
-                      "label",
-                      "games",
-                      "wins"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "scoring_split": {
-                  "type": "object",
-                  "description": "Pontmegoszlás dobástípus szerint.",
-                  "properties": {
-                    "points_2": {
-                      "type": "integer",
-                      "description": "Kétpontosokból."
-                    },
-                    "points_3": {
-                      "type": "integer",
-                      "description": "Hárompontosokból."
-                    },
-                    "points_ft": {
-                      "type": "integer",
-                      "description": "Büntetőből."
-                    },
-                    "pct_2": {
-                      "type": "integer",
-                      "description": "Kétpontosok aránya, %."
-                    },
-                    "pct_3": {
-                      "type": "integer",
-                      "description": "Hárompontosok aránya, %."
-                    },
-                    "pct_ft": {
-                      "type": "integer",
-                      "description": "Büntetők aránya, %."
-                    },
-                    "ft_made": {
-                      "type": "integer",
-                      "description": "Bedobott büntető."
-                    },
-                    "ft_att": {
-                      "type": "integer",
-                      "description": "Büntető-kísérlet."
-                    }
-                  },
-                  "required": [
-                    "points_2",
-                    "points_3",
-                    "points_ft",
-                    "pct_2",
-                    "pct_3",
-                    "pct_ft",
-                    "ft_made",
-                    "ft_att"
-                  ],
-                  "additionalProperties": false
-                },
-                "runs_for": {
-                  "type": "array",
-                  "description": "Top 5 saját run.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy run (válasz nélküli pontsorozat).",
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "start_quarter": {
-                        "type": "integer",
-                        "description": "Kezdő negyed."
-                      },
-                      "end_quarter": {
-                        "type": "integer",
-                        "description": "Záró negyed."
-                      },
-                      "points": {
-                        "type": "integer",
-                        "description": "Pont a runban."
-                      },
-                      "baskets": {
-                        "type": "integer",
-                        "description": "Kosarak száma a runban."
-                      }
-                    },
-                    "required": [
-                      "date",
-                      "opponent",
-                      "opponent_short",
-                      "start_quarter",
-                      "end_quarter",
-                      "points",
-                      "baskets"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "runs_against": {
-                  "type": "array",
-                  "description": "Top 5 kapott run.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy run (válasz nélküli pontsorozat).",
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "start_quarter": {
-                        "type": "integer",
-                        "description": "Kezdő negyed."
-                      },
-                      "end_quarter": {
-                        "type": "integer",
-                        "description": "Záró negyed."
-                      },
-                      "points": {
-                        "type": "integer",
-                        "description": "Pont a runban."
-                      },
-                      "baskets": {
-                        "type": "integer",
-                        "description": "Kosarak száma a runban."
-                      }
-                    },
-                    "required": [
-                      "date",
-                      "opponent",
-                      "opponent_short",
-                      "start_quarter",
-                      "end_quarter",
-                      "points",
-                      "baskets"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "facts": {
-                  "type": "array",
-                  "description": "Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true).",
-                  "items": {
-                    "type": "array",
-                    "description": "Egy fact.",
-                    "items": {
-                      "type": "object",
-                      "description": "Szövegrész.",
-                      "properties": {
-                        "text": {
-                          "type": "string",
-                          "description": "Szöveg."
-                        },
-                        "bold": {
-                          "type": "boolean",
-                          "description": "Kiemelt-e."
-                        }
-                      },
-                      "required": [
-                        "text",
-                        "bold"
-                      ],
-                      "additionalProperties": false
-                    }
-                  }
-                }
-              },
-              "required": [
-                "record",
-                "games",
-                "quarters",
-                "scenarios",
-                "scoring_split",
-                "runs_for",
-                "runs_against",
-                "facts"
-              ],
-              "additionalProperties": false
-            },
-            "away": {
-              "type": "object",
-              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
-              "properties": {
-                "record": {
-                  "type": "object",
-                  "description": "Mérleg.",
-                  "properties": {
-                    "games": {
-                      "type": "integer",
-                      "description": "Meccs."
-                    },
-                    "wins": {
-                      "type": "integer",
-                      "description": "Győzelem."
-                    },
-                    "losses": {
-                      "type": "integer",
-                      "description": "Vereség."
-                    },
-                    "scored": {
-                      "type": "integer",
-                      "description": "Dobott pont."
-                    },
-                    "allowed": {
-                      "type": "integer",
-                      "description": "Kapott pont."
-                    },
-                    "ppg": {
-                      "type": "number",
-                      "description": "Dobott/meccs."
-                    },
-                    "opp_ppg": {
-                      "type": "number",
-                      "description": "Kapott/meccs."
-                    },
-                    "diff_per_game": {
-                      "type": "number",
-                      "description": "Különbség/meccs."
-                    },
-                    "best_score": {
-                      "type": "integer",
-                      "description": "Legtöbb dobott pont egy meccsen."
-                    },
-                    "most_allowed": {
-                      "type": "integer",
-                      "description": "Legtöbb kapott pont egy meccsen."
-                    },
-                    "players_used": {
-                      "type": "integer",
-                      "description": "Pályára lépett játékosok száma."
-                    },
-                    "home_wins": {
-                      "type": "integer",
-                      "description": "Hazai győzelem."
-                    },
-                    "home_games": {
-                      "type": "integer",
-                      "description": "Hazai meccs."
-                    },
-                    "away_wins": {
-                      "type": "integer",
-                      "description": "Idegenbeli győzelem."
-                    },
-                    "away_games": {
-                      "type": "integer",
-                      "description": "Idegenbeli meccs."
-                    }
-                  },
-                  "required": [
-                    "games",
-                    "wins",
-                    "losses",
-                    "scored",
-                    "allowed",
-                    "ppg",
-                    "opp_ppg",
-                    "diff_per_game",
-                    "best_score",
-                    "most_allowed",
-                    "players_used",
-                    "home_wins",
-                    "home_games",
-                    "away_wins",
-                    "away_games"
-                  ],
-                  "additionalProperties": false
-                },
-                "games": {
-                  "type": "array",
-                  "description": "A meccsek, időrendben.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy meccs.",
-                    "properties": {
-                      "gamecode": {
-                        "type": "string",
-                        "description": "A meccs kulcsa."
-                      },
-                      "competition": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
-                        "description": "Bajnokság-kód."
-                      },
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "is_home": {
-                        "type": "boolean",
-                        "description": "Hazai-e."
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "kozgaz_score": {
-                        "type": "integer",
-                        "description": "Közgáz pont."
-                      },
-                      "opponent_score": {
-                        "type": "integer",
-                        "description": "Ellenfél pont."
-                      },
-                      "result": {
-                        "type": "string",
-                        "enum": [
-                          "W",
-                          "L"
-                        ],
-                        "description": "W / L."
-                      }
-                    },
-                    "required": [
-                      "gamecode",
-                      "competition",
-                      "date",
-                      "is_home",
-                      "opponent",
-                      "opponent_short",
-                      "kozgaz_score",
-                      "opponent_score",
-                      "result"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "quarters": {
-                  "type": "array",
-                  "description": "Negyedátlagok.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy negyed.",
-                    "properties": {
-                      "quarter": {
-                        "type": "integer",
-                        "description": "Negyed (1–4)."
-                      },
-                      "kozgaz_avg": {
-                        "type": "number",
-                        "description": "Közgáz pont/meccs a negyedben."
-                      },
-                      "opponent_avg": {
-                        "type": "number",
-                        "description": "Ellenfél pont/meccs a negyedben."
-                      },
-                      "won": {
-                        "type": "integer",
-                        "description": "Megnyert negyedek száma."
-                      },
-                      "lost": {
-                        "type": "integer",
-                        "description": "Elvesztett negyedek száma."
-                      }
-                    },
-                    "required": [
-                      "quarter",
-                      "kozgaz_avg",
-                      "opponent_avg",
-                      "won",
-                      "lost"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "scenarios": {
-                  "type": "array",
-                  "description": "Félidős és 3 negyed utáni forgatókönyvek.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy forgatókönyv.",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "enum": [
-                          "HT_LEAD",
-                          "HT_TRAIL",
-                          "3Q_LEAD",
-                          "3Q_TRAIL"
-                        ],
-                        "description": "HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban."
-                      },
-                      "label": {
-                        "type": "string",
-                        "description": "Felirat."
-                      },
-                      "games": {
-                        "type": "integer",
-                        "description": "Ennyi meccsen állt így."
-                      },
-                      "wins": {
-                        "type": "integer",
-                        "description": "Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás)."
-                      }
-                    },
-                    "required": [
-                      "key",
-                      "label",
-                      "games",
-                      "wins"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "scoring_split": {
-                  "type": "object",
-                  "description": "Pontmegoszlás dobástípus szerint.",
-                  "properties": {
-                    "points_2": {
-                      "type": "integer",
-                      "description": "Kétpontosokból."
-                    },
-                    "points_3": {
-                      "type": "integer",
-                      "description": "Hárompontosokból."
-                    },
-                    "points_ft": {
-                      "type": "integer",
-                      "description": "Büntetőből."
-                    },
-                    "pct_2": {
-                      "type": "integer",
-                      "description": "Kétpontosok aránya, %."
-                    },
-                    "pct_3": {
-                      "type": "integer",
-                      "description": "Hárompontosok aránya, %."
-                    },
-                    "pct_ft": {
-                      "type": "integer",
-                      "description": "Büntetők aránya, %."
-                    },
-                    "ft_made": {
-                      "type": "integer",
-                      "description": "Bedobott büntető."
-                    },
-                    "ft_att": {
-                      "type": "integer",
-                      "description": "Büntető-kísérlet."
-                    }
-                  },
-                  "required": [
-                    "points_2",
-                    "points_3",
-                    "points_ft",
-                    "pct_2",
-                    "pct_3",
-                    "pct_ft",
-                    "ft_made",
-                    "ft_att"
-                  ],
-                  "additionalProperties": false
-                },
-                "runs_for": {
-                  "type": "array",
-                  "description": "Top 5 saját run.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy run (válasz nélküli pontsorozat).",
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "start_quarter": {
-                        "type": "integer",
-                        "description": "Kezdő negyed."
-                      },
-                      "end_quarter": {
-                        "type": "integer",
-                        "description": "Záró negyed."
-                      },
-                      "points": {
-                        "type": "integer",
-                        "description": "Pont a runban."
-                      },
-                      "baskets": {
-                        "type": "integer",
-                        "description": "Kosarak száma a runban."
-                      }
-                    },
-                    "required": [
-                      "date",
-                      "opponent",
-                      "opponent_short",
-                      "start_quarter",
-                      "end_quarter",
-                      "points",
-                      "baskets"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "runs_against": {
-                  "type": "array",
-                  "description": "Top 5 kapott run.",
-                  "items": {
-                    "type": "object",
-                    "description": "Egy run (válasz nélküli pontsorozat).",
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "description": "Dátum.",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-                      },
-                      "opponent": {
-                        "type": "string",
-                        "description": "Ellenfél teljes neve."
-                      },
-                      "opponent_short": {
-                        "type": "string",
-                        "description": "Ellenfél rövid neve."
-                      },
-                      "start_quarter": {
-                        "type": "integer",
-                        "description": "Kezdő negyed."
-                      },
-                      "end_quarter": {
-                        "type": "integer",
-                        "description": "Záró negyed."
-                      },
-                      "points": {
-                        "type": "integer",
-                        "description": "Pont a runban."
-                      },
-                      "baskets": {
-                        "type": "integer",
-                        "description": "Kosarak száma a runban."
-                      }
-                    },
-                    "required": [
-                      "date",
-                      "opponent",
-                      "opponent_short",
-                      "start_quarter",
-                      "end_quarter",
-                      "points",
-                      "baskets"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "facts": {
-                  "type": "array",
-                  "description": "Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true).",
-                  "items": {
-                    "type": "array",
-                    "description": "Egy fact.",
-                    "items": {
-                      "type": "object",
-                      "description": "Szövegrész.",
-                      "properties": {
-                        "text": {
-                          "type": "string",
-                          "description": "Szöveg."
-                        },
-                        "bold": {
-                          "type": "boolean",
-                          "description": "Kiemelt-e."
-                        }
-                      },
-                      "required": [
-                        "text",
-                        "bold"
-                      ],
-                      "additionalProperties": false
-                    }
-                  }
-                }
-              },
-              "required": [
-                "record",
-                "games",
-                "quarters",
-                "scenarios",
-                "scoring_split",
-                "runs_for",
-                "runs_against",
-                "facts"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "all",
-            "home",
-            "away"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "views"
-      ],
-      "additionalProperties": false
+      "const": "kozgaz-b",
+      "description": "Csapatkulcs."
     },
     "team_name": {
       "type": "string",
@@ -3259,6 +1984,1285 @@
         ],
         "additionalProperties": false
       }
+    },
+    "team_stats": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Csapatszint (null, ha a szezonban még nincs bajnoki meccs).",
+      "properties": {
+        "views": {
+          "type": "object",
+          "description": "Nézetek: összes, hazai, idegen.",
+          "properties": {
+            "all": {
+              "type": "object",
+              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+              "properties": {
+                "record": {
+                  "type": "object",
+                  "description": "Mérleg.",
+                  "properties": {
+                    "games": {
+                      "type": "integer",
+                      "description": "Meccs."
+                    },
+                    "wins": {
+                      "type": "integer",
+                      "description": "Győzelem."
+                    },
+                    "losses": {
+                      "type": "integer",
+                      "description": "Vereség."
+                    },
+                    "scored": {
+                      "type": "integer",
+                      "description": "Dobott pont."
+                    },
+                    "allowed": {
+                      "type": "integer",
+                      "description": "Kapott pont."
+                    },
+                    "ppg": {
+                      "type": "number",
+                      "description": "Dobott/meccs."
+                    },
+                    "opp_ppg": {
+                      "type": "number",
+                      "description": "Kapott/meccs."
+                    },
+                    "diff_per_game": {
+                      "type": "number",
+                      "description": "Különbség/meccs."
+                    },
+                    "best_score": {
+                      "type": "integer",
+                      "description": "Legtöbb dobott pont egy meccsen."
+                    },
+                    "most_allowed": {
+                      "type": "integer",
+                      "description": "Legtöbb kapott pont egy meccsen."
+                    },
+                    "players_used": {
+                      "type": "integer",
+                      "description": "Pályára lépett játékosok száma."
+                    },
+                    "home_wins": {
+                      "type": "integer",
+                      "description": "Hazai győzelem."
+                    },
+                    "home_games": {
+                      "type": "integer",
+                      "description": "Hazai meccs."
+                    },
+                    "away_wins": {
+                      "type": "integer",
+                      "description": "Idegenbeli győzelem."
+                    },
+                    "away_games": {
+                      "type": "integer",
+                      "description": "Idegenbeli meccs."
+                    }
+                  },
+                  "required": [
+                    "games",
+                    "wins",
+                    "losses",
+                    "scored",
+                    "allowed",
+                    "ppg",
+                    "opp_ppg",
+                    "diff_per_game",
+                    "best_score",
+                    "most_allowed",
+                    "players_used",
+                    "home_wins",
+                    "home_games",
+                    "away_wins",
+                    "away_games"
+                  ],
+                  "additionalProperties": false
+                },
+                "games": {
+                  "type": "array",
+                  "description": "A meccsek, időrendben.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy meccs.",
+                    "properties": {
+                      "gamecode": {
+                        "type": "string",
+                        "description": "A meccs kulcsa."
+                      },
+                      "competition": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Bajnokság-kód."
+                      },
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "is_home": {
+                        "type": "boolean",
+                        "description": "Hazai-e."
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "kozgaz_score": {
+                        "type": "integer",
+                        "description": "Közgáz pont."
+                      },
+                      "opponent_score": {
+                        "type": "integer",
+                        "description": "Ellenfél pont."
+                      },
+                      "result": {
+                        "type": "string",
+                        "enum": [
+                          "W",
+                          "L"
+                        ],
+                        "description": "W / L."
+                      }
+                    },
+                    "required": [
+                      "gamecode",
+                      "competition",
+                      "date",
+                      "is_home",
+                      "opponent",
+                      "opponent_short",
+                      "kozgaz_score",
+                      "opponent_score",
+                      "result"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "quarters": {
+                  "type": "array",
+                  "description": "Negyedátlagok.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy negyed.",
+                    "properties": {
+                      "quarter": {
+                        "type": "integer",
+                        "description": "Negyed (1–4)."
+                      },
+                      "kozgaz_avg": {
+                        "type": "number",
+                        "description": "Közgáz pont/meccs a negyedben."
+                      },
+                      "opponent_avg": {
+                        "type": "number",
+                        "description": "Ellenfél pont/meccs a negyedben."
+                      },
+                      "won": {
+                        "type": "integer",
+                        "description": "Megnyert negyedek száma."
+                      },
+                      "lost": {
+                        "type": "integer",
+                        "description": "Elvesztett negyedek száma."
+                      }
+                    },
+                    "required": [
+                      "quarter",
+                      "kozgaz_avg",
+                      "opponent_avg",
+                      "won",
+                      "lost"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "scenarios": {
+                  "type": "array",
+                  "description": "Félidős és 3 negyed utáni forgatókönyvek.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy forgatókönyv.",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "enum": [
+                          "HT_LEAD",
+                          "HT_TRAIL",
+                          "3Q_LEAD",
+                          "3Q_TRAIL"
+                        ],
+                        "description": "HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Felirat."
+                      },
+                      "games": {
+                        "type": "integer",
+                        "description": "Ennyi meccsen állt így."
+                      },
+                      "wins": {
+                        "type": "integer",
+                        "description": "Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás)."
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "label",
+                      "games",
+                      "wins"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "scoring_split": {
+                  "type": "object",
+                  "description": "Pontmegoszlás dobástípus szerint.",
+                  "properties": {
+                    "points_2": {
+                      "type": "integer",
+                      "description": "Kétpontosokból."
+                    },
+                    "points_3": {
+                      "type": "integer",
+                      "description": "Hárompontosokból."
+                    },
+                    "points_ft": {
+                      "type": "integer",
+                      "description": "Büntetőből."
+                    },
+                    "pct_2": {
+                      "type": "integer",
+                      "description": "Kétpontosok aránya, %."
+                    },
+                    "pct_3": {
+                      "type": "integer",
+                      "description": "Hárompontosok aránya, %."
+                    },
+                    "pct_ft": {
+                      "type": "integer",
+                      "description": "Büntetők aránya, %."
+                    },
+                    "ft_made": {
+                      "type": "integer",
+                      "description": "Bedobott büntető."
+                    },
+                    "ft_att": {
+                      "type": "integer",
+                      "description": "Büntető-kísérlet."
+                    }
+                  },
+                  "required": [
+                    "points_2",
+                    "points_3",
+                    "points_ft",
+                    "pct_2",
+                    "pct_3",
+                    "pct_ft",
+                    "ft_made",
+                    "ft_att"
+                  ],
+                  "additionalProperties": false
+                },
+                "runs_for": {
+                  "type": "array",
+                  "description": "Top 5 saját run.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy run (válasz nélküli pontsorozat).",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "start_quarter": {
+                        "type": "integer",
+                        "description": "Kezdő negyed."
+                      },
+                      "end_quarter": {
+                        "type": "integer",
+                        "description": "Záró negyed."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Pont a runban."
+                      },
+                      "baskets": {
+                        "type": "integer",
+                        "description": "Kosarak száma a runban."
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "opponent",
+                      "opponent_short",
+                      "start_quarter",
+                      "end_quarter",
+                      "points",
+                      "baskets"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "runs_against": {
+                  "type": "array",
+                  "description": "Top 5 kapott run.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy run (válasz nélküli pontsorozat).",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "start_quarter": {
+                        "type": "integer",
+                        "description": "Kezdő negyed."
+                      },
+                      "end_quarter": {
+                        "type": "integer",
+                        "description": "Záró negyed."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Pont a runban."
+                      },
+                      "baskets": {
+                        "type": "integer",
+                        "description": "Kosarak száma a runban."
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "opponent",
+                      "opponent_short",
+                      "start_quarter",
+                      "end_quarter",
+                      "points",
+                      "baskets"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "facts": {
+                  "type": "array",
+                  "description": "Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true).",
+                  "items": {
+                    "type": "array",
+                    "description": "Egy fact.",
+                    "items": {
+                      "type": "object",
+                      "description": "Szövegrész.",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "description": "Szöveg."
+                        },
+                        "bold": {
+                          "type": "boolean",
+                          "description": "Kiemelt-e."
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "bold"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                }
+              },
+              "required": [
+                "record",
+                "games",
+                "quarters",
+                "scenarios",
+                "scoring_split",
+                "runs_for",
+                "runs_against",
+                "facts"
+              ],
+              "additionalProperties": false
+            },
+            "home": {
+              "type": "object",
+              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+              "properties": {
+                "record": {
+                  "type": "object",
+                  "description": "Mérleg.",
+                  "properties": {
+                    "games": {
+                      "type": "integer",
+                      "description": "Meccs."
+                    },
+                    "wins": {
+                      "type": "integer",
+                      "description": "Győzelem."
+                    },
+                    "losses": {
+                      "type": "integer",
+                      "description": "Vereség."
+                    },
+                    "scored": {
+                      "type": "integer",
+                      "description": "Dobott pont."
+                    },
+                    "allowed": {
+                      "type": "integer",
+                      "description": "Kapott pont."
+                    },
+                    "ppg": {
+                      "type": "number",
+                      "description": "Dobott/meccs."
+                    },
+                    "opp_ppg": {
+                      "type": "number",
+                      "description": "Kapott/meccs."
+                    },
+                    "diff_per_game": {
+                      "type": "number",
+                      "description": "Különbség/meccs."
+                    },
+                    "best_score": {
+                      "type": "integer",
+                      "description": "Legtöbb dobott pont egy meccsen."
+                    },
+                    "most_allowed": {
+                      "type": "integer",
+                      "description": "Legtöbb kapott pont egy meccsen."
+                    },
+                    "players_used": {
+                      "type": "integer",
+                      "description": "Pályára lépett játékosok száma."
+                    },
+                    "home_wins": {
+                      "type": "integer",
+                      "description": "Hazai győzelem."
+                    },
+                    "home_games": {
+                      "type": "integer",
+                      "description": "Hazai meccs."
+                    },
+                    "away_wins": {
+                      "type": "integer",
+                      "description": "Idegenbeli győzelem."
+                    },
+                    "away_games": {
+                      "type": "integer",
+                      "description": "Idegenbeli meccs."
+                    }
+                  },
+                  "required": [
+                    "games",
+                    "wins",
+                    "losses",
+                    "scored",
+                    "allowed",
+                    "ppg",
+                    "opp_ppg",
+                    "diff_per_game",
+                    "best_score",
+                    "most_allowed",
+                    "players_used",
+                    "home_wins",
+                    "home_games",
+                    "away_wins",
+                    "away_games"
+                  ],
+                  "additionalProperties": false
+                },
+                "games": {
+                  "type": "array",
+                  "description": "A meccsek, időrendben.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy meccs.",
+                    "properties": {
+                      "gamecode": {
+                        "type": "string",
+                        "description": "A meccs kulcsa."
+                      },
+                      "competition": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Bajnokság-kód."
+                      },
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "is_home": {
+                        "type": "boolean",
+                        "description": "Hazai-e."
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "kozgaz_score": {
+                        "type": "integer",
+                        "description": "Közgáz pont."
+                      },
+                      "opponent_score": {
+                        "type": "integer",
+                        "description": "Ellenfél pont."
+                      },
+                      "result": {
+                        "type": "string",
+                        "enum": [
+                          "W",
+                          "L"
+                        ],
+                        "description": "W / L."
+                      }
+                    },
+                    "required": [
+                      "gamecode",
+                      "competition",
+                      "date",
+                      "is_home",
+                      "opponent",
+                      "opponent_short",
+                      "kozgaz_score",
+                      "opponent_score",
+                      "result"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "quarters": {
+                  "type": "array",
+                  "description": "Negyedátlagok.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy negyed.",
+                    "properties": {
+                      "quarter": {
+                        "type": "integer",
+                        "description": "Negyed (1–4)."
+                      },
+                      "kozgaz_avg": {
+                        "type": "number",
+                        "description": "Közgáz pont/meccs a negyedben."
+                      },
+                      "opponent_avg": {
+                        "type": "number",
+                        "description": "Ellenfél pont/meccs a negyedben."
+                      },
+                      "won": {
+                        "type": "integer",
+                        "description": "Megnyert negyedek száma."
+                      },
+                      "lost": {
+                        "type": "integer",
+                        "description": "Elvesztett negyedek száma."
+                      }
+                    },
+                    "required": [
+                      "quarter",
+                      "kozgaz_avg",
+                      "opponent_avg",
+                      "won",
+                      "lost"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "scenarios": {
+                  "type": "array",
+                  "description": "Félidős és 3 negyed utáni forgatókönyvek.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy forgatókönyv.",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "enum": [
+                          "HT_LEAD",
+                          "HT_TRAIL",
+                          "3Q_LEAD",
+                          "3Q_TRAIL"
+                        ],
+                        "description": "HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Felirat."
+                      },
+                      "games": {
+                        "type": "integer",
+                        "description": "Ennyi meccsen állt így."
+                      },
+                      "wins": {
+                        "type": "integer",
+                        "description": "Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás)."
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "label",
+                      "games",
+                      "wins"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "scoring_split": {
+                  "type": "object",
+                  "description": "Pontmegoszlás dobástípus szerint.",
+                  "properties": {
+                    "points_2": {
+                      "type": "integer",
+                      "description": "Kétpontosokból."
+                    },
+                    "points_3": {
+                      "type": "integer",
+                      "description": "Hárompontosokból."
+                    },
+                    "points_ft": {
+                      "type": "integer",
+                      "description": "Büntetőből."
+                    },
+                    "pct_2": {
+                      "type": "integer",
+                      "description": "Kétpontosok aránya, %."
+                    },
+                    "pct_3": {
+                      "type": "integer",
+                      "description": "Hárompontosok aránya, %."
+                    },
+                    "pct_ft": {
+                      "type": "integer",
+                      "description": "Büntetők aránya, %."
+                    },
+                    "ft_made": {
+                      "type": "integer",
+                      "description": "Bedobott büntető."
+                    },
+                    "ft_att": {
+                      "type": "integer",
+                      "description": "Büntető-kísérlet."
+                    }
+                  },
+                  "required": [
+                    "points_2",
+                    "points_3",
+                    "points_ft",
+                    "pct_2",
+                    "pct_3",
+                    "pct_ft",
+                    "ft_made",
+                    "ft_att"
+                  ],
+                  "additionalProperties": false
+                },
+                "runs_for": {
+                  "type": "array",
+                  "description": "Top 5 saját run.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy run (válasz nélküli pontsorozat).",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "start_quarter": {
+                        "type": "integer",
+                        "description": "Kezdő negyed."
+                      },
+                      "end_quarter": {
+                        "type": "integer",
+                        "description": "Záró negyed."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Pont a runban."
+                      },
+                      "baskets": {
+                        "type": "integer",
+                        "description": "Kosarak száma a runban."
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "opponent",
+                      "opponent_short",
+                      "start_quarter",
+                      "end_quarter",
+                      "points",
+                      "baskets"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "runs_against": {
+                  "type": "array",
+                  "description": "Top 5 kapott run.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy run (válasz nélküli pontsorozat).",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "start_quarter": {
+                        "type": "integer",
+                        "description": "Kezdő negyed."
+                      },
+                      "end_quarter": {
+                        "type": "integer",
+                        "description": "Záró negyed."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Pont a runban."
+                      },
+                      "baskets": {
+                        "type": "integer",
+                        "description": "Kosarak száma a runban."
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "opponent",
+                      "opponent_short",
+                      "start_quarter",
+                      "end_quarter",
+                      "points",
+                      "baskets"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "facts": {
+                  "type": "array",
+                  "description": "Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true).",
+                  "items": {
+                    "type": "array",
+                    "description": "Egy fact.",
+                    "items": {
+                      "type": "object",
+                      "description": "Szövegrész.",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "description": "Szöveg."
+                        },
+                        "bold": {
+                          "type": "boolean",
+                          "description": "Kiemelt-e."
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "bold"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                }
+              },
+              "required": [
+                "record",
+                "games",
+                "quarters",
+                "scenarios",
+                "scoring_split",
+                "runs_for",
+                "runs_against",
+                "facts"
+              ],
+              "additionalProperties": false
+            },
+            "away": {
+              "type": "object",
+              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+              "properties": {
+                "record": {
+                  "type": "object",
+                  "description": "Mérleg.",
+                  "properties": {
+                    "games": {
+                      "type": "integer",
+                      "description": "Meccs."
+                    },
+                    "wins": {
+                      "type": "integer",
+                      "description": "Győzelem."
+                    },
+                    "losses": {
+                      "type": "integer",
+                      "description": "Vereség."
+                    },
+                    "scored": {
+                      "type": "integer",
+                      "description": "Dobott pont."
+                    },
+                    "allowed": {
+                      "type": "integer",
+                      "description": "Kapott pont."
+                    },
+                    "ppg": {
+                      "type": "number",
+                      "description": "Dobott/meccs."
+                    },
+                    "opp_ppg": {
+                      "type": "number",
+                      "description": "Kapott/meccs."
+                    },
+                    "diff_per_game": {
+                      "type": "number",
+                      "description": "Különbség/meccs."
+                    },
+                    "best_score": {
+                      "type": "integer",
+                      "description": "Legtöbb dobott pont egy meccsen."
+                    },
+                    "most_allowed": {
+                      "type": "integer",
+                      "description": "Legtöbb kapott pont egy meccsen."
+                    },
+                    "players_used": {
+                      "type": "integer",
+                      "description": "Pályára lépett játékosok száma."
+                    },
+                    "home_wins": {
+                      "type": "integer",
+                      "description": "Hazai győzelem."
+                    },
+                    "home_games": {
+                      "type": "integer",
+                      "description": "Hazai meccs."
+                    },
+                    "away_wins": {
+                      "type": "integer",
+                      "description": "Idegenbeli győzelem."
+                    },
+                    "away_games": {
+                      "type": "integer",
+                      "description": "Idegenbeli meccs."
+                    }
+                  },
+                  "required": [
+                    "games",
+                    "wins",
+                    "losses",
+                    "scored",
+                    "allowed",
+                    "ppg",
+                    "opp_ppg",
+                    "diff_per_game",
+                    "best_score",
+                    "most_allowed",
+                    "players_used",
+                    "home_wins",
+                    "home_games",
+                    "away_wins",
+                    "away_games"
+                  ],
+                  "additionalProperties": false
+                },
+                "games": {
+                  "type": "array",
+                  "description": "A meccsek, időrendben.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy meccs.",
+                    "properties": {
+                      "gamecode": {
+                        "type": "string",
+                        "description": "A meccs kulcsa."
+                      },
+                      "competition": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Bajnokság-kód."
+                      },
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "is_home": {
+                        "type": "boolean",
+                        "description": "Hazai-e."
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "kozgaz_score": {
+                        "type": "integer",
+                        "description": "Közgáz pont."
+                      },
+                      "opponent_score": {
+                        "type": "integer",
+                        "description": "Ellenfél pont."
+                      },
+                      "result": {
+                        "type": "string",
+                        "enum": [
+                          "W",
+                          "L"
+                        ],
+                        "description": "W / L."
+                      }
+                    },
+                    "required": [
+                      "gamecode",
+                      "competition",
+                      "date",
+                      "is_home",
+                      "opponent",
+                      "opponent_short",
+                      "kozgaz_score",
+                      "opponent_score",
+                      "result"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "quarters": {
+                  "type": "array",
+                  "description": "Negyedátlagok.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy negyed.",
+                    "properties": {
+                      "quarter": {
+                        "type": "integer",
+                        "description": "Negyed (1–4)."
+                      },
+                      "kozgaz_avg": {
+                        "type": "number",
+                        "description": "Közgáz pont/meccs a negyedben."
+                      },
+                      "opponent_avg": {
+                        "type": "number",
+                        "description": "Ellenfél pont/meccs a negyedben."
+                      },
+                      "won": {
+                        "type": "integer",
+                        "description": "Megnyert negyedek száma."
+                      },
+                      "lost": {
+                        "type": "integer",
+                        "description": "Elvesztett negyedek száma."
+                      }
+                    },
+                    "required": [
+                      "quarter",
+                      "kozgaz_avg",
+                      "opponent_avg",
+                      "won",
+                      "lost"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "scenarios": {
+                  "type": "array",
+                  "description": "Félidős és 3 negyed utáni forgatókönyvek.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy forgatókönyv.",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "enum": [
+                          "HT_LEAD",
+                          "HT_TRAIL",
+                          "3Q_LEAD",
+                          "3Q_TRAIL"
+                        ],
+                        "description": "HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Felirat."
+                      },
+                      "games": {
+                        "type": "integer",
+                        "description": "Ennyi meccsen állt így."
+                      },
+                      "wins": {
+                        "type": "integer",
+                        "description": "Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás)."
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "label",
+                      "games",
+                      "wins"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "scoring_split": {
+                  "type": "object",
+                  "description": "Pontmegoszlás dobástípus szerint.",
+                  "properties": {
+                    "points_2": {
+                      "type": "integer",
+                      "description": "Kétpontosokból."
+                    },
+                    "points_3": {
+                      "type": "integer",
+                      "description": "Hárompontosokból."
+                    },
+                    "points_ft": {
+                      "type": "integer",
+                      "description": "Büntetőből."
+                    },
+                    "pct_2": {
+                      "type": "integer",
+                      "description": "Kétpontosok aránya, %."
+                    },
+                    "pct_3": {
+                      "type": "integer",
+                      "description": "Hárompontosok aránya, %."
+                    },
+                    "pct_ft": {
+                      "type": "integer",
+                      "description": "Büntetők aránya, %."
+                    },
+                    "ft_made": {
+                      "type": "integer",
+                      "description": "Bedobott büntető."
+                    },
+                    "ft_att": {
+                      "type": "integer",
+                      "description": "Büntető-kísérlet."
+                    }
+                  },
+                  "required": [
+                    "points_2",
+                    "points_3",
+                    "points_ft",
+                    "pct_2",
+                    "pct_3",
+                    "pct_ft",
+                    "ft_made",
+                    "ft_att"
+                  ],
+                  "additionalProperties": false
+                },
+                "runs_for": {
+                  "type": "array",
+                  "description": "Top 5 saját run.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy run (válasz nélküli pontsorozat).",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "start_quarter": {
+                        "type": "integer",
+                        "description": "Kezdő negyed."
+                      },
+                      "end_quarter": {
+                        "type": "integer",
+                        "description": "Záró negyed."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Pont a runban."
+                      },
+                      "baskets": {
+                        "type": "integer",
+                        "description": "Kosarak száma a runban."
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "opponent",
+                      "opponent_short",
+                      "start_quarter",
+                      "end_quarter",
+                      "points",
+                      "baskets"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "runs_against": {
+                  "type": "array",
+                  "description": "Top 5 kapott run.",
+                  "items": {
+                    "type": "object",
+                    "description": "Egy run (válasz nélküli pontsorozat).",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "Dátum.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "opponent": {
+                        "type": "string",
+                        "description": "Ellenfél teljes neve."
+                      },
+                      "opponent_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve."
+                      },
+                      "start_quarter": {
+                        "type": "integer",
+                        "description": "Kezdő negyed."
+                      },
+                      "end_quarter": {
+                        "type": "integer",
+                        "description": "Záró negyed."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Pont a runban."
+                      },
+                      "baskets": {
+                        "type": "integer",
+                        "description": "Kosarak száma a runban."
+                      }
+                    },
+                    "required": [
+                      "date",
+                      "opponent",
+                      "opponent_short",
+                      "start_quarter",
+                      "end_quarter",
+                      "points",
+                      "baskets"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "facts": {
+                  "type": "array",
+                  "description": "Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true).",
+                  "items": {
+                    "type": "array",
+                    "description": "Egy fact.",
+                    "items": {
+                      "type": "object",
+                      "description": "Szövegrész.",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "description": "Szöveg."
+                        },
+                        "bold": {
+                          "type": "boolean",
+                          "description": "Kiemelt-e."
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "bold"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                }
+              },
+              "required": [
+                "record",
+                "games",
+                "quarters",
+                "scenarios",
+                "scoring_split",
+                "runs_for",
+                "runs_against",
+                "facts"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "all",
+            "home",
+            "away"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "views"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -3271,7 +3275,8 @@
     "source",
     "competitions",
     "matches",
-    "players"
+    "players",
+    "team_stats"
   ],
   "additionalProperties": false
 }

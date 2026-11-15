@@ -391,7 +391,7 @@ def stats_schema():
                 "slug": STR("A névből képzett slug (a honlap játékosoldalának neve)."),
                 "views": views(player_view(), "Nézetek: összes, hazai, idegen."),
             })),
-            "team": OBJ("Csapatszint (null, ha a szezonban még nincs bajnoki meccs).", {
+            "team_stats": OBJ("Csapatszint (null, ha a szezonban még nincs bajnoki meccs).", {
                 "views": views(team_view(), "Nézetek: összes, hazai, idegen."),
             }, null=True),
         }),

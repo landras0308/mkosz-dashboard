@@ -35,77 +35,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | Mező | Típus | Jelentés |
 |---|---|---|
 | `version` | const 1 | Formátum-verzió. |
-| `team` | object? | Csapatszint (null, ha a szezonban még nincs bajnoki meccs). |
-| `team.views` | object | Nézetek: összes, hazai, idegen. |
-| `team.views.all` | object | Egy nézet (összes / hazai / idegen) a bajnoki meccsekből. |
-| `team.views.all.record` | object | Mérleg. |
-| `team.views.all.record.games` | integer | Meccs. |
-| `team.views.all.record.wins` | integer | Győzelem. |
-| `team.views.all.record.losses` | integer | Vereség. |
-| `team.views.all.record.scored` | integer | Dobott pont. |
-| `team.views.all.record.allowed` | integer | Kapott pont. |
-| `team.views.all.record.ppg` | number | Dobott/meccs. |
-| `team.views.all.record.opp_ppg` | number | Kapott/meccs. |
-| `team.views.all.record.diff_per_game` | number | Különbség/meccs. |
-| `team.views.all.record.best_score` | integer | Legtöbb dobott pont egy meccsen. |
-| `team.views.all.record.most_allowed` | integer | Legtöbb kapott pont egy meccsen. |
-| `team.views.all.record.players_used` | integer | Pályára lépett játékosok száma. |
-| `team.views.all.record.home_wins` | integer | Hazai győzelem. |
-| `team.views.all.record.home_games` | integer | Hazai meccs. |
-| `team.views.all.record.away_wins` | integer | Idegenbeli győzelem. |
-| `team.views.all.record.away_games` | integer | Idegenbeli meccs. |
-| `team.views.all.games` | array | A meccsek, időrendben. |
-| `team.views.all.games[].gamecode` | string | A meccs kulcsa. |
-| `team.views.all.games[].competition` | string? | Bajnokság-kód. |
-| `team.views.all.games[].date` | string | Dátum. |
-| `team.views.all.games[].is_home` | boolean | Hazai-e. |
-| `team.views.all.games[].opponent` | string | Ellenfél teljes neve. |
-| `team.views.all.games[].opponent_short` | string | Ellenfél rövid neve. |
-| `team.views.all.games[].kozgaz_score` | integer | Közgáz pont. |
-| `team.views.all.games[].opponent_score` | integer | Ellenfél pont. |
-| `team.views.all.games[].result` | string (W | L) | W / L. |
-| `team.views.all.quarters` | array | Negyedátlagok. |
-| `team.views.all.quarters[].quarter` | integer | Negyed (1–4). |
-| `team.views.all.quarters[].kozgaz_avg` | number | Közgáz pont/meccs a negyedben. |
-| `team.views.all.quarters[].opponent_avg` | number | Ellenfél pont/meccs a negyedben. |
-| `team.views.all.quarters[].won` | integer | Megnyert negyedek száma. |
-| `team.views.all.quarters[].lost` | integer | Elvesztett negyedek száma. |
-| `team.views.all.scenarios` | array | Félidős és 3 negyed utáni forgatókönyvek. |
-| `team.views.all.scenarios[].key` | string (HT_LEAD | HT_TRAIL | 3Q_LEAD | 3Q_TRAIL) | HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban. |
-| `team.views.all.scenarios[].label` | string | Felirat. |
-| `team.views.all.scenarios[].games` | integer | Ennyi meccsen állt így. |
-| `team.views.all.scenarios[].wins` | integer | Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás). |
-| `team.views.all.scoring_split` | object | Pontmegoszlás dobástípus szerint. |
-| `team.views.all.scoring_split.points_2` | integer | Kétpontosokból. |
-| `team.views.all.scoring_split.points_3` | integer | Hárompontosokból. |
-| `team.views.all.scoring_split.points_ft` | integer | Büntetőből. |
-| `team.views.all.scoring_split.pct_2` | integer | Kétpontosok aránya, %. |
-| `team.views.all.scoring_split.pct_3` | integer | Hárompontosok aránya, %. |
-| `team.views.all.scoring_split.pct_ft` | integer | Büntetők aránya, %. |
-| `team.views.all.scoring_split.ft_made` | integer | Bedobott büntető. |
-| `team.views.all.scoring_split.ft_att` | integer | Büntető-kísérlet. |
-| `team.views.all.runs_for` | array | Top 5 saját run. |
-| `team.views.all.runs_for[].date` | string | Dátum. |
-| `team.views.all.runs_for[].opponent` | string | Ellenfél teljes neve. |
-| `team.views.all.runs_for[].opponent_short` | string | Ellenfél rövid neve. |
-| `team.views.all.runs_for[].start_quarter` | integer | Kezdő negyed. |
-| `team.views.all.runs_for[].end_quarter` | integer | Záró negyed. |
-| `team.views.all.runs_for[].points` | integer | Pont a runban. |
-| `team.views.all.runs_for[].baskets` | integer | Kosarak száma a runban. |
-| `team.views.all.runs_against` | array | Top 5 kapott run. |
-| `team.views.all.runs_against[].date` | string | Dátum. |
-| `team.views.all.runs_against[].opponent` | string | Ellenfél teljes neve. |
-| `team.views.all.runs_against[].opponent_short` | string | Ellenfél rövid neve. |
-| `team.views.all.runs_against[].start_quarter` | integer | Kezdő negyed. |
-| `team.views.all.runs_against[].end_quarter` | integer | Záró negyed. |
-| `team.views.all.runs_against[].points` | integer | Pont a runban. |
-| `team.views.all.runs_against[].baskets` | integer | Kosarak száma a runban. |
-| `team.views.all.facts` | array | Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true). |
-| `team.views.all.facts[]` | array | Egy fact. |
-| `team.views.all.facts[][].text` | string | Szöveg. |
-| `team.views.all.facts[][].bold` | boolean | Kiemelt-e. |
-| `team.views.home` | object | Mint a `views.all`. |
-| `team.views.away` | object | Mint a `views.all`. |
+| `team` | const "kozgaz-b" | Csapatkulcs. |
 | `team_name` | string | A csapat neve az MKOSZ-nál. |
 | `season` | string | Szezonkulcs (pl. x2627). |
 | `season_label` | string | Szezon felirata (pl. 2026/27). |
@@ -311,6 +241,77 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].views.all.insights.weaknesses` | array | Fejlesztendő területek (legfeljebb 5). |
 | `players[].views.home` | object | Mint a `views.all`. |
 | `players[].views.away` | object | Mint a `views.all`. |
+| `team_stats` | object? | Csapatszint (null, ha a szezonban még nincs bajnoki meccs). |
+| `team_stats.views` | object | Nézetek: összes, hazai, idegen. |
+| `team_stats.views.all` | object | Egy nézet (összes / hazai / idegen) a bajnoki meccsekből. |
+| `team_stats.views.all.record` | object | Mérleg. |
+| `team_stats.views.all.record.games` | integer | Meccs. |
+| `team_stats.views.all.record.wins` | integer | Győzelem. |
+| `team_stats.views.all.record.losses` | integer | Vereség. |
+| `team_stats.views.all.record.scored` | integer | Dobott pont. |
+| `team_stats.views.all.record.allowed` | integer | Kapott pont. |
+| `team_stats.views.all.record.ppg` | number | Dobott/meccs. |
+| `team_stats.views.all.record.opp_ppg` | number | Kapott/meccs. |
+| `team_stats.views.all.record.diff_per_game` | number | Különbség/meccs. |
+| `team_stats.views.all.record.best_score` | integer | Legtöbb dobott pont egy meccsen. |
+| `team_stats.views.all.record.most_allowed` | integer | Legtöbb kapott pont egy meccsen. |
+| `team_stats.views.all.record.players_used` | integer | Pályára lépett játékosok száma. |
+| `team_stats.views.all.record.home_wins` | integer | Hazai győzelem. |
+| `team_stats.views.all.record.home_games` | integer | Hazai meccs. |
+| `team_stats.views.all.record.away_wins` | integer | Idegenbeli győzelem. |
+| `team_stats.views.all.record.away_games` | integer | Idegenbeli meccs. |
+| `team_stats.views.all.games` | array | A meccsek, időrendben. |
+| `team_stats.views.all.games[].gamecode` | string | A meccs kulcsa. |
+| `team_stats.views.all.games[].competition` | string? | Bajnokság-kód. |
+| `team_stats.views.all.games[].date` | string | Dátum. |
+| `team_stats.views.all.games[].is_home` | boolean | Hazai-e. |
+| `team_stats.views.all.games[].opponent` | string | Ellenfél teljes neve. |
+| `team_stats.views.all.games[].opponent_short` | string | Ellenfél rövid neve. |
+| `team_stats.views.all.games[].kozgaz_score` | integer | Közgáz pont. |
+| `team_stats.views.all.games[].opponent_score` | integer | Ellenfél pont. |
+| `team_stats.views.all.games[].result` | string (W | L) | W / L. |
+| `team_stats.views.all.quarters` | array | Negyedátlagok. |
+| `team_stats.views.all.quarters[].quarter` | integer | Negyed (1–4). |
+| `team_stats.views.all.quarters[].kozgaz_avg` | number | Közgáz pont/meccs a negyedben. |
+| `team_stats.views.all.quarters[].opponent_avg` | number | Ellenfél pont/meccs a negyedben. |
+| `team_stats.views.all.quarters[].won` | integer | Megnyert negyedek száma. |
+| `team_stats.views.all.quarters[].lost` | integer | Elvesztett negyedek száma. |
+| `team_stats.views.all.scenarios` | array | Félidős és 3 negyed utáni forgatókönyvek. |
+| `team_stats.views.all.scenarios[].key` | string (HT_LEAD | HT_TRAIL | 3Q_LEAD | 3Q_TRAIL) | HT = félidő, 3Q = 3 negyed után; LEAD = vezet, TRAIL = hátrányban. |
+| `team_stats.views.all.scenarios[].label` | string | Felirat. |
+| `team_stats.views.all.scenarios[].games` | integer | Ennyi meccsen állt így. |
+| `team_stats.views.all.scenarios[].wins` | integer | Ebből ennyit nyert meg (vezetésnél: győzelem, hátránynál: fordítás). |
+| `team_stats.views.all.scoring_split` | object | Pontmegoszlás dobástípus szerint. |
+| `team_stats.views.all.scoring_split.points_2` | integer | Kétpontosokból. |
+| `team_stats.views.all.scoring_split.points_3` | integer | Hárompontosokból. |
+| `team_stats.views.all.scoring_split.points_ft` | integer | Büntetőből. |
+| `team_stats.views.all.scoring_split.pct_2` | integer | Kétpontosok aránya, %. |
+| `team_stats.views.all.scoring_split.pct_3` | integer | Hárompontosok aránya, %. |
+| `team_stats.views.all.scoring_split.pct_ft` | integer | Büntetők aránya, %. |
+| `team_stats.views.all.scoring_split.ft_made` | integer | Bedobott büntető. |
+| `team_stats.views.all.scoring_split.ft_att` | integer | Büntető-kísérlet. |
+| `team_stats.views.all.runs_for` | array | Top 5 saját run. |
+| `team_stats.views.all.runs_for[].date` | string | Dátum. |
+| `team_stats.views.all.runs_for[].opponent` | string | Ellenfél teljes neve. |
+| `team_stats.views.all.runs_for[].opponent_short` | string | Ellenfél rövid neve. |
+| `team_stats.views.all.runs_for[].start_quarter` | integer | Kezdő negyed. |
+| `team_stats.views.all.runs_for[].end_quarter` | integer | Záró negyed. |
+| `team_stats.views.all.runs_for[].points` | integer | Pont a runban. |
+| `team_stats.views.all.runs_for[].baskets` | integer | Kosarak száma a runban. |
+| `team_stats.views.all.runs_against` | array | Top 5 kapott run. |
+| `team_stats.views.all.runs_against[].date` | string | Dátum. |
+| `team_stats.views.all.runs_against[].opponent` | string | Ellenfél teljes neve. |
+| `team_stats.views.all.runs_against[].opponent_short` | string | Ellenfél rövid neve. |
+| `team_stats.views.all.runs_against[].start_quarter` | integer | Kezdő negyed. |
+| `team_stats.views.all.runs_against[].end_quarter` | integer | Záró negyed. |
+| `team_stats.views.all.runs_against[].points` | integer | Pont a runban. |
+| `team_stats.views.all.runs_against[].baskets` | integer | Kosarak száma a runban. |
+| `team_stats.views.all.facts` | array | Fun factek; mindegyik szövegrészek listája (a kiemelt részek bold: true). |
+| `team_stats.views.all.facts[]` | array | Egy fact. |
+| `team_stats.views.all.facts[][].text` | string | Szöveg. |
+| `team_stats.views.all.facts[][].bold` | boolean | Kiemelt-e. |
+| `team_stats.views.home` | object | Mint a `views.all`. |
+| `team_stats.views.away` | object | Mint a `views.all`. |
 
 ## standings.json
 
