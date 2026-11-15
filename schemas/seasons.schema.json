@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Közgáz B elérhető szezonok (seasons.json)",
+  "type": "object",
+  "description": "Az elérhető szezonok, a legújabb elöl.",
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Formátum-verzió."
+    },
+    "team": {
+      "const": "kozgaz-b",
+      "description": "Csapatkulcs."
+    },
+    "current_season": {
+      "type": "string",
+      "description": "A mostani (legutóbbi) szezon kulcsa.",
+      "pattern": "^x\\d{4}$"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "A fájl készítése (UTC).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "seasons": {
+      "type": "array",
+      "description": "Szezonok.",
+      "items": {
+        "type": "object",
+        "description": "Egy szezon.",
+        "properties": {
+          "season": {
+            "type": "string",
+            "description": "Szezonkulcs.",
+            "pattern": "^x\\d{4}$"
+          },
+          "label": {
+            "type": "string",
+            "description": "Felirat (pl. 2025/26)."
+          },
+          "competitions": {
+            "type": "array",
+            "description": "Bajnokságok és kupák.",
+            "items": {
+              "type": "object",
+              "description": "Egy bajnokság vagy kupa a szezonban.",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "MKOSZ bajnokság-kód (pl. hun3k, hun3_plya, huna_cup)."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Megjelenítendő név (pl. NB2 Kelet, Hepp Kupa)."
+                },
+                "phase": {
+                  "type": "string",
+                  "enum": [
+                    "regular",
+                    "playoff",
+                    "cup"
+                  ],
+                  "description": "regular = alapszakasz, playoff = rájátszás, cup = kupa."
+                },
+                "is_cup": {
+                  "type": "boolean",
+                  "description": "Kupa-e (a szezonösszesítőkbe nem számít)."
+                },
+                "matches": {
+                  "type": "integer",
+                  "description": "A Közgáz B lejátszott meccsei ebben (a forrásadatbázisban)."
+                }
+              },
+              "required": [
+                "code",
+                "label",
+                "phase",
+                "is_cup",
+                "matches"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "match_count": {
+            "type": "integer",
+            "description": "Lejátszott meccsek száma a stats.json-ban."
+          },
+          "first_match_date": {
+            "type": "string",
+            "description": "Első meccs.",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "last_match_date": {
+            "type": "string",
+            "description": "Utolsó meccs.",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "stats": {
+            "type": "string",
+            "description": "A stats.json útvonala a seasons.json-hoz képest."
+          },
+          "standings": {
+            "type": "string",
+            "description": "A standings.json útvonala a seasons.json-hoz képest."
+          }
+        },
+        "required": [
+          "season",
+          "label",
+          "competitions",
+          "match_count",
+          "first_match_date",
+          "last_match_date",
+          "stats",
+          "standings"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "team",
+    "current_season",
+    "generated_at",
+    "seasons"
+  ],
+  "additionalProperties": false
+}

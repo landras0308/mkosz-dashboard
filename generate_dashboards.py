@@ -502,6 +502,20 @@ def get_tech_unsport(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None
     return (rows[0] or 0, rows[1] or 0)
 
 
+def get_player_bundle(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None):
+    """Egy játékos egy nézetének (összes / hazai / idegen / alapszakasz / rájátszás)
+    nyers adatai: game_log, quarter_stats, opp_stats, tech, unsport. A player-page
+    és a JSON-export is ezt hívja."""
+    qs_fn = get_quarter_stats_pbp if _is_pbp(cfg) else get_quarter_stats
+    tech, unsport = get_tech_unsport(conn, cfg, tp, player_id, hv_filter=hv_filter, phase_filter=phase_filter)
+    return {
+        'game_log': get_game_log(conn, cfg, tp, player_id, hv_filter=hv_filter, phase_filter=phase_filter),
+        'quarter_stats': qs_fn(conn, cfg, tp, player_id, hv_filter=hv_filter, phase_filter=phase_filter),
+        'opp_stats': get_opponent_ppg(conn, cfg, tp, player_id, hv_filter=hv_filter, phase_filter=phase_filter),
+        'tech': tech, 'unsport': unsport,
+    }
+
+
 def get_team_stats_pbp(conn, cfg, tp, hv_filter=None, phase_filter=None):
     """PBP-based team stats for competitions with pbp_events data.
     Uses pbp_events for scoring runs, shooting totals, top scorers.
@@ -849,9 +863,11 @@ def generate_insights(name, games_played, ppg, fg3, ft_made, ft_att, pf_per_game
     return strengths[:5], weaknesses[:5]
 
 
-def _compute_player_view(player_tuple, bundle):
+def _compute_player_view(player_tuple, bundle, with_ids=False):
     """A player_data + egy bundle (game_log, quarter_stats, opp_stats, tech, unsport)
-    alapján visszaadja az összes derivált értéket dict-ként, amit a player-page használ."""
+    alapján visszaadja az összes derivált értéket dict-ként, amit a player-page használ.
+    with_ids: a meccssorok a gamecode-ot, a teljes dátumot, a teljes ellenfélnevet és
+    az eredményt is viszik (a JSON-exportnak; a player-page nem kéri, így nem változik)."""
     _lic, _name, _jersey, _games_orig, _total_orig, _ppg_orig, _fg2_orig, _fg3_orig, _ftm_orig, _fta_orig, _pf_orig, _max_orig, _starts_orig = player_tuple
     gl = bundle['game_log']
     qs = bundle['quarter_stats']
@@ -908,6 +924,12 @@ def _compute_player_view(player_tuple, bundle):
                 "opp": shorten_opponent(opp),
                 "res": "W" if win else "L",
                 "pts": None, "hv": hv,
+            })
+        if with_ids:
+            js_games[-1].update({
+                "gamecode": match_id, "iso_date": date, "opp_full": opp,
+                "kg_score": kg_score, "opp_score": opp_score,
+                "ft_m": ftm or 0, "ft_a": fta or 0,
             })
     return {
         "games": games, "total_pts": total_pts, "ppg": ppg,
@@ -1694,29 +1716,10 @@ def _scrape_schedule_one(season, comp, team_id, team_name_upper):
     return matches
 
 
-def scrape_standings(cfg):
-    """Scrape the MKOSZ bajnoki tabella (standings) for a team's competition.
-
-    Visszaad egy list-et dict-ekkel: {rank, name, games, wins, losses, pts,
-    scored, allowed, form}. Ha még nincs meccs (0 sor), None.
-    """
-    season = cfg.get("mkosz_season")
-    comp = cfg.get("mkosz_comp")
-    if not season or not comp:
-        return None
-    url = f"https://mkosz.hu/bajnoksag/{season}/{comp}"
-    req = urllib.request.Request(url, headers={"User-Agent": MKOSZ_USER_AGENT})
-    try:
-        html = urllib.request.urlopen(req, timeout=15).read().decode("utf-8")
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
-        print(f"  ⚠ MKOSZ tabella scrape hiba: {e}")
-        return None
-
-    m = re.search(r'<table class="champ_tabella responsive">(.*?)</table>', html, re.DOTALL)
-    if not m:
-        return None
-    tabella = m.group(1)
-
+def _parse_standings_table(tabella):
+    """Egy MKOSZ `champ_tabella` tábla belseje → sorok: {rank, name, games, wins,
+    losses, pts, scored, allowed, form}. A `form` az MKOSZ „Sor” oszlopa (sorozat,
+    pl. GY5 / V1)."""
     results = []
     trs = re.findall(r'<tr[^>]*>(.*?)</tr>', tabella, re.DOTALL)
     for tr in trs:
@@ -1755,8 +1758,36 @@ def scrape_standings(cfg):
             "allowed": _int(9),
             "form": _clean(tds[10]) if len(tds) > 10 else "",
         })
+    return results
 
-    return results if results else None
+
+def scrape_standings_tables(season, comp):
+    """Az MKOSZ bajnoki oldal összes tabellája (pl. rájátszásnál csoportonként egy),
+    üres táblák nélkül. Hálózati hibánál None."""
+    url = f"https://mkosz.hu/bajnoksag/{season}/{comp}"
+    req = urllib.request.Request(url, headers={"User-Agent": MKOSZ_USER_AGENT})
+    try:
+        html = urllib.request.urlopen(req, timeout=15).read().decode("utf-8")
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+        print(f"  ⚠ MKOSZ tabella scrape hiba: {e}")
+        return None
+    tables = re.findall(r'<table class="champ_tabella responsive">(.*?)</table>', html, re.DOTALL)
+    return [rows for rows in (_parse_standings_table(t) for t in tables) if rows]
+
+
+def scrape_standings(cfg):
+    """Scrape the MKOSZ bajnoki tabella (standings) for a team's competition.
+
+    Visszaad egy list-et dict-ekkel: {rank, name, games, wins, losses, pts,
+    scored, allowed, form}. Ha még nincs meccs (0 sor), None. Több tabellás
+    oldalon (rájátszás) az elsőt adja.
+    """
+    season = cfg.get("mkosz_season")
+    comp = cfg.get("mkosz_comp")
+    if not season or not comp:
+        return None
+    tables = scrape_standings_tables(season, comp)
+    return tables[0] if tables else None
 
 
 def scrape_schedule(cfg):
@@ -2093,7 +2124,7 @@ def get_match_details(conn, cfg, tp, gamecode):
                 existing["jersey"] = jersey
             continue
         p = {
-            "license": lic, "name": name, "jersey": jersey or "",
+            "license": lic, "license_number": license_num, "name": name, "jersey": jersey or "",
             "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
             "ft_made": ftm or 0, "ft_att": fta or 0,
             "pf": pf or 0, "starter": bool(starter),
@@ -2156,7 +2187,7 @@ def get_match_details(conn, cfg, tp, gamecode):
         looked_up = _lookup_name_by_jersey(t, jer)
         name_disp = looked_up if looked_up else (f"#{jer}" if jer else "?")
         plist.append({
-            "license": lic, "name": name_disp, "jersey": jer or "",
+            "license": lic, "license_number": lic, "name": name_disp, "jersey": jer or "",
             "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
             "ft_made": ftm or 0, "ft_att": fta or 0,
             "pf": 0, "starter": False,
@@ -3435,42 +3466,137 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
     return months_html, calendar_js
 
 
-def generate_match_page(details, cfg, team_key):
-    """Generate one match-detail HTML page (Közgáz focus layout).
+def _filled_minutes(progression):
+    """Az eredmény-események perce. A jegyzőkönyv csak az új percnél ír időt,
+    ezért negyedenként előre kitöltjük: a perc nélküli esemény az előző ismert
+    percet kapja (a negyed elején 0-t). Visszaad: [(perc, becsült-e)] eseményenként.
+    A meccsoldal záró 5 perce és a JSON-export eredmény-alakulása is ezt használja."""
+    out = []
+    last_q = None
+    last_m = 0
+    for ev in progression:
+        if ev["quarter"] != last_q:
+            last_q = ev["quarter"]
+            last_m = 0
+        raw = ev.get("minute")
+        try:
+            m = int(raw) if raw not in (None, "") else None
+        except (ValueError, TypeError):
+            m = None
+        if m is None:
+            out.append((last_m, True))
+        else:
+            last_m = m
+            out.append((m, False))
+    return out
+
+
+# Az érdekesség-csempék értékformátumai; a JSON-export ugyanezeket a kulcsokat adja tovább.
+FACT_FORMATS = {
+    "int": lambda v: str(v),
+    "plus": lambda v: f"+{v}",
+    "points": lambda v: f"{v}p",
+    "run": lambda v: f"{v}-0",
+}
+
+
+def _calc_dist(fg2_made, fg3_made, ft_made):
+    """Pontszerzés megoszlása (2PT/3PT/FT) egy csapatra."""
+    p2 = fg2_made * 2
+    p3 = fg3_made * 3
+    pft = ft_made
+    total = p2 + p3 + pft
+    if total <= 0:
+        return None
+    return {
+        "p2": p2, "p3": p3, "pft": pft, "total": total,
+        "pct2": round(100 * p2 / total),
+        "pct3": round(100 * p3 / total),
+        "pctft": round(100 * pft / total),
+    }
+
+
+def _calc_lead_times(progression):
+    """Vezetési idő (lead time) — becslés a scoring_events minute mezője alapján."""
+    if not progression:
+        return None
+    # Forward-fill missing minutes within each quarter
+    events = []
+    for ev in progression:
+        try:
+            m = int(ev.get("minute")) if ev.get("minute") not in (None, "") else None
+        except (ValueError, TypeError):
+            m = None
+        events.append({"q": ev["quarter"], "m": m, "sa": ev["score_a"], "sb": ev["score_b"]})
+    # Forward fill per quarter
+    for q in range(1, 5):
+        last_m = 0
+        for e in events:
+            if e["q"] != q:
+                continue
+            if e["m"] is None:
+                e["m"] = last_m
+            else:
+                last_m = e["m"]
+    # Compute time t = (q-1)*10 + minute, sum lead durations
+    a_min = b_min = tie_min = 0.0
+    prev_t = 0.0
+    prev_a = prev_b = 0
+    for e in events:
+        cur_t = (e["q"] - 1) * 10 + (e["m"] or 0)
+        dt = max(0.0, cur_t - prev_t)
+        if dt:
+            if prev_a > prev_b:
+                a_min += dt
+            elif prev_b > prev_a:
+                b_min += dt
+            else:
+                tie_min += dt
+        prev_t = cur_t
+        prev_a, prev_b = e["sa"], e["sb"]
+    # Final segment to end of Q4 (40:00)
+    final_t = 40.0
+    dt = max(0.0, final_t - prev_t)
+    if dt:
+        if prev_a > prev_b:
+            a_min += dt
+        elif prev_b > prev_a:
+            b_min += dt
+        else:
+            tie_min += dt
+    total = a_min + b_min + tie_min
+    if total <= 0:
+        return None
+    return {
+        "a_min": a_min, "b_min": b_min, "tie_min": tie_min, "total": total,
+        "pct_a": round(100 * a_min / total),
+        "pct_b": round(100 * b_min / total),
+        "pct_tie": round(100 * tie_min / total),
+    }
+
+
+def compute_match_view(details, cfg):
+    """A meccsoldal minden számított értéke HTML nélkül: negyedek, box score
+    összesítő, eredmény alakulása, érdekességek, negyed-MVP-k, pontszerzés
+    megoszlása, faultok időrendje, vezetési idő. A generate_match_page() és a
+    JSON-export (export_stats.py) is ebből dolgozik, hogy a kettő ugyanazt mutassa.
 
     details: dict from get_match_details()
     """
-    kg_won = details["kg_won"]
-    kg_score = details["kg_score"]
-    opp_score = details["opp_score"]
-    kg_name = details["kg_team_name"]
-    opp_name = details["opp_team_name"]
-    kg_is_home = details["kg_is_home"]
     kg_short = cfg["team_short"]
-
-    # Magyar dátum
-    md = details["match_date"]
-    try:
-        dt = datetime.strptime(md, "%Y-%m-%d")
-        date_hu = f"{dt.year}. {MONTH_NAMES_HU[dt.month].lower()} {dt.day}."
-    except Exception:
-        date_hu = md
-
-    result_label = "GYŐZELEM" if kg_won else "VERESÉG"
-    result_color = "var(--green)" if kg_won else "var(--red)"
-    diff = (kg_score or 0) - (opp_score or 0)
-    diff_str = f"+{diff}" if diff > 0 else str(diff)
+    kg_side = details["kg_side"]
+    kg_is_home = details["kg_is_home"]
 
     # Negyedek táblázat
     # FONTOS: ha van scoring_events (progression), a Q-bontást ABBÓL deriváljuk,
     # nem a quarter_scores táblából — mert a forrásban (mkosz-scoresheet) néhány
     # megyei meccsen a Q-bontás off-by-one (pl. Q1 sor valójában Q2 adat) és Q4 NULL,
     # míg a scoring_events kumulatív végértéke mindig stimmel a matches.score_a/b-vel.
-    _progression_raw = details.get("progression") or []
-    if _progression_raw:
+    progression = details.get("progression") or []
+    if progression:
         # Negyed-végi kumulatív érték → diff = adott negyed pontja
         _q_end = {}  # quarter -> (cum_a, cum_b)
-        for _ev in _progression_raw:
+        for _ev in progression:
             _q_end[_ev["quarter"]] = (_ev["score_a"], _ev["score_b"])
         _qs = sorted(_q_end.keys())
         q_rows = []
@@ -3481,132 +3607,31 @@ def generate_match_page(details, cfg, team_key):
             prev_a, prev_b = _ea, _eb
     else:
         q_rows = details["quarters"]
-    if q_rows:
-        q_html = '<table class="q-table"><thead><tr><th></th>'
-        for q, _, _ in q_rows:
-            q_html += f'<th>Q{q}</th>'
-        q_html += '<th>Σ</th></tr></thead><tbody>'
-        # Hazai sor
-        q_html += f'<tr class="{"kg-row" if kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_a_name"]) if not kg_is_home else kg_short}</td>'
-        for _, sa, _ in q_rows:
-            q_html += f'<td>{sa}</td>'
-        q_html += f'<td class="total">{details["score_a"] or 0}</td></tr>'
-        # Vendég sor
-        q_html += f'<tr class="{"kg-row" if not kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_b_name"]) if kg_is_home else kg_short}</td>'
-        for _, _, sb in q_rows:
-            q_html += f'<td>{sb}</td>'
-        q_html += f'<td class="total">{details["score_b"] or 0}</td></tr>'
-        q_html += '</tbody></table>'
-    else:
-        q_html = '<div class="empty-state">Nincs negyedenkénti adat ehhez a meccshez.</div>'
 
-    # Közgáz box score
+    # Közgáz box score + összesítő sor
     kg_players = sorted(details["kg_players"], key=lambda p: -p["points"])
-    if kg_players:
-        top_pts = max(p["points"] for p in kg_players) if kg_players else 0
-        kg_body = ""
-        for p in kg_players:
-            pts_style = ""
-            if p["points"] == top_pts and top_pts > 0:
-                pts_style = ' style="color:var(--green);font-weight:800;"'
-            ft = f'{p["ft_made"]}/{p["ft_att"]}' if p["ft_att"] else "–"
-            starter_mark = '<span class="starter-mark" title="Kezdőötös">×</span>' if p.get("starter") else ''
-            tech_n = p.get("tech", 0)
-            unsport_n = p.get("unsport", 0)
-            special_badges = ''
-            if tech_n:
-                special_badges += f'<span class="foul-badge tech" title="Technikai hiba">T{("×" + str(tech_n)) if tech_n > 1 else ""}</span>'
-            if unsport_n:
-                special_badges += f'<span class="foul-badge unsport" title="Sportszerűtlen hiba">U{("×" + str(unsport_n)) if unsport_n > 1 else ""}</span>'
-            kg_body += f'''<tr>
-                <td class="starter-cell">{starter_mark}</td>
-                <td class="pname">{p["name"]}</td>
-                <td{pts_style}>{p["points"]}</td>
-                <td>{p["fg2_made"]}</td>
-                <td>{p["fg3_made"]}</td>
-                <td>{ft}</td>
-                <td>{p["pf"]}</td>
-                <td class="special-cell">{special_badges}</td>
-            </tr>'''
-        # Összesítő (totals) sor
-        t_pts = sum(p["points"] for p in kg_players)
-        t_fg2 = sum(p["fg2_made"] for p in kg_players)
-        t_fg3 = sum(p["fg3_made"] for p in kg_players)
-        t_ftm = sum(p["ft_made"] for p in kg_players)
-        t_fta = sum(p["ft_att"] for p in kg_players)
-        t_pf = sum(p["pf"] for p in kg_players)
-        t_tech = sum(p.get("tech", 0) for p in kg_players)
-        t_unsport = sum(p.get("unsport", 0) for p in kg_players)
-        t_ft = (f'{t_ftm}/{t_fta} ({round(100 * t_ftm / t_fta)}%)' if t_fta else "–")
-        t_special = ''
-        if t_tech:
-            t_special += f'<span class="foul-badge tech">T{("×" + str(t_tech)) if t_tech > 1 else ""}</span>'
-        if t_unsport:
-            t_special += f'<span class="foul-badge unsport">U{("×" + str(t_unsport)) if t_unsport > 1 else ""}</span>'
-        kg_body += f'''<tr class="totals">
-            <td class="starter-cell"></td>
-            <td class="pname">Összesen</td>
-            <td>{t_pts}</td>
-            <td>{t_fg2}</td>
-            <td>{t_fg3}</td>
-            <td>{t_ft}</td>
-            <td>{t_pf}</td>
-            <td class="special-cell">{t_special}</td>
-        </tr>'''
-        # Forrás-ellentmondás figyelmeztetés: ha a box score játékos-pontok
-        # összege nem egyezik a hivatalos eredménnyel
-        _kg_official = details.get("kg_score") or 0
-        _kg_box_total = t_pts
-        _kg_diff = _kg_official - _kg_box_total
-        _warn_html = ''
-        if _kg_box_total > 0 and _kg_diff != 0:
-            _warn_html += (
-                f'<div class="box-warn">'
-                f'⚠ A jegyzőkönyv-adatok hiányosak: a box score-ban {_kg_box_total} pont van rendelve '
-                f'játékosokhoz, a hivatalos végeredmény {_kg_official} pont ({_kg_diff:+d} eltérés).'
-                f'</div>'
-            )
-        # Jersey nélküli faultok figyelmeztetés (parser nem tudta játékoshoz rendelni)
-        _orphan = details.get("orphan_fouls_kg") or 0
-        if _orphan:
-            _warn_html += (
-                f'<div class="box-warn">'
-                f'⚠ A jegyzőkönyv-parser {_orphan} faultot nem tudott játékoshoz rendelni '
-                f'(jersey-szám felismerési hiba). A PF oszlop és a Hibák timeline ennyi faultot kihagy.'
-                f'</div>'
-            )
-        kg_html = f'''<div class="game-log-wrap">
-        <table class="box-score">
-          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
-          <tbody>{kg_body}</tbody>
-        </table>
-        </div>{_warn_html}'''
-    else:
-        kg_html = '<div class="empty-state">Nincs játékos-adat (vsz. képes PDF).</div>'
+    top_pts = max((p["points"] for p in kg_players), default=0)
+    totals = {
+        "points": sum(p["points"] for p in kg_players),
+        "fg2_made": sum(p["fg2_made"] for p in kg_players),
+        "fg3_made": sum(p["fg3_made"] for p in kg_players),
+        "ft_made": sum(p["ft_made"] for p in kg_players),
+        "ft_att": sum(p["ft_att"] for p in kg_players),
+        "pf": sum(p["pf"] for p in kg_players),
+        "tech": sum(p.get("tech", 0) for p in kg_players),
+        "unsport": sum(p.get("unsport", 0) for p in kg_players),
+    }
+    # Forrás-ellentmondás: a box score játékos-pontjainak összege vs a hivatalos eredmény
+    kg_official = details.get("kg_score") or 0
+    box_diff = kg_official - totals["points"]
+    # Jersey nélküli faultok (a parser nem tudta játékoshoz rendelni)
+    orphan_fouls = details.get("orphan_fouls_kg") or 0
 
     # Ellenfél összesítő
     opp_t = details["opp_total"]
     opp_ft_pct = round(100 * opp_t["ft_made"] / opp_t["ft_att"]) if opp_t["ft_att"] else 0
-    opp_top_html = ""
-    if opp_t["top_scorer"]:
-        opp_top_html = f'<div class="opp-top"><span class="lbl">Top scorer:</span> <span class="val">{opp_t["top_scorer"]["name"]}</span> <span class="pts">{opp_t["top_scorer"]["points"]} pt</span></div>'
-
-    opp_summary = f'''
-      <div class="opp-stats">
-        <div class="opp-stat"><div class="lbl">Pont</div><div class="val">{opp_t["points"]}</div></div>
-        <div class="opp-stat"><div class="lbl">2FG</div><div class="val">{opp_t["fg2_made"]}</div></div>
-        <div class="opp-stat"><div class="lbl">3FG</div><div class="val">{opp_t["fg3_made"]}</div></div>
-        <div class="opp-stat"><div class="lbl">FT</div><div class="val">{opp_t["ft_made"]}/{opp_t["ft_att"]} ({opp_ft_pct}%)</div></div>
-      </div>
-      {opp_top_html}'''
-
-    # Chart adat
-    q_chart_labels = [f"Q{q}" for q, _, _ in q_rows] if q_rows else []
-    kg_q = [sa if details["kg_is_home"] else sb for q, sa, sb in q_rows] if q_rows else []
-    opp_q = [sb if details["kg_is_home"] else sa for q, sa, sb in q_rows] if q_rows else []
 
     # Eredmény alakulása (score progression) — Chart.js step lines adatai
-    progression = details.get("progression", [])
     kg_prog_pts = [{"x": 0, "y": 0}]
     opp_prog_pts = [{"x": 0, "y": 0}]
     # Eseményinfó tooltip-hez (seq → leíró string)
@@ -3614,11 +3639,10 @@ def generate_match_page(details, cfg, team_key):
     quarter_boundaries = {}        # quarter -> first event_seq
     quarter_end_scores = {}        # quarter -> (kg_score, opp_score, end_seq)
     prev_q = None
-    kg_side = details["kg_side"]
     for ev in progression:
         seq, q, sa, sb = ev["seq"], ev["quarter"], ev["score_a"], ev["score_b"]
-        kg_s = sa if details["kg_is_home"] else sb
-        opp_s = sb if details["kg_is_home"] else sa
+        kg_s = sa if kg_is_home else sb
+        opp_s = sb if kg_is_home else sa
         kg_prog_pts.append({"x": seq, "y": kg_s})
         opp_prog_pts.append({"x": seq, "y": opp_s})
         if q != prev_q:
@@ -3656,118 +3680,25 @@ def generate_match_page(details, cfg, team_key):
     # Sorrend mindig: hazai–vendég (azonos a quarter táblázattal és a hero scoreline-nal).
     q_markers = []
     for q_num, (kg_s, opp_s, end_seq) in sorted(quarter_end_scores.items()):
-        home_s = kg_s if details["kg_is_home"] else opp_s
-        away_s = opp_s if details["kg_is_home"] else kg_s
+        home_s = kg_s if kg_is_home else opp_s
+        away_s = opp_s if kg_is_home else kg_s
         q_markers.append({
             "x": end_seq, "q": q_num, "home": home_s, "away": away_s,
             "label": f"Q{q_num} vége · {home_s}–{away_s}",
         })
+    # Eseményenkénti perc, a becsült (előre kitöltött) percek jelölve
+    minutes = _filled_minutes(progression)
 
     # Pontszerzés megoszlása (stacked bar per team)
-    def _calc_dist(fg2_made, fg3_made, ft_made):
-        p2 = fg2_made * 2
-        p3 = fg3_made * 3
-        pft = ft_made
-        total = p2 + p3 + pft
-        if total <= 0:
-            return None
-        return {
-            "p2": p2, "p3": p3, "pft": pft, "total": total,
-            "pct2": round(100 * p2 / total),
-            "pct3": round(100 * p3 / total),
-            "pctft": round(100 * pft / total),
-        }
-
     kg_fg2 = sum(p["fg2_made"] for p in details["kg_players"])
     kg_fg3 = sum(p["fg3_made"] for p in details["kg_players"])
     kg_ftm = sum(p["ft_made"] for p in details["kg_players"])
     kg_dist = _calc_dist(kg_fg2, kg_fg3, kg_ftm)
-    opp_dist = _calc_dist(details["opp_total"]["fg2_made"], details["opp_total"]["fg3_made"], details["opp_total"]["ft_made"])
-
-    def _dist_row(label, d):
-        if not d:
-            return f'<div class="dist-row"><div class="dist-label">{label}</div><div class="empty-state" style="padding:6px 0;">nincs adat</div></div>'
-        # Csak akkor írunk feliratot, ha elég széles (>= 10%)
-        l2 = f'2PT {d["pct2"]}%' if d["pct2"] >= 10 else ''
-        l3 = f'3PT {d["pct3"]}%' if d["pct3"] >= 10 else ''
-        lft = f'FT {d["pctft"]}%' if d["pctft"] >= 10 else ''
-        return f'''<div class="dist-row">
-          <div class="dist-label">{label}</div>
-          <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:{d["pct2"]}%;" title="2 pontos: {d["p2"]} pt ({d["pct2"]}%)">{l2}</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:{d["pct3"]}%;" title="3 pontos: {d["p3"]} pt ({d["pct3"]}%)">{l3}</div>
-            <div class="dist-seg seg-ft"  style="flex-basis:{d["pctft"]}%;" title="Büntető: {d["pft"]} pt ({d["pctft"]}%)">{lft}</div>
-          </div>
-        </div>'''
-
-    if details["kg_is_home"]:
-        dist_html = _dist_row(kg_short, kg_dist) + _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist)
-    else:
-        dist_html = _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist) + _dist_row(kg_short, kg_dist)
-
-    # Vezetési idő (lead time) — becslés a scoring_events minute mezője alapján
-    def _calc_lead_times(progression):
-        if not progression:
-            return None
-        # Forward-fill missing minutes within each quarter
-        events = []
-        for ev in progression:
-            try:
-                m = int(ev.get("minute")) if ev.get("minute") not in (None, "") else None
-            except (ValueError, TypeError):
-                m = None
-            events.append({"q": ev["quarter"], "m": m, "sa": ev["score_a"], "sb": ev["score_b"]})
-        # Forward fill per quarter
-        for q in range(1, 5):
-            last_m = 0
-            for e in events:
-                if e["q"] != q:
-                    continue
-                if e["m"] is None:
-                    e["m"] = last_m
-                else:
-                    last_m = e["m"]
-        # Compute time t = (q-1)*10 + minute, sum lead durations
-        a_min = b_min = tie_min = 0.0
-        prev_t = 0.0
-        prev_a = prev_b = 0
-        for e in events:
-            cur_t = (e["q"] - 1) * 10 + (e["m"] or 0)
-            dt = max(0.0, cur_t - prev_t)
-            if dt:
-                if prev_a > prev_b:
-                    a_min += dt
-                elif prev_b > prev_a:
-                    b_min += dt
-                else:
-                    tie_min += dt
-            prev_t = cur_t
-            prev_a, prev_b = e["sa"], e["sb"]
-        # Final segment to end of Q4 (40:00)
-        final_t = 40.0
-        dt = max(0.0, final_t - prev_t)
-        if dt:
-            if prev_a > prev_b:
-                a_min += dt
-            elif prev_b > prev_a:
-                b_min += dt
-            else:
-                tie_min += dt
-        total = a_min + b_min + tie_min
-        if total <= 0:
-            return None
-        return {
-            "a_min": a_min, "b_min": b_min, "tie_min": tie_min, "total": total,
-            "pct_a": round(100 * a_min / total),
-            "pct_b": round(100 * b_min / total),
-            "pct_tie": round(100 * tie_min / total),
-        }
+    opp_dist = _calc_dist(opp_t["fg2_made"], opp_t["fg3_made"], opp_t["ft_made"])
 
     # ─────────────────────────────────────────────────────────────
-    # Érdekességek (fun facts) — egész halmaz, kis stat-tile rácsban
+    # Érdekességek (fun facts)
     # ─────────────────────────────────────────────────────────────
-    fun_facts = []
-
     # Vezetés-váltások + legnagyobb vezetés mindkét félnek
     lead_changes = 0
     prev_sign = 0
@@ -3811,23 +3742,11 @@ def generate_match_page(details, cfg, team_key):
     kg_starter_pts, kg_bench_pts = _starter_bench(details["kg_players"])
     opp_starter_pts, opp_bench_pts = _starter_bench(details["opp_players"])
 
-    # Kipontozott (5+ személyes hiba) és hibázatlan játékosok (0 PF)
+    # Kipontozott (5+ személyes hiba)
     def _team_fouled_out(players):
         return [p for p in players if p["pf"] >= 5]
-    def _team_clean(players):
-        # csak akik játszottak (mez van vagy pont)
-        played = [p for p in players if p["points"] > 0 or p["fg2_made"] or p["fg3_made"]]
-        return [p for p in played if p["pf"] == 0]
     kg_fouled_out = _team_fouled_out(details["kg_players"])
-    kg_clean = _team_clean(details["kg_players"])
     opp_fouled_out = _team_fouled_out(details["opp_players"])
-    opp_clean = _team_clean(details["opp_players"])
-
-    # Csapatonkénti tempó (kosár / negyed)
-    home_baskets = sum(1 for ev in progression if ev["team"] == "A" and ev["points"] >= 2)
-    away_baskets = sum(1 for ev in progression if ev["team"] == "B" and ev["points"] >= 2)
-    home_pace = round(home_baskets / 4, 1)
-    away_pace = round(away_baskets / 4, 1)
 
     # Csapat-fault összesítés
     kg_total_fouls = sum(p["pf"] for p in details["kg_players"])
@@ -3837,104 +3756,299 @@ def generate_match_page(details, cfg, team_key):
     home_to_count = sum(1 for t in details["timeouts"] if t["team"] == "A")
     away_to_count = sum(1 for t in details["timeouts"] if t["team"] == "B")
 
-    # Pont-szárazság (leghosszabb intervallum 2 esemény között, percekben)
-    def _longest_drought():
-        if len(progression) < 2: return 0, 0
-        max_drought_a = max_drought_b = 0
-        prev_t = 0
-        prev_team = None
-        for ev in progression:
-            cur_t = (ev["quarter"] - 1) * 10 + int(ev.get("minute") or 0)
-            dt = cur_t - prev_t
-            # In the gap between events, the opposing team was scoring? Or neither?
-            # Drought for team X = time since X's last score.
-            if prev_team is not None and dt > 0:
-                # Both teams have a drought stretching from their respective last score
-                pass
-            prev_t = cur_t
-            prev_team = ev["team"]
-        # Egyszerűbb: max idő két "A" esemény között, illetve két "B" esemény között
-        def _gap(team_id):
-            last_t = 0
-            mx = 0
-            for ev in progression:
-                if ev["team"] == team_id:
-                    cur_t = (ev["quarter"] - 1) * 10 + int(ev.get("minute") or 0)
-                    gap = cur_t - last_t
-                    if gap > mx: mx = gap
-                    last_t = cur_t
-            # Hozzá a meccsvég utáni
-            gap = 40 - last_t
-            return mx
-        return _gap("A"), _gap("B")
-    drought_a, drought_b = _longest_drought()
-
-    # Záró 5 perc pontok (clutch) — forward-fill a minute mezővel
-    # A scoresheet-ben csak az új percnél van időjelzés, a köztesek None-nal jönnek
+    # Záró 5 perc pontok (clutch) — a negyedenként előre kitöltött percekkel
     clutch_a = clutch_b = 0
-    last_min = 0
-    for ev in progression:
-        m = ev.get("minute")
-        if m is not None and m != "":
-            last_min = int(m)
+    for ev, (m, _est) in zip(progression, minutes):
         if ev["quarter"] != 4:
-            last_min = 0
             continue
-        if last_min >= 5:
+        if m >= 5:
             if ev["team"] == "A": clutch_a += ev["points"]
             else: clutch_b += ev["points"]
 
-    # eFG% csapatonként
-    def _efg_pct(players):
-        fg2 = sum(p["fg2_made"] for p in players)
-        fg3 = sum(p["fg3_made"] for p in players)
-        # FGA közelítés: a pgs táblában nincs FGA, csak made → eFG% nem számolható pontosan
-        # Helyette egyszerű FG% becsléssel hagyjuk
-        total_fg_made = fg2 + fg3
-        return total_fg_made
-    # FGA nem elérhető, így ezt kihagyjuk az érdekességekből
-
-    # Meccs tempó (pace) — kosár / negyed
-    total_baskets = sum(1 for ev in progression if ev["points"] >= 2)
-    pace = round(total_baskets / 4, 1)
-
-    # Building tiles
     home_label = shorten_opponent(details["team_a_name"])
     away_label = shorten_opponent(details["team_b_name"])
 
-    # 'vs' típusú összehasonlítások — vizuális sáv két csapat között
-    # Tuple: (label, home_value, away_value, fmt_function, note)
+    # 'vs' típusú összehasonlítások — két csapat között, hazai–vendég sorrendben.
+    # Tuple: (label, home_value, away_value, format kulcs (FACT_FORMATS), note)
     vs_items = []
-    def _fmt_int(v): return str(v)
-    def _fmt_plus(v): return f"+{v}"
-    def _fmt_p(v): return f"{v}p"
-    def _fmt_run(v): return f"{v}-0"
-
     has_progression = bool(progression)
     if has_progression:
-        vs_items.append(("Legnagyobb vezetés", max_a, max_b, _fmt_plus, None))
-        vs_items.append(("Leghosszabb run", run_a, run_b, _fmt_run, "válasz nélküli pont"))
+        vs_items.append(("Legnagyobb vezetés", max_a, max_b, "plus", None))
+        vs_items.append(("Leghosszabb run", run_a, run_b, "run", "válasz nélküli pont"))
     if q_rows:
-        vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, _fmt_int, (f"{q_tied} döntetlen" if q_tied else None)))
+        vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, "int", (f"{q_tied} döntetlen" if q_tied else None)))
     if kg_total_fouls or opp_total_fouls:
-        vs_items.append(("Faultok csapatonként", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
-                         opp_total_fouls if details["kg_is_home"] else kg_total_fouls, _fmt_int, "összes személyes"))
+        vs_items.append(("Faultok csapatonként", kg_total_fouls if kg_is_home else opp_total_fouls,
+                         opp_total_fouls if kg_is_home else kg_total_fouls, "int", "összes személyes"))
     if home_to_count or away_to_count:
-        vs_items.append(("Időkérések", home_to_count, away_to_count, _fmt_int, None))
+        vs_items.append(("Időkérések", home_to_count, away_to_count, "int", None))
     if has_progression and (clutch_a or clutch_b):
-        vs_items.append(("Záró 5 perc", clutch_a, clutch_b, _fmt_p, "utolsó 5 percben"))
+        vs_items.append(("Záró 5 perc", clutch_a, clutch_b, "points", "utolsó 5 percben"))
 
     # Kipontozott csak akkor csempén ha legalább az egyik csapatnak van
-    home_fo = len(kg_fouled_out) if details["kg_is_home"] else len(opp_fouled_out)
-    away_fo = len(opp_fouled_out) if details["kg_is_home"] else len(kg_fouled_out)
+    home_fo = len(kg_fouled_out) if kg_is_home else len(opp_fouled_out)
+    away_fo = len(opp_fouled_out) if kg_is_home else len(kg_fouled_out)
     if home_fo or away_fo:
-        vs_items.append(("Kipontozott", home_fo, away_fo, _fmt_int, None))
+        vs_items.append(("Kipontozott", home_fo, away_fo, "int", None))
 
-    # Kezdő/Pad pontok — kombinált csempe (custom layout)
-    home_starter = kg_starter_pts if details["kg_is_home"] else opp_starter_pts
-    away_starter = opp_starter_pts if details["kg_is_home"] else kg_starter_pts
-    home_bench = kg_bench_pts if details["kg_is_home"] else opp_bench_pts
-    away_bench = opp_bench_pts if details["kg_is_home"] else kg_bench_pts
+    # Kezdő/Pad pontok — kombinált csempe. Ha a játékos-attribúció hiányos
+    # (starter+bench < hivatalos score), a hiányt is visszaadjuk.
+    home_starter = kg_starter_pts if kg_is_home else opp_starter_pts
+    away_starter = opp_starter_pts if kg_is_home else kg_starter_pts
+    home_bench = kg_bench_pts if kg_is_home else opp_bench_pts
+    away_bench = opp_bench_pts if kg_is_home else kg_bench_pts
+    has_starter_info = any(p.get("starter") for p in details["kg_players"] + details["opp_players"])
+    starter_bench = None
+    if has_starter_info and (kg_starter_pts or kg_bench_pts or opp_starter_pts or opp_bench_pts):
+        starter_bench = {
+            "home_starter": home_starter, "home_bench": home_bench,
+            "away_starter": away_starter, "away_bench": away_bench,
+            "home_unaccounted": max(0, (details["score_a"] or 0) - home_starter - home_bench),
+            "away_unaccounted": max(0, (details["score_b"] or 0) - away_starter - away_bench),
+        }
+
+    # ─────────────────────────────────────────────────────────────
+    # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
+    # ─────────────────────────────────────────────────────────────
+    qmvp = {1: {}, 2: {}, 3: {}, 4: {}}  # quarter -> team -> {player: points}
+    for ev in progression:
+        q = ev["quarter"]
+        t = ev["team"]
+        p = ev["player"] or "?"
+        qmvp.setdefault(q, {}).setdefault(t, {}).setdefault(p, 0)
+        qmvp[q][t][p] += ev["points"]
+    quarter_mvps = []
+    if progression:
+        for q in [1, 2, 3, 4]:
+            a_team = qmvp[q].get("A", {})
+            b_team = qmvp[q].get("B", {})
+            a_top = max(a_team.items(), key=lambda x: x[1]) if a_team else ("—", 0)
+            b_top = max(b_team.items(), key=lambda x: x[1]) if b_team else ("—", 0)
+            quarter_mvps.append({"q": q, "home": a_top, "away": b_top})
+
+    # ─────────────────────────────────────────────────────────────
+    # Foul trouble timeline — Közgáz játékosok faultjai időtengelyen
+    # ─────────────────────────────────────────────────────────────
+    kg_jersey_name = {p["jersey"]: p["name"] for p in details["kg_players"] if p["jersey"]}
+    kg_fouls_by_player = {}
+    for fe in details["foul_events"]:
+        if fe["team"] != kg_side:
+            continue
+        kg_fouls_by_player.setdefault(fe["jersey"], []).append(fe)
+    # Sort players by total fouls desc
+    foul_timeline = []
+    for jersey, faults in sorted(kg_fouls_by_player.items(), key=lambda x: -len(x[1])):
+        marks = []
+        for f in faults:
+            try:
+                m_raw = int(f["minute"]) if f["minute"] else 0
+            except (ValueError, TypeError):
+                m_raw = 0
+            # A parser néha duplázza a számjegyeket (pl. 88, 66, 26 helyett valódi 8/6/6).
+            # Bármi >10 érték helyett az utolsó számjegyet vesszük, és [0,10]-re clamp-eljük.
+            m = m_raw % 10 if m_raw > 10 else m_raw
+            m = max(0, min(10, m))
+            t = (f["quarter"] - 1) * 10 + m
+            marks.append({"quarter": f["quarter"], "minute": m, "t": t, "left_pct": (t / 40) * 100})
+        foul_timeline.append({
+            "jersey": jersey,
+            "name": kg_jersey_name.get(jersey, f"#{jersey}"),
+            "fouls": marks,
+            # Piros csak akkor, ha a játékos kipontozódott (≥5 fault)
+            "fouled_out": len(faults) >= 5,
+        })
+
+    return {
+        "q_rows": q_rows,
+        "kg_players": kg_players, "top_pts": top_pts, "totals": totals,
+        "kg_official": kg_official, "box_diff": box_diff, "orphan_fouls": orphan_fouls,
+        "opp_total": opp_t, "opp_ft_pct": opp_ft_pct,
+        "progression": progression, "minutes": minutes,
+        "kg_prog_pts": kg_prog_pts, "opp_prog_pts": opp_prog_pts,
+        "event_info": event_info, "q_ticks": q_ticks, "q_markers": q_markers,
+        "max_x": max_x, "max_y": max_y,
+        "kg_dist": kg_dist, "opp_dist": opp_dist,
+        "home_label": home_label, "away_label": away_label,
+        "vs_items": vs_items, "starter_bench": starter_bench,
+        "lead_changes": lead_changes, "has_progression": has_progression,
+        "quarter_mvps": quarter_mvps, "foul_timeline": foul_timeline,
+        "lead": _calc_lead_times(progression),
+    }
+
+
+def generate_match_page(details, cfg, team_key):
+    """Generate one match-detail HTML page (Közgáz focus layout).
+
+    details: dict from get_match_details(); a számítások a compute_match_view()-ban.
+    """
+    v = compute_match_view(details, cfg)
+    kg_won = details["kg_won"]
+    kg_score = details["kg_score"]
+    opp_score = details["opp_score"]
+    kg_name = details["kg_team_name"]
+    opp_name = details["opp_team_name"]
+    kg_is_home = details["kg_is_home"]
+    kg_short = cfg["team_short"]
+
+    # Magyar dátum
+    md = details["match_date"]
+    try:
+        dt = datetime.strptime(md, "%Y-%m-%d")
+        date_hu = f"{dt.year}. {MONTH_NAMES_HU[dt.month].lower()} {dt.day}."
+    except Exception:
+        date_hu = md
+
+    result_label = "GYŐZELEM" if kg_won else "VERESÉG"
+    result_color = "var(--green)" if kg_won else "var(--red)"
+    diff = (kg_score or 0) - (opp_score or 0)
+    diff_str = f"+{diff}" if diff > 0 else str(diff)
+
+    # Negyedek táblázat
+    q_rows = v["q_rows"]
+    if q_rows:
+        q_html = '<table class="q-table"><thead><tr><th></th>'
+        for q, _, _ in q_rows:
+            q_html += f'<th>Q{q}</th>'
+        q_html += '<th>Σ</th></tr></thead><tbody>'
+        # Hazai sor
+        q_html += f'<tr class="{"kg-row" if kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_a_name"]) if not kg_is_home else kg_short}</td>'
+        for _, sa, _ in q_rows:
+            q_html += f'<td>{sa}</td>'
+        q_html += f'<td class="total">{details["score_a"] or 0}</td></tr>'
+        # Vendég sor
+        q_html += f'<tr class="{"kg-row" if not kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_b_name"]) if kg_is_home else kg_short}</td>'
+        for _, _, sb in q_rows:
+            q_html += f'<td>{sb}</td>'
+        q_html += f'<td class="total">{details["score_b"] or 0}</td></tr>'
+        q_html += '</tbody></table>'
+    else:
+        q_html = '<div class="empty-state">Nincs negyedenkénti adat ehhez a meccshez.</div>'
+
+    # Közgáz box score
+    kg_players = v["kg_players"]
+    if kg_players:
+        top_pts = v["top_pts"]
+        kg_body = ""
+        for p in kg_players:
+            pts_style = ""
+            if p["points"] == top_pts and top_pts > 0:
+                pts_style = ' style="color:var(--green);font-weight:800;"'
+            ft = f'{p["ft_made"]}/{p["ft_att"]}' if p["ft_att"] else "–"
+            starter_mark = '<span class="starter-mark" title="Kezdőötös">×</span>' if p.get("starter") else ''
+            tech_n = p.get("tech", 0)
+            unsport_n = p.get("unsport", 0)
+            special_badges = ''
+            if tech_n:
+                special_badges += f'<span class="foul-badge tech" title="Technikai hiba">T{("×" + str(tech_n)) if tech_n > 1 else ""}</span>'
+            if unsport_n:
+                special_badges += f'<span class="foul-badge unsport" title="Sportszerűtlen hiba">U{("×" + str(unsport_n)) if unsport_n > 1 else ""}</span>'
+            kg_body += f'''<tr>
+                <td class="starter-cell">{starter_mark}</td>
+                <td class="pname">{p["name"]}</td>
+                <td{pts_style}>{p["points"]}</td>
+                <td>{p["fg2_made"]}</td>
+                <td>{p["fg3_made"]}</td>
+                <td>{ft}</td>
+                <td>{p["pf"]}</td>
+                <td class="special-cell">{special_badges}</td>
+            </tr>'''
+        # Összesítő (totals) sor
+        tot = v["totals"]
+        t_pts = tot["points"]
+        t_fg2 = tot["fg2_made"]
+        t_fg3 = tot["fg3_made"]
+        t_ftm = tot["ft_made"]
+        t_fta = tot["ft_att"]
+        t_pf = tot["pf"]
+        t_tech = tot["tech"]
+        t_unsport = tot["unsport"]
+        t_ft = (f'{t_ftm}/{t_fta} ({round(100 * t_ftm / t_fta)}%)' if t_fta else "–")
+        t_special = ''
+        if t_tech:
+            t_special += f'<span class="foul-badge tech">T{("×" + str(t_tech)) if t_tech > 1 else ""}</span>'
+        if t_unsport:
+            t_special += f'<span class="foul-badge unsport">U{("×" + str(t_unsport)) if t_unsport > 1 else ""}</span>'
+        kg_body += f'''<tr class="totals">
+            <td class="starter-cell"></td>
+            <td class="pname">Összesen</td>
+            <td>{t_pts}</td>
+            <td>{t_fg2}</td>
+            <td>{t_fg3}</td>
+            <td>{t_ft}</td>
+            <td>{t_pf}</td>
+            <td class="special-cell">{t_special}</td>
+        </tr>'''
+        # Forrás-ellentmondás figyelmeztetés: ha a box score játékos-pontok
+        # összege nem egyezik a hivatalos eredménnyel
+        _kg_official = v["kg_official"]
+        _kg_box_total = t_pts
+        _kg_diff = v["box_diff"]
+        _warn_html = ''
+        if _kg_box_total > 0 and _kg_diff != 0:
+            _warn_html += (
+                f'<div class="box-warn">'
+                f'⚠ A jegyzőkönyv-adatok hiányosak: a box score-ban {_kg_box_total} pont van rendelve '
+                f'játékosokhoz, a hivatalos végeredmény {_kg_official} pont ({_kg_diff:+d} eltérés).'
+                f'</div>'
+            )
+        # Jersey nélküli faultok figyelmeztetés (parser nem tudta játékoshoz rendelni)
+        _orphan = v["orphan_fouls"]
+        if _orphan:
+            _warn_html += (
+                f'<div class="box-warn">'
+                f'⚠ A jegyzőkönyv-parser {_orphan} faultot nem tudott játékoshoz rendelni '
+                f'(jersey-szám felismerési hiba). A PF oszlop és a Hibák timeline ennyi faultot kihagy.'
+                f'</div>'
+            )
+        kg_html = f'''<div class="game-log-wrap">
+        <table class="box-score">
+          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
+          <tbody>{kg_body}</tbody>
+        </table>
+        </div>{_warn_html}'''
+    else:
+        kg_html = '<div class="empty-state">Nincs játékos-adat (vsz. képes PDF).</div>'
+
+    # Eredmény alakulása — Chart.js step lines adatai
+    progression = v["progression"]
+    kg_prog_pts = v["kg_prog_pts"]
+    opp_prog_pts = v["opp_prog_pts"]
+    event_info = v["event_info"]
+    q_ticks = v["q_ticks"]
+    q_markers = v["q_markers"]
+    max_x = v["max_x"]
+    max_y = v["max_y"]
+
+    # Pontszerzés megoszlása (stacked bar per team)
+    kg_dist = v["kg_dist"]
+    opp_dist = v["opp_dist"]
+
+    def _dist_row(label, d):
+        if not d:
+            return f'<div class="dist-row"><div class="dist-label">{label}</div><div class="empty-state" style="padding:6px 0;">nincs adat</div></div>'
+        # Csak akkor írunk feliratot, ha elég széles (>= 10%)
+        l2 = f'2PT {d["pct2"]}%' if d["pct2"] >= 10 else ''
+        l3 = f'3PT {d["pct3"]}%' if d["pct3"] >= 10 else ''
+        lft = f'FT {d["pctft"]}%' if d["pctft"] >= 10 else ''
+        return f'''<div class="dist-row">
+          <div class="dist-label">{label}</div>
+          <div class="dist-bar">
+            <div class="dist-seg seg-2pt" style="flex-basis:{d["pct2"]}%;" title="2 pontos: {d["p2"]} pt ({d["pct2"]}%)">{l2}</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:{d["pct3"]}%;" title="3 pontos: {d["p3"]} pt ({d["pct3"]}%)">{l3}</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:{d["pctft"]}%;" title="Büntető: {d["pft"]} pt ({d["pctft"]}%)">{lft}</div>
+          </div>
+        </div>'''
+
+    if details["kg_is_home"]:
+        dist_html = _dist_row(kg_short, kg_dist) + _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist)
+    else:
+        dist_html = _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist) + _dist_row(kg_short, kg_dist)
+
+    # ─────────────────────────────────────────────────────────────
+    # Érdekességek (fun facts) — egész halmaz, kis stat-tile rácsban
+    # ─────────────────────────────────────────────────────────────
+    home_label = v["home_label"]
+    away_label = v["away_label"]
 
     # KG fókuszú: melyik szín lesz a "winner" — ha Közgáz van pluszban, zöld; ha az ellenfél, szürke
     def _vs_card(label, hv, av, fmt, note):
@@ -3987,106 +4101,67 @@ def generate_match_page(details, cfg, team_key):
 
     # Kezdő/Pad pontok kombinált csempe (4 érték egy kártyán).
     # Ha a játékos-attribúció hiányos (starter+bench < hivatalos score), jelezzük.
-    home_unaccounted = max(0, (details["score_a"] or 0) - home_starter - home_bench)
-    away_unaccounted = max(0, (details["score_b"] or 0) - away_starter - away_bench)
-    def _sb_unacc(v):
-        return f' · <span style="color:var(--red);">+{v}p ?</span>' if v else ''
-    def _starter_bench_card(label):
+    def _sb_unacc(val):
+        return f' · <span style="color:var(--red);">+{val}p ?</span>' if val else ''
+    def _starter_bench_card(label, sb):
         return f'''<div class="vs-card sb-card">
           <div class="vs-label">{label}</div>
           <div class="sb-rows">
             <div class="sb-row">
               <span class="sb-team">{home_label}</span>
-              <span class="sb-cells">Kezdő <b>{home_starter}p</b> · Pad <b>{home_bench}p</b>{_sb_unacc(home_unaccounted)}</span>
+              <span class="sb-cells">Kezdő <b>{sb["home_starter"]}p</b> · Pad <b>{sb["home_bench"]}p</b>{_sb_unacc(sb["home_unaccounted"])}</span>
             </div>
             <div class="sb-row">
               <span class="sb-team">{away_label}</span>
-              <span class="sb-cells">Kezdő <b>{away_starter}p</b> · Pad <b>{away_bench}p</b>{_sb_unacc(away_unaccounted)}</span>
+              <span class="sb-cells">Kezdő <b>{sb["away_starter"]}p</b> · Pad <b>{sb["away_bench"]}p</b>{_sb_unacc(sb["away_unaccounted"])}</span>
             </div>
           </div>
-          {'<div class="vs-note">? = a forrásban nem azonosított pont</div>' if (home_unaccounted or away_unaccounted) else ''}
+          {'<div class="vs-note">? = a forrásban nem azonosított pont</div>' if (sb["home_unaccounted"] or sb["away_unaccounted"]) else ''}
         </div>'''
 
     vs_cards_html = '<div class="vs-grid">'
     fact_card_count = 0
-    for item in vs_items:
-        vs_cards_html += _vs_card(*item)
+    for label, hv, av, fmt_key, note in v["vs_items"]:
+        vs_cards_html += _vs_card(label, hv, av, FACT_FORMATS[fmt_key], note)
         fact_card_count += 1
     # Kezdő/Pad pontok csak akkor, ha van starter info és pont
-    has_starter_info = any(p.get("starter") for p in details["kg_players"] + details["opp_players"])
-    if has_starter_info and (kg_starter_pts or kg_bench_pts or opp_starter_pts or opp_bench_pts):
-        vs_cards_html += _starter_bench_card("Kezdő / Pad pontok")
+    if v["starter_bench"]:
+        vs_cards_html += _starter_bench_card("Kezdő / Pad pontok", v["starter_bench"])
         fact_card_count += 1
     # Vezetés-váltás csak ha van progression
-    if has_progression:
-        vs_cards_html += _single_card("Vezetés-váltás", lead_changes, "alkalommal fordult át a meccs")
+    if v["has_progression"]:
+        vs_cards_html += _single_card("Vezetés-váltás", v["lead_changes"], "alkalommal fordult át a meccs")
         fact_card_count += 1
     vs_cards_html += '</div>'
 
-    text_facts = []  # most már nincs szöveges fact
     facts_html = vs_cards_html
     has_facts = fact_card_count > 0
 
-    # ─────────────────────────────────────────────────────────────
-    # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
-    # ─────────────────────────────────────────────────────────────
-    qmvp = {1: {}, 2: {}, 3: {}, 4: {}}  # quarter -> team -> {player, points}
-    for ev in progression:
-        q = ev["quarter"]
-        t = ev["team"]
-        p = ev["player"] or "?"
-        qmvp[q].setdefault(t, {}).setdefault(p, 0)
-        qmvp[q][t][p] += ev["points"]
+    # Quarter MVP kártyák
     qmvp_cards = ""
-    if progression:
-        for q in [1, 2, 3, 4]:
-            a_team = qmvp[q].get("A", {})
-            b_team = qmvp[q].get("B", {})
-            a_top = max(a_team.items(), key=lambda x: x[1]) if a_team else ("—", 0)
-            b_top = max(b_team.items(), key=lambda x: x[1]) if b_team else ("—", 0)
-            qmvp_cards += f'''<div class="qmvp-card">
-              <div class="qmvp-q">Q{q}</div>
+    for mvp in v["quarter_mvps"]:
+        a_top, b_top = mvp["home"], mvp["away"]
+        qmvp_cards += f'''<div class="qmvp-card">
+              <div class="qmvp-q">Q{mvp["q"]}</div>
               <div class="qmvp-row"><span class="qmvp-team">{home_label}</span><span class="qmvp-player">{a_top[0]}</span><span class="qmvp-pts">{a_top[1]}p</span></div>
               <div class="qmvp-row"><span class="qmvp-team">{away_label}</span><span class="qmvp-player">{b_top[0]}</span><span class="qmvp-pts">{b_top[1]}p</span></div>
             </div>'''
 
-    # ─────────────────────────────────────────────────────────────
     # Foul trouble timeline — Közgáz játékosok faultjai időtengelyen
-    # ─────────────────────────────────────────────────────────────
-    # Map jersey → name for Közgáz
-    kg_jersey_name = {p["jersey"]: p["name"] for p in details["kg_players"] if p["jersey"]}
-    kg_fouls_by_player = {}
-    for fe in details["foul_events"]:
-        if fe["team"] != kg_side:
-            continue
-        kg_fouls_by_player.setdefault(fe["jersey"], []).append(fe)
-    # Sort players by total fouls desc
     foul_rows = ""
-    for jersey, faults in sorted(kg_fouls_by_player.items(), key=lambda x: -len(x[1])):
-        name = kg_jersey_name.get(jersey, f"#{jersey}")
+    for row in v["foul_timeline"]:
         markers = ""
-        for f in faults:
-            try:
-                m_raw = int(f["minute"]) if f["minute"] else 0
-            except (ValueError, TypeError):
-                m_raw = 0
-            # A parser néha duplázza a számjegyeket (pl. 88, 66, 26 helyett valódi 8/6/6).
-            # Bármi >10 érték helyett az utolsó számjegyet vesszük, és [0,10]-re clamp-eljük.
-            m = m_raw % 10 if m_raw > 10 else m_raw
-            m = max(0, min(10, m))
-            t = (f["quarter"] - 1) * 10 + m
-            left_pct = (t / 40) * 100
-            # Piros csak akkor, ha a játékos kipontozódott (≥5 fault)
-            color = "var(--red)" if len(faults) >= 5 else "var(--text-dim)"
-            markers += f'<div class="foul-dot" style="left:{left_pct}%;background:{color};" title="Q{f["quarter"]} {m}p"></div>'
+        color = "var(--red)" if row["fouled_out"] else "var(--text-dim)"
+        for f in row["fouls"]:
+            markers += f'<div class="foul-dot" style="left:{f["left_pct"]}%;background:{color};" title="Q{f["quarter"]} {f["minute"]}p"></div>'
         foul_rows += f'''<div class="foul-row">
-          <div class="foul-pname">{name}</div>
+          <div class="foul-pname">{row["name"]}</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
             <div class="foul-q-marker" style="left:75%;"></div>
             {markers}
-            <div class="foul-count">{len(faults)}×</div>
+            <div class="foul-count">{len(row["fouls"])}×</div>
           </div>
         </div>'''
     foul_timeline_html = ""
@@ -4097,7 +4172,7 @@ def generate_match_page(details, cfg, team_key):
         </div>
         {foul_rows}'''
 
-    lead = _calc_lead_times(progression)
+    lead = v["lead"]
     if lead:
         home_name = shorten_opponent(details["team_a_name"])
         away_name = shorten_opponent(details["team_b_name"])
@@ -6660,34 +6735,19 @@ def generate_team(team_key):
             'alap': (None, 'alap'),
             'play': (None, 'play'),
         }
-        _qs_fn = get_quarter_stats_pbp if pbp else get_quarter_stats
 
         for idx, player in enumerate(roster):
             lic = player[0]  # license_number or player_name (unified)
             name = player[1]
             slug = slugify(name)
 
-            # Default bundle ('all') — eredeti viselkedés a player_data-hoz
-            game_log = get_game_log(conn, cfg, tp, lic)
-            quarter_stats = _qs_fn(conn, cfg, tp, lic)
-            opp_stats = get_opponent_ppg(conn, cfg, tp, lic)
-            tech, unsport = get_tech_unsport(conn, cfg, tp, lic)
-
-            # Az 'all' mellé a többi mode bundle-jét is kiszámoljuk
-            bundles = {'all': {
-                'game_log': game_log, 'quarter_stats': quarter_stats,
-                'opp_stats': opp_stats, 'tech': tech, 'unsport': unsport,
-            }}
-            for m in bundle_modes:
-                if m == 'all':
-                    continue
-                hvf, phf = _mode_args[m]
-                bundles[m] = {
-                    'game_log': get_game_log(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf),
-                    'quarter_stats': _qs_fn(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf),
-                    'opp_stats': get_opponent_ppg(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf),
-                    **dict(zip(('tech', 'unsport'), get_tech_unsport(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf))),
-                }
+            # Default bundle ('all') — eredeti viselkedés a player_data-hoz;
+            # mellé a többi mode bundle-jét is kiszámoljuk
+            bundles = {m: get_player_bundle(conn, cfg, tp, lic, *_mode_args[m]) for m in bundle_modes}
+            game_log = bundles['all']['game_log']
+            quarter_stats = bundles['all']['quarter_stats']
+            opp_stats = bundles['all']['opp_stats']
+            tech, unsport = bundles['all']['tech'], bundles['all']['unsport']
 
             # Training attendance (Közgáz B only)
             att = att_data.get(name)

@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Közgáz B tabella (standings.json)",
+  "type": "object",
+  "description": "A szezon tabellái bajnokságonként (rájátszásnál a Közgáz B csoportja).",
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Formátum-verzió."
+    },
+    "team": {
+      "const": "kozgaz-b",
+      "description": "Csapatkulcs."
+    },
+    "season": {
+      "type": "string",
+      "description": "Szezonkulcs.",
+      "pattern": "^x\\d{4}$"
+    },
+    "season_label": {
+      "type": "string",
+      "description": "Szezon felirata."
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "A fájl készítése (UTC).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "tables": {
+      "type": "array",
+      "description": "Tabellák.",
+      "items": {
+        "type": "object",
+        "description": "Egy tabella.",
+        "properties": {
+          "competition": {
+            "type": "string",
+            "description": "Bajnokság-kód."
+          },
+          "competition_label": {
+            "type": "string",
+            "description": "Bajnokság neve."
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "playoff",
+              "cup"
+            ],
+            "description": "regular / playoff."
+          },
+          "source": {
+            "type": "string",
+            "description": "Forrás (MKOSZ)."
+          },
+          "source_url": {
+            "type": "string",
+            "description": "A forrásoldal."
+          },
+          "fetched_at": {
+            "type": "string",
+            "description": "A lekérés ideje (UTC).",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+          },
+          "rows": {
+            "type": "array",
+            "description": "Sorok helyezés szerint.",
+            "items": {
+              "type": "object",
+              "description": "Egy csapat.",
+              "properties": {
+                "rank": {
+                  "type": "integer",
+                  "description": "Helyezés."
+                },
+                "team": {
+                  "type": "string",
+                  "description": "Csapat teljes neve."
+                },
+                "team_short": {
+                  "type": "string",
+                  "description": "Csapat rövid neve (a honlap rövidítése)."
+                },
+                "is_kozgaz": {
+                  "type": "boolean",
+                  "description": "A Közgáz B sora-e."
+                },
+                "games": {
+                  "type": "integer",
+                  "description": "M: lejátszott meccs."
+                },
+                "wins": {
+                  "type": "integer",
+                  "description": "Gy: győzelem."
+                },
+                "losses": {
+                  "type": "integer",
+                  "description": "V: vereség."
+                },
+                "scored": {
+                  "type": "integer",
+                  "description": "Dob: dobott pont."
+                },
+                "allowed": {
+                  "type": "integer",
+                  "description": "Kap: kapott pont."
+                },
+                "diff": {
+                  "type": "integer",
+                  "description": "+/-: dobott − kapott."
+                },
+                "points": {
+                  "type": "integer",
+                  "description": "Pt: bajnoki pont."
+                },
+                "streak": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Sorozat (MKOSZ „Sor”, pl. GY5 = 5 győzelem, V1 = 1 vereség)."
+                }
+              },
+              "required": [
+                "rank",
+                "team",
+                "team_short",
+                "is_kozgaz",
+                "games",
+                "wins",
+                "losses",
+                "scored",
+                "allowed",
+                "diff",
+                "points",
+                "streak"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "competition",
+          "competition_label",
+          "phase",
+          "source",
+          "source_url",
+          "fetched_at",
+          "rows"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "team",
+    "season",
+    "season_label",
+    "generated_at",
+    "tables"
+  ],
+  "additionalProperties": false
+}

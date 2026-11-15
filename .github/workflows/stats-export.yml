@@ -1,0 +1,79 @@
+name: Statisztika-JSON (Gametime)
+
+# Andris forkja: a Közgáz B statisztikái JSON-ban a Gametime appnak (export_stats.py,
+# docs/STATS_JSON.md), a fork GitHub Pages oldalán.
+#
+# Időzítés: Dani mkosz-stats importja (cron 06:30 UTC) a GitHub késése miatt a
+# gyakorlatban 13:00–17:05 UTC között fut le (2026-10/11 mért futásai), ezért
+# 18:47 UTC — tartalékkal, és nem kerek percre, mert a kerek órás ütemezések
+# késnek a legtöbbet. Ha egy nap mégis korábban futna, a következő napi futás
+# hozza az aznapi adatot.
+#
+# A forkban minden más workflow (honlap-építés, edzéslátogatás, .ics) ki van
+# kapcsolva; ez nem kér titkot, csak nyilvános fájlokat olvas.
+
+on:
+  schedule:
+    - cron: '47 18 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Séma-ellenőrző csomag
+        run: pip install jsonschema
+
+      - name: Adatbázis letöltése (mkosz-stats, nyilvános fájl)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsSL --retry 3 -o /tmp/mkosz_stats.sqlite \
+            https://raw.githubusercontent.com/pozsikdani/mkosz-stats/main/mkosz_stats.sqlite
+          ls -la /tmp/mkosz_stats.sqlite
+          # Az adatbázis utolsó commitjának ideje (a JSON-ba kerül); ha nem sikerül, üres marad.
+          UPDATED=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+            'https://api.github.com/repos/pozsikdani/mkosz-stats/commits?path=mkosz_stats.sqlite&per_page=1' \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["commit"]["committer"]["date"])' || true)
+          echo "DB_UPDATED_AT=$UPDATED" >> "$GITHUB_ENV"
+          echo "Adatbázis frissítve: $UPDATED"
+
+      - name: JSON-export
+        run: |
+          python3 export_stats.py --db /tmp/mkosz_stats.sqlite --out public \
+            --previous-base "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/kozgaz-b" \
+            --db-updated-at "$DB_UPDATED_AT"
+          touch public/.nojekyll
+
+      - name: Séma-ellenőrzés
+        run: python3 stats_schema.py check public
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Közzététel (GitHub Pages)
+        id: deploy
+        uses: actions/deploy-pages@v4
