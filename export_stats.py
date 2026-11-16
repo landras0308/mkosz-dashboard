@@ -5,6 +5,7 @@ Kimenet (az --out mappába, a GitHub Pages ezt teszi közzé):
   data/kozgaz-b/seasons.json              — az elérhető szezonok
   data/kozgaz-b/{szezon}/stats.json       — meccsek, játékosok, csapat
   data/kozgaz-b/{szezon}/standings.json   — tabella (MKOSZ)
+  data/kozgaz-b/history.json              — szezonról szezonra (csapat, játékosok)
   data/kozgaz-b/stats.json, standings.json — a mostani szezon ugyanígy
 
 Minden szám a generate_dashboards.py lekérdezéseiből és compute_*/_compute_*
@@ -478,6 +479,72 @@ def standings_json(season, league_comps, is_current, previous):
     }
 
 
+# ─────────────────────────────── szezonról szezonra ───────────────────────────────
+
+def per_game(total, games):
+    return round(total / games, 1) if games else 0.0
+
+
+def team_history(stats):
+    """A csapat egy szezonja meccsenkénti mutatókkal: a stats.json views.all számaiból."""
+    ts = stats["team_stats"]
+    if not ts or not ts["views"]["all"]["record"]["games"]:
+        return None
+    v = ts["views"]["all"]
+    r, sp = v["record"], v["scoring_split"]
+    g = r["games"]
+    return {
+        "games": g, "wins": r["wins"], "losses": r["losses"],
+        "win_pct": round(100 * r["wins"] / g, 1),
+        "ppg": r["ppg"], "opp_ppg": r["opp_ppg"], "diff_per_game": r["diff_per_game"],
+        "ft_pct": round(100 * sp["ft_made"] / sp["ft_att"], 1) if sp["ft_att"] else None,
+        # A honlap a hármasok pontját fg3 * 3-ként számolja (_stats_to_js).
+        "fg3_per_game": per_game(sp["points_3"] // 3, g),
+        "home_wins": r["home_wins"], "home_games": r["home_games"],
+        "away_wins": r["away_wins"], "away_games": r["away_games"],
+        "quarters": [{"quarter": q["quarter"], "kozgaz_avg": q["kozgaz_avg"], "opponent_avg": q["opponent_avg"]}
+                     for q in v["quarters"]],
+    }
+
+
+def standings_history(standings):
+    out = []
+    for t in sorted(standings["tables"], key=lambda t: (t["phase"] != "regular", t["competition"])):
+        mine = [r for r in t["rows"] if r["is_kozgaz"]]
+        if mine:
+            out.append({"competition": t["competition"], "competition_label": t["competition_label"],
+                        "phase": t["phase"], "rank": mine[0]["rank"], "teams": len(t["rows"])})
+    return out
+
+
+def history_json(per_season):
+    """per_season: [(stats, standings)] a legrégebbi elöl."""
+    players = {}
+    for stats, _ in per_season:
+        for p in stats["players"]:
+            s = p["views"]["all"]["summary"]
+            if not s["games"]:
+                continue
+            entry = players.setdefault(p["key"], {"key": p["key"], "key_type": p["key_type"], "seasons": []})
+            entry["name"] = p["name"]  # a legutóbbi szezoné marad
+            entry["seasons"].append({
+                "season": stats["season"], "games": s["games"], "points": s["points"], "ppg": s["ppg"],
+                "max_points": s["max_points"], "fg3_per_game": per_game(s["fg3_made"], s["games"]),
+                "ft_made": s["ft_made"], "ft_att": s["ft_att"],
+                "ft_pct": s["ft_pct"] if s["ft_att"] else None,
+                "pf_per_game": s["pf_per_game"],
+            })
+    return {
+        "version": VERSION, "team": TEAM_KEY, "generated_at": now_iso(),
+        "seasons": [{"season": stats["season"], "label": stats["season_label"],
+                     "team": team_history(stats), "standings": standings_history(standings)}
+                    for stats, standings in per_season],
+        "players": sorted(({"key": e["key"], "key_type": e["key_type"], "name": e["name"],
+                            "seasons": e["seasons"]} for e in players.values()),
+                          key=lambda e: e["name"]),
+    }
+
+
 # ─────────────────────────────── fő ───────────────────────────────
 
 def write_json(out_dir, rel, data):
@@ -505,6 +572,7 @@ def main():
         sys.exit("Nincs Közgáz B meccs az adatbázisban.")
     current = max(found)
     season_list = []
+    per_season = []
     for season in sorted(found, reverse=True):
         info = found[season]
         gd.SEASON = season  # a generate_dashboards lekérdezései ezt a globálist olvassák
@@ -534,6 +602,7 @@ def main():
         }
         previous = fetch_previous(args.previous_base, f"{season}/standings.json")
         standings = standings_json(season, league, season == current, previous)
+        per_season.append((stats, standings))
         for rel_dir in ([f"{base_rel}/{season}"] + ([base_rel] if season == current else [])):
             write_json(args.out, f"{rel_dir}/stats.json", stats)
             write_json(args.out, f"{rel_dir}/standings.json", standings)
@@ -550,8 +619,11 @@ def main():
         "version": VERSION, "team": TEAM_KEY, "current_season": current,
         "generated_at": now_iso(), "seasons": season_list,
     })
+    history = history_json(sorted(per_season, key=lambda x: x[0]["season"]))
+    write_json(args.out, f"{base_rel}/history.json", history)
     conn.close()
     print(f"  ✓ {base_rel}/seasons.json ({len(season_list)} szezon)")
+    print(f"  ✓ {base_rel}/history.json ({len(history['seasons'])} szezon, {len(history['players'])} játékos)")
 
 
 if __name__ == "__main__":

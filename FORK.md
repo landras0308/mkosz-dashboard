@@ -7,7 +7,9 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
 ## Mi más, mint Dani repójában
 
 - `export_stats.py` — a JSON-export (`stats.json`, `standings.json`, `seasons.json`,
-  minden elérhető szezonra). Csak a `generate_dashboards.py` függvényeit hívja.
+  minden elérhető szezonra, és `history.json` a szezonok összehasonlításához). Csak a
+  `generate_dashboards.py` függvényeit hívja; a `history.json` a szezonok `stats.json`-
+  jának számait osztja meccsenkéntire.
 - `generate_dashboards.py` — a számítások kiemelve, hogy a honlap és a JSON ugyanazt
   a kódot használja (a honlap HTML-je byte-ra ugyanaz maradt, mindkét szezonra
   ellenőrizve):

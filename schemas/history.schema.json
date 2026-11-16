@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Közgáz B szezonról szezonra (history.json)",
+  "type": "object",
+  "description": "Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki meccsekből, views.all), csak meccsenkéntire osztva; a helyezés a standings.json-ból.",
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Formátum-verzió."
+    },
+    "team": {
+      "const": "kozgaz-b",
+      "description": "Csapatkulcs."
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "A fájl készítése (UTC).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "seasons": {
+      "type": "array",
+      "description": "A szezonok, a legrégebbi elöl.",
+      "items": {
+        "type": "object",
+        "description": "Egy szezon.",
+        "properties": {
+          "season": {
+            "type": "string",
+            "description": "Szezonkulcs.",
+            "pattern": "^x\\d{4}$"
+          },
+          "label": {
+            "type": "string",
+            "description": "Felirat (pl. 2025/26)."
+          },
+          "team": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs).",
+            "properties": {
+              "games": {
+                "type": "integer",
+                "description": "Bajnoki meccs."
+              },
+              "wins": {
+                "type": "integer",
+                "description": "Győzelem."
+              },
+              "losses": {
+                "type": "integer",
+                "description": "Vereség."
+              },
+              "win_pct": {
+                "type": "number",
+                "description": "Győzelem-arány, % (egy tizedes)."
+              },
+              "ppg": {
+                "type": "number",
+                "description": "Dobott/meccs."
+              },
+              "opp_ppg": {
+                "type": "number",
+                "description": "Kapott/meccs."
+              },
+              "diff_per_game": {
+                "type": "number",
+                "description": "Különbség/meccs."
+              },
+              "ft_pct": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+              },
+              "fg3_per_game": {
+                "type": "number",
+                "description": "Bedobott hármas/meccs, egy tizedes."
+              },
+              "home_wins": {
+                "type": "integer",
+                "description": "Hazai győzelem."
+              },
+              "home_games": {
+                "type": "integer",
+                "description": "Hazai meccs."
+              },
+              "away_wins": {
+                "type": "integer",
+                "description": "Idegenbeli győzelem."
+              },
+              "away_games": {
+                "type": "integer",
+                "description": "Idegenbeli meccs."
+              },
+              "quarters": {
+                "type": "array",
+                "description": "Negyedátlagok.",
+                "items": {
+                  "type": "object",
+                  "description": "Egy negyed.",
+                  "properties": {
+                    "quarter": {
+                      "type": "integer",
+                      "description": "Negyed (1–4)."
+                    },
+                    "kozgaz_avg": {
+                      "type": "number",
+                      "description": "Közgáz pont/meccs a negyedben."
+                    },
+                    "opponent_avg": {
+                      "type": "number",
+                      "description": "Ellenfél pont/meccs a negyedben."
+                    }
+                  },
+                  "required": [
+                    "quarter",
+                    "kozgaz_avg",
+                    "opponent_avg"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "games",
+              "wins",
+              "losses",
+              "win_pct",
+              "ppg",
+              "opp_ppg",
+              "diff_per_game",
+              "ft_pct",
+              "fg3_per_game",
+              "home_wins",
+              "home_games",
+              "away_wins",
+              "away_games",
+              "quarters"
+            ],
+            "additionalProperties": false
+          },
+          "standings": {
+            "type": "array",
+            "description": "A Közgáz helyezése a szezon tabelláin (alapszakasz elöl).",
+            "items": {
+              "type": "object",
+              "description": "A Közgáz helyezése egy bajnokság tabelláján.",
+              "properties": {
+                "competition": {
+                  "type": "string",
+                  "description": "Bajnokság-kód."
+                },
+                "competition_label": {
+                  "type": "string",
+                  "description": "Bajnokság neve."
+                },
+                "phase": {
+                  "type": "string",
+                  "enum": [
+                    "regular",
+                    "playoff",
+                    "cup"
+                  ],
+                  "description": "Szakasz."
+                },
+                "rank": {
+                  "type": "integer",
+                  "description": "Helyezés (1-től)."
+                },
+                "teams": {
+                  "type": "integer",
+                  "description": "A tabella csapatainak száma."
+                }
+              },
+              "required": [
+                "competition",
+                "competition_label",
+                "phase",
+                "rank",
+                "teams"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "season",
+          "label",
+          "team",
+          "standings"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "players": {
+      "type": "array",
+      "description": "A játékosok, mindegyik a saját szezonjaival (a legrégebbi elöl). A szezonokat a játékoskulcs köti össze.",
+      "items": {
+        "type": "object",
+        "description": "Egy játékos.",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Játékoskulcs: licencszám, vagy ha nincs, a névből képzett slug."
+          },
+          "key_type": {
+            "type": "string",
+            "enum": [
+              "license",
+              "name_slug"
+            ],
+            "description": "license / name_slug."
+          },
+          "name": {
+            "type": "string",
+            "description": "Név a legutóbbi szezonja jegyzőkönyvei szerint."
+          },
+          "seasons": {
+            "type": "array",
+            "description": "A szezonjai, amelyekben bajnoki meccsen pályára lépett.",
+            "items": {
+              "type": "object",
+              "description": "Egy szezon.",
+              "properties": {
+                "season": {
+                  "type": "string",
+                  "description": "Szezonkulcs.",
+                  "pattern": "^x\\d{4}$"
+                },
+                "games": {
+                  "type": "integer",
+                  "description": "Meccs."
+                },
+                "points": {
+                  "type": "integer",
+                  "description": "Pont."
+                },
+                "ppg": {
+                  "type": "number",
+                  "description": "Pont/meccs."
+                },
+                "max_points": {
+                  "type": "integer",
+                  "description": "Legtöbb pont egy meccsen."
+                },
+                "fg3_per_game": {
+                  "type": "number",
+                  "description": "Bedobott hármas/meccs, egy tizedes."
+                },
+                "ft_made": {
+                  "type": "integer",
+                  "description": "Bedobott büntető."
+                },
+                "ft_att": {
+                  "type": "integer",
+                  "description": "Büntető-kísérlet."
+                },
+                "ft_pct": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                },
+                "pf_per_game": {
+                  "type": "number",
+                  "description": "Fault/meccs."
+                }
+              },
+              "required": [
+                "season",
+                "games",
+                "points",
+                "ppg",
+                "max_points",
+                "fg3_per_game",
+                "ft_made",
+                "ft_att",
+                "ft_pct",
+                "pf_per_game"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "key",
+          "key_type",
+          "name",
+          "seasons"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "team",
+    "generated_at",
+    "seasons",
+    "players"
+  ],
+  "additionalProperties": false
+}

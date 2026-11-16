@@ -1,4 +1,4 @@
-# A statisztika-JSON-ok (stats.json, standings.json, seasons.json)
+# A statisztika-JSON-ok (stats.json, standings.json, seasons.json, history.json)
 
 > Generált fájl: a `stats_schema.py write` írja a sémából; kézzel ne szerkeszd.
 
@@ -8,8 +8,8 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
 (`export_stats.py`).
 
 - **Hol:** a fork GitHub Pages oldalán, `data/kozgaz-b/` alatt:
-  `seasons.json`, `{szezon}/stats.json`, `{szezon}/standings.json`, és a mostani
-  szezon a `data/kozgaz-b/stats.json` és `standings.json` néven is.
+  `seasons.json`, `{szezon}/stats.json`, `{szezon}/standings.json`, `history.json`, és a
+  mostani szezon a `data/kozgaz-b/stats.json` és `standings.json` néven is.
 - **Mikor:** naponta, Dani mkosz-stats importja után (`.github/workflows/stats-export.yml`).
 - **Forrás:** a mkosz-stats nyilvános `mkosz_stats.sqlite`-ja; a tabella a mkosz.hu-ról.
 - **Szerződés:** mezőt nem nevezünk át és nem törlünk, új mező jöhet; törő változásnál
@@ -25,6 +25,9 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   számítanak (mint a honlapon).
 - **Csoport-összehasonlítás:** a `league_comparison[]` a bajnokság minden csapatát
   rangsorolja a honlap csoport.html-jének mutatói szerint (ugyanazzal a kóddal).
+- **Szezonról szezonra:** a `history.json` minden szezon tömör, meccsenkénti mutatóit adja
+  (csapat és játékosok), a szezonok összehasonlításához; ugyanazokból a számokból, mint a
+  szezonok `stats.json`-ja.
 - **Játékoskulcs:** a licencszám, ha van (`key_type: "license"`), különben a névből
   képzett slug (`key_type: "name_slug"`).
 
@@ -389,3 +392,55 @@ Az elérhető szezonok, a legújabb elöl.
 | `seasons[].last_match_date` | string | Utolsó meccs. |
 | `seasons[].stats` | string | A stats.json útvonala a seasons.json-hoz képest. |
 | `seasons[].standings` | string | A standings.json útvonala a seasons.json-hoz képest. |
+
+## history.json
+
+Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki meccsekből, views.all), csak meccsenkéntire osztva; a helyezés a standings.json-ból.
+
+| Mező | Típus | Jelentés |
+|---|---|---|
+| `version` | const 1 | Formátum-verzió. |
+| `team` | const "kozgaz-b" | Csapatkulcs. |
+| `generated_at` | string | A fájl készítése (UTC). |
+| `seasons` | array | A szezonok, a legrégebbi elöl. |
+| `seasons[].season` | string | Szezonkulcs. |
+| `seasons[].label` | string | Felirat (pl. 2025/26). |
+| `seasons[].team` | object? | A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs). |
+| `seasons[].team.games` | integer | Bajnoki meccs. |
+| `seasons[].team.wins` | integer | Győzelem. |
+| `seasons[].team.losses` | integer | Vereség. |
+| `seasons[].team.win_pct` | number | Győzelem-arány, % (egy tizedes). |
+| `seasons[].team.ppg` | number | Dobott/meccs. |
+| `seasons[].team.opp_ppg` | number | Kapott/meccs. |
+| `seasons[].team.diff_per_game` | number | Különbség/meccs. |
+| `seasons[].team.ft_pct` | number? | Büntető%, egy tizedes; null, ha nem volt kísérlet. |
+| `seasons[].team.fg3_per_game` | number | Bedobott hármas/meccs, egy tizedes. |
+| `seasons[].team.home_wins` | integer | Hazai győzelem. |
+| `seasons[].team.home_games` | integer | Hazai meccs. |
+| `seasons[].team.away_wins` | integer | Idegenbeli győzelem. |
+| `seasons[].team.away_games` | integer | Idegenbeli meccs. |
+| `seasons[].team.quarters` | array | Negyedátlagok. |
+| `seasons[].team.quarters[].quarter` | integer | Negyed (1–4). |
+| `seasons[].team.quarters[].kozgaz_avg` | number | Közgáz pont/meccs a negyedben. |
+| `seasons[].team.quarters[].opponent_avg` | number | Ellenfél pont/meccs a negyedben. |
+| `seasons[].standings` | array | A Közgáz helyezése a szezon tabelláin (alapszakasz elöl). |
+| `seasons[].standings[].competition` | string | Bajnokság-kód. |
+| `seasons[].standings[].competition_label` | string | Bajnokság neve. |
+| `seasons[].standings[].phase` | string (regular | playoff | cup) | Szakasz. |
+| `seasons[].standings[].rank` | integer | Helyezés (1-től). |
+| `seasons[].standings[].teams` | integer | A tabella csapatainak száma. |
+| `players` | array | A játékosok, mindegyik a saját szezonjaival (a legrégebbi elöl). A szezonokat a játékoskulcs köti össze. |
+| `players[].key` | string | Játékoskulcs: licencszám, vagy ha nincs, a névből képzett slug. |
+| `players[].key_type` | string (license | name_slug) | license / name_slug. |
+| `players[].name` | string | Név a legutóbbi szezonja jegyzőkönyvei szerint. |
+| `players[].seasons` | array | A szezonjai, amelyekben bajnoki meccsen pályára lépett. |
+| `players[].seasons[].season` | string | Szezonkulcs. |
+| `players[].seasons[].games` | integer | Meccs. |
+| `players[].seasons[].points` | integer | Pont. |
+| `players[].seasons[].ppg` | number | Pont/meccs. |
+| `players[].seasons[].max_points` | integer | Legtöbb pont egy meccsen. |
+| `players[].seasons[].fg3_per_game` | number | Bedobott hármas/meccs, egy tizedes. |
+| `players[].seasons[].ft_made` | integer | Bedobott büntető. |
+| `players[].seasons[].ft_att` | integer | Büntető-kísérlet. |
+| `players[].seasons[].ft_pct` | number? | Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet. |
+| `players[].seasons[].pf_per_game` | number | Fault/meccs. |

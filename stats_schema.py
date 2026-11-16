@@ -488,21 +488,87 @@ def seasons_schema():
     }
 
 
+def history_schema():
+    rank = OBJ("A Közgáz helyezése egy bajnokság tabelláján.", {
+        "competition": STR("Bajnokság-kód."),
+        "competition_label": STR("Bajnokság neve."),
+        "phase": ENUM("Szakasz.", PHASE),
+        "rank": INT("Helyezés (1-től)."),
+        "teams": INT("A tabella csapatainak száma."),
+    })
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Közgáz B szezonról szezonra (history.json)",
+        **OBJ("Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok "
+              "összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki "
+              "meccsekből, views.all), csak meccsenkéntire osztva; a helyezés a standings.json-ból.", {
+            "version": {"const": 1, "description": "Formátum-verzió."},
+            "team": {"const": "kozgaz-b", "description": "Csapatkulcs."},
+            "generated_at": STR("A fájl készítése (UTC).", **DATETIME),
+            "seasons": ARR("A szezonok, a legrégebbi elöl.", OBJ("Egy szezon.", {
+                "season": STR("Szezonkulcs.", **SEASON),
+                "label": STR("Felirat (pl. 2025/26)."),
+                "team": OBJ("A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs).", {
+                    "games": INT("Bajnoki meccs."),
+                    "wins": INT("Győzelem."),
+                    "losses": INT("Vereség."),
+                    "win_pct": NUM("Győzelem-arány, % (egy tizedes)."),
+                    "ppg": NUM("Dobott/meccs."),
+                    "opp_ppg": NUM("Kapott/meccs."),
+                    "diff_per_game": NUM("Különbség/meccs."),
+                    "ft_pct": NUM("Büntető%, egy tizedes; null, ha nem volt kísérlet.", null=True),
+                    "fg3_per_game": NUM("Bedobott hármas/meccs, egy tizedes."),
+                    "home_wins": INT("Hazai győzelem."),
+                    "home_games": INT("Hazai meccs."),
+                    "away_wins": INT("Idegenbeli győzelem."),
+                    "away_games": INT("Idegenbeli meccs."),
+                    "quarters": ARR("Negyedátlagok.", OBJ("Egy negyed.", {
+                        "quarter": INT("Negyed (1–4)."),
+                        "kozgaz_avg": NUM("Közgáz pont/meccs a negyedben."),
+                        "opponent_avg": NUM("Ellenfél pont/meccs a negyedben."),
+                    })),
+                }, null=True),
+                "standings": ARR("A Közgáz helyezése a szezon tabelláin (alapszakasz elöl).", rank),
+            })),
+            "players": ARR("A játékosok, mindegyik a saját szezonjaival (a legrégebbi elöl). A "
+                           "szezonokat a játékoskulcs köti össze.", OBJ("Egy játékos.", {
+                "key": STR("Játékoskulcs: licencszám, vagy ha nincs, a névből képzett slug."),
+                "key_type": ENUM("license / name_slug.", ("license", "name_slug")),
+                "name": STR("Név a legutóbbi szezonja jegyzőkönyvei szerint."),
+                "seasons": ARR("A szezonjai, amelyekben bajnoki meccsen pályára lépett.", OBJ("Egy szezon.", {
+                    "season": STR("Szezonkulcs.", **SEASON),
+                    "games": INT("Meccs."),
+                    "points": INT("Pont."),
+                    "ppg": NUM("Pont/meccs."),
+                    "max_points": INT("Legtöbb pont egy meccsen."),
+                    "fg3_per_game": NUM("Bedobott hármas/meccs, egy tizedes."),
+                    "ft_made": INT("Bedobott büntető."),
+                    "ft_att": INT("Büntető-kísérlet."),
+                    "ft_pct": NUM("Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet.", null=True),
+                    "pf_per_game": NUM("Fault/meccs."),
+                })),
+            })),
+        }),
+    }
+
+
 SCHEMAS = {
     "stats": stats_schema,
     "standings": standings_schema,
     "seasons": seasons_schema,
+    "history": history_schema,
 }
 FILES = {  # séma → a kimenet mely fájljaira vonatkozik (glob a data/kozgaz-b mappán belül)
     "stats": ["stats.json", "x*/stats.json"],
     "standings": ["standings.json", "x*/standings.json"],
     "seasons": ["seasons.json"],
+    "history": ["history.json"],
 }
 
 
 # ─────────────────────────── docs ───────────────────────────
 
-DOCS_HEADER = """# A statisztika-JSON-ok (stats.json, standings.json, seasons.json)
+DOCS_HEADER = """# A statisztika-JSON-ok (stats.json, standings.json, seasons.json, history.json)
 
 > Generált fájl: a `stats_schema.py write` írja a sémából; kézzel ne szerkeszd.
 
@@ -512,8 +578,8 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
 (`export_stats.py`).
 
 - **Hol:** a fork GitHub Pages oldalán, `data/kozgaz-b/` alatt:
-  `seasons.json`, `{szezon}/stats.json`, `{szezon}/standings.json`, és a mostani
-  szezon a `data/kozgaz-b/stats.json` és `standings.json` néven is.
+  `seasons.json`, `{szezon}/stats.json`, `{szezon}/standings.json`, `history.json`, és a
+  mostani szezon a `data/kozgaz-b/stats.json` és `standings.json` néven is.
 - **Mikor:** naponta, Dani mkosz-stats importja után (`.github/workflows/stats-export.yml`).
 - **Forrás:** a mkosz-stats nyilvános `mkosz_stats.sqlite`-ja; a tabella a mkosz.hu-ról.
 - **Szerződés:** mezőt nem nevezünk át és nem törlünk, új mező jöhet; törő változásnál
@@ -529,6 +595,9 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   számítanak (mint a honlapon).
 - **Csoport-összehasonlítás:** a `league_comparison[]` a bajnokság minden csapatát
   rangsorolja a honlap csoport.html-jének mutatói szerint (ugyanazzal a kóddal).
+- **Szezonról szezonra:** a `history.json` minden szezon tömör, meccsenkénti mutatóit adja
+  (csapat és játékosok), a szezonok összehasonlításához; ugyanazokból a számokból, mint a
+  szezonok `stats.json`-ja.
 - **Játékoskulcs:** a licencszám, ha van (`key_type: "license"`), különben a névből
   képzett slug (`key_type: "name_slug"`).
 
@@ -572,7 +641,8 @@ def _walk_items(node, path, rows):
 
 def render_docs():
     out = [DOCS_HEADER]
-    titles = {"stats": "stats.json", "standings": "standings.json", "seasons": "seasons.json"}
+    titles = {"stats": "stats.json", "standings": "standings.json", "seasons": "seasons.json",
+              "history": "history.json"}
     for name, fn in SCHEMAS.items():
         schema = fn()
         out.append(f"\n## {titles[name]}\n\n{schema['description']}\n")
