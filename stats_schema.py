@@ -160,6 +160,9 @@ def match():
                 "points": INT("Pont."),
             }, null=True),
         }),
+        "fouls_repaired": BOOL("A fork a meccs Közgáz-faultjait a PDF-jegyzőkönyvből javította: ilyenkor a "
+                               "teljes Közgáz fault-időrend (foul_timeline, T/U) a PDF-ből jön, akkor is, ha egy "
+                               "játékos faultszáma nem változott (pf_repaired csak a változott számokat jelöli)."),
         "players": ARR("A Közgáz játékossorai (box score), pont szerint csökkenő sorrendben.", OBJ("Egy játékos a meccsen.", {
             "key": STR("Játékoskulcs: licencszám, vagy ha nincs, a névből képzett slug."),
             "key_type": ENUM("license = licencszám, name_slug = névből képzett slug.", ("license", "name_slug")),
@@ -177,6 +180,10 @@ def match():
             "reconstructed": BOOL("A sor a kosarak listájából pótolt (a jegyzőkönyv box score-jából hiányzott)."),
             "repaired": BOOL("A sort a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (a forrás "
                              "adatbázisából hiányzott; docs/scoresheet-extraction-fix.md)."),
+            "pf_repaired": BOOL("A játékos faultszámát a fork javította a PDF-jegyzőkönyvből (a forrás "
+                                "adatbázisa többet számolt; docs/scoresheet-extraction-fix.md)."),
+            "pf_source": INT("A forrás adatbázisának faultszáma, ha a fork javította (pf_repaired), különben null.",
+                             null=True),
         })),
         "progression": OBJ("Az eredmény alakulása (csak a beesett kosarak; NB2-ben nincs kihagyott dobás).", {
             "events": ARR("Kosarak időrendben.", OBJ("Egy kosár.", {
@@ -293,6 +300,7 @@ def player_view():
             "starter": BOOL("Kezdő volt-e.", null=True),
             "repaired": BOOL("A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból "
                              "(false, ha nem játszott)."),
+            "pf_repaired": BOOL("A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."),
         })),
         "insights": OBJ("Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).", {
             "strengths": ARR("Erősségek (legfeljebb 5).", STR("Egy mondat.")),

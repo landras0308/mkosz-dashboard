@@ -114,6 +114,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `matches[].opponent_totals.top_scorer` | object? | Az ellenfél legjobb dobója. |
 | `matches[].opponent_totals.top_scorer.name` | string | Név (a jegyzőkönyv szerint). |
 | `matches[].opponent_totals.top_scorer.points` | integer | Pont. |
+| `matches[].fouls_repaired` | boolean | A fork a meccs Közgáz-faultjait a PDF-jegyzőkönyvből javította: ilyenkor a teljes Közgáz fault-időrend (foul_timeline, T/U) a PDF-ből jön, akkor is, ha egy játékos faultszáma nem változott (pf_repaired csak a változott számokat jelöli). |
 | `matches[].players` | array | A Közgáz játékossorai (box score), pont szerint csökkenő sorrendben. |
 | `matches[].players[].key` | string | Játékoskulcs: licencszám, vagy ha nincs, a névből képzett slug. |
 | `matches[].players[].key_type` | string (license | name_slug) | license = licencszám, name_slug = névből képzett slug. |
@@ -130,6 +131,8 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `matches[].players[].unsport` | integer | Sportszerűtlen hiba (U). |
 | `matches[].players[].reconstructed` | boolean | A sor a kosarak listájából pótolt (a jegyzőkönyv box score-jából hiányzott). |
 | `matches[].players[].repaired` | boolean | A sort a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (a forrás adatbázisából hiányzott; docs/scoresheet-extraction-fix.md). |
+| `matches[].players[].pf_repaired` | boolean | A játékos faultszámát a fork javította a PDF-jegyzőkönyvből (a forrás adatbázisa többet számolt; docs/scoresheet-extraction-fix.md). |
+| `matches[].players[].pf_source` | integer? | A forrás adatbázisának faultszáma, ha a fork javította (pf_repaired), különben null. |
 | `matches[].progression` | object | Az eredmény alakulása (csak a beesett kosarak; NB2-ben nincs kihagyott dobás). |
 | `matches[].progression.events` | array | Kosarak időrendben. |
 | `matches[].progression.events[].seq` | integer | Sorszám a meccsen belül (a grafikon x-tengelye a honlapon). |
@@ -250,6 +253,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].views.all.games[].share_pct` | number? | A csapat pontjaiból való részesedés, %. |
 | `players[].views.all.games[].starter` | boolean? | Kezdő volt-e. |
 | `players[].views.all.games[].repaired` | boolean | A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott). |
+| `players[].views.all.games[].pf_repaired` | boolean | A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott). |
 | `players[].views.all.insights` | object | Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva). |
 | `players[].views.all.insights.strengths` | array | Erősségek (legfeljebb 5). |
 | `players[].views.all.insights.weaknesses` | array | Fejlesztendő területek (legfeljebb 5). |

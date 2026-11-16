@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "about": "Ismert, nem javítható fault-eltérések a Közgáz B meccsein (box_score_repair.py, docs/scoresheet-extraction-fix.md): a javított kiolvasás faultja eltér Dani adatbázisától, de a védőkorlát nem engedi a javítást. Ha egy itt szereplő meccs ugyanezzel az okkal bukik, a workflow egyenként helyett egy összesítő figyelmeztetésben jelzi; más okkal, vagy itt nem szereplő meccsen egyenként. Ha az eltérés megszűnik, a workflow jelzi, és a sor törölhető. Okkódok: timeline = Dani personal_fouls időrendje sérült vagy hiányzik (a 2025/26-os szezont Dani kiolvasójának egy korábbi változata olvasta be); team_marks = a javított faultok nem adják ki a csapatfault-jelöléseket; sum; unknown_row; error.",
+  "matches": {
+    "hun3k_125505": "timeline",
+    "hun3k_125531": "timeline",
+    "hun3k_125557": "team_marks",
+    "hun3k_125579": "timeline",
+    "hun3k_125587": "timeline",
+    "hun3k_125595": "timeline",
+    "hun3k_125603": "timeline",
+    "hun3k_125661": "timeline",
+    "hun3_plya_133569": "timeline",
+    "hun3_plya_133573": "timeline",
+    "hun3_plya_133581": "timeline"
+  }
+}

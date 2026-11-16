@@ -420,6 +420,10 @@
             ],
             "additionalProperties": false
           },
+          "fouls_repaired": {
+            "type": "boolean",
+            "description": "A fork a meccs Közgáz-faultjait a PDF-jegyzőkönyvből javította: ilyenkor a teljes Közgáz fault-időrend (foul_timeline, T/U) a PDF-ből jön, akkor is, ha egy játékos faultszáma nem változott (pf_repaired csak a változott számokat jelöli)."
+          },
           "players": {
             "type": "array",
             "description": "A Közgáz játékossorai (box score), pont szerint csökkenő sorrendben.",
@@ -493,6 +497,17 @@
                 "repaired": {
                   "type": "boolean",
                   "description": "A sort a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (a forrás adatbázisából hiányzott; docs/scoresheet-extraction-fix.md)."
+                },
+                "pf_repaired": {
+                  "type": "boolean",
+                  "description": "A játékos faultszámát a fork javította a PDF-jegyzőkönyvből (a forrás adatbázisa többet számolt; docs/scoresheet-extraction-fix.md)."
+                },
+                "pf_source": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "A forrás adatbázisának faultszáma, ha a fork javította (pf_repaired), különben null."
                 }
               },
               "required": [
@@ -510,7 +525,9 @@
                 "tech",
                 "unsport",
                 "reconstructed",
-                "repaired"
+                "repaired",
+                "pf_repaired",
+                "pf_source"
               ],
               "additionalProperties": false
             }
@@ -1001,6 +1018,7 @@
           "kozgaz_totals",
           "box_score_check",
           "opponent_totals",
+          "fouls_repaired",
           "players",
           "progression",
           "facts",
@@ -1307,6 +1325,10 @@
                         "repaired": {
                           "type": "boolean",
                           "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
                         }
                       },
                       "required": [
@@ -1329,7 +1351,8 @@
                         "pf",
                         "share_pct",
                         "starter",
-                        "repaired"
+                        "repaired",
+                        "pf_repaired"
                       ],
                       "additionalProperties": false
                     }
@@ -1629,6 +1652,10 @@
                         "repaired": {
                           "type": "boolean",
                           "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
                         }
                       },
                       "required": [
@@ -1651,7 +1678,8 @@
                         "pf",
                         "share_pct",
                         "starter",
-                        "repaired"
+                        "repaired",
+                        "pf_repaired"
                       ],
                       "additionalProperties": false
                     }
@@ -1951,6 +1979,10 @@
                         "repaired": {
                           "type": "boolean",
                           "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
                         }
                       },
                       "required": [
@@ -1973,7 +2005,8 @@
                         "pf",
                         "share_pct",
                         "starter",
-                        "repaired"
+                        "repaired",
+                        "pf_repaired"
                       ],
                       "additionalProperties": false
                     }

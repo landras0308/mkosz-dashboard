@@ -1,4 +1,4 @@
-# Jegyzőkönyv-kiolvasás: a kimaradó játékossorok és a javításuk
+# Jegyzőkönyv-kiolvasás: a kimaradó játékossorok, a kétszer számolt faultok és a javításuk
 
 Andris forkja, 2026-11-16. Dani `mkosz-scoresheet` repójának kiolvasójáról
 (`extract_scoresheet.py`), és arról, hogyan kerüli meg a fork a hibát úgy, hogy
@@ -42,7 +42,11 @@ Ennek a következményei, a 2026/27-es 104 PDF-en mérve (2026-11-16):
    12 px-lel lefelé kiterjeszti (az alsó indexek miatt); az új sorköznél ez a
    következő sor faultjait is magába veszi. A Közgáz B-nél: 2026-10-13
    (`hun3k_141615`) #11 és #19 egy-egy, 2026-10-31 (`hun3k_141597`) #18 kettő és
-   #22 egy fault többlettel. **A fork ezeket nem javítja** (csak hiányzó sort pótol).
+   #22 egy fault többlettel. A fork ezeket a Közgáz B meccsein javítja (lásd lent).
+   Ugyanígy fix ablakkal olvassa az `extract_team_fouls()` a „Csapat hibák” mezőt: az
+   új elrendezésben 10-31-én a 3–4. negyed X-eit az 1–2. negyedhez olvassa, 10-13-án
+   egyet sem talál. (A mkosz_stats a csapatfaultokat nem tárolja, ezért ez ott nem
+   látszik.)
 4. Az elcsúszott ablakok miatt az új elrendezésben egyes sorokban üres a név, vagy
    rossz a kezdő-jelölés; az edző licencsora („(2026_…)”) segédedzőként kerül be.
 5. A tördelt (kétsoros) nevek második sora a régi elrendezésben is elveszhet (a sor
@@ -126,6 +130,70 @@ forrás-adatbázisból fut; ha maga a pótlás áll le hibával, ugyanígy.
 **Eredmény (2026-11-16):** a Közgáz B 27 meccséből egyen pótolt sort a fork (FKE,
 #5, 13 pont, kezdő, 0 fault); utána mind a 27 meccsen egyezik az összeg.
 
+## A faultok javítása
+
+A sorpótlás után, ugyanabban a futásban, a fork a Közgáz B minden meccsén
+összeveti a játékosonkénti faultot Dani adatbázisával: a javított kiolvasás
+(licencsorokhoz igazított fault-sáv, Dani `extract_personal_fouls()`-ával) adja a
+faultot. Ha egy játékosnál eltér, a fork a javított értéket használja — csak akkor,
+ha mind teljesül:
+
+- a javított érték játékosonként legfeljebb Dani értéke: a kétszer számolás csak
+  többletet okoz, így ha valakinél nőne (pl. két játékos faultja felcserélődött),
+  az más hiba, és a fork nem javít;
+- a forrás minden Közgáz-sorát ismeri a PDF újraolvasása (licencszám szerint), és a
+  javított faultok összege egyenlő a PDF játékos-faultjainak számával (nincs olyan
+  fault, aminek a játékosa nincs a forrásban);
+- **csapatfaultok:** negyedenként a javított faultok száma — legfeljebb 4-ig, mert a
+  „Csapat hibák” mező negyedenként 4 X-et jelöl; a hosszabbítás a 4. negyedhez
+  számít — egyenlő a jegyzőkönyv X-jelöléseivel. A jelöléseket a fork a feliratokhoz
+  igazítva olvassa (`team_fouls()`: a csapat „Csapat:” felirata és a játékostábla
+  fejléce közötti „Negyed 1 … 2 …” / „Negyed 3 … 4 …” sorok), nem Dani fix ablakával;
+- **időrend:** a javított faultok (negyed, perc) eseményei mind megvannak Dani
+  `personal_fouls` időrendjében, és Dani többlet-eseményei mind egy valódi fault
+  ismétlései (ugyanaz a negyed és perc). Ez a mezszámot nem nézi; a játékosok közti
+  felcserélést az előző, játékosonkénti feltétel szűri ki.
+
+Különben nem nyúl a meccs faultjaihoz, és a workflow figyelmeztet („Fault nem
+javítva”). Javításkor a `player_game_stats` faultja és a Közgáz oldal mezszámos
+`personal_fouls` sorai (időrend, T/U) a PDF-ből íródnak, egy SAVEPOINT-ban; a
+mezszám nélküli (edzői) sorok maradnak. A javított sorokat a másolat
+`repaired_fouls` táblája jelöli (Dani értéke és a javított érték); az export ebből
+jelöli őket: `matches[].players[].pf_repaired` és `pf_source` (Dani értéke), és
+`players[].views.*.games[].pf_repaired`. A javított meccsen a Közgáz **teljes**
+fault-időrendje a PDF-ből jön, mert Dani hibája a sorok közti eltolás is: a
+`foul_timeline` olyan játékosnál is változhat, akinek a faultszáma nem változott
+(2026-10-31: #14, #20, #38; 2026-10-13: #14 — mind a PDF szerint helyes). Ezt a
+meccs-szintű `matches[].fouls_repaired` jelöli. A futás összesítőjében a „Javított
+faultok” oszlop mutatja őket (vagy hogy ismert eltérés), a naplóban `notice`.
+
+A 252 csapatrészből (a 2026/27-es 104 PDF és a Közgáz 22 darab 2025/26-os PDF-je) 244-ben a
+javított faultok negyedenként pontosan kiadják a csapatfault-jelöléseket; a többi
+7-ben (egy Közgáz-meccs: 2025-11-25) nem, és egynél a feliratok sem találhatók.
+
+**Eredmény (2026-11-16):**
+
+| Meccs | Játékos | Dani | Javított |
+|---|---|---:|---:|
+| 2026-10-13, `hun3k_141615` (Pénzügyőr) | #11 | 1 | 0 |
+| 2026-10-13, `hun3k_141615` (Pénzügyőr) | #19 | 2 | 1 |
+| 2026-10-31, `hun3k_141597` (FKE) | #18 | 2 | 0 |
+| 2026-10-31, `hun3k_141597` (FKE) | #22 | 3 | 2 |
+
+A 2025/26-os szezonban 11 meccsen tér el a javított fault Dani adatbázisától, de
+egyiken sem javít a fork: tízen Dani `personal_fouls` időrendje sérült (értelmetlen
+percek, pl. „610”, „99”, vagy hiányzik) — ezt a szezont Dani kiolvasójának egy korábbi
+változata olvasta be —, egyen (2025-11-25) a csapatfault-jelölések nem egyeznek. Ezek
+a napi futásban egyetlen összesítő figyelmeztetésként látszanak („Fault nem javítva
+(ismert eltérések)”: hány meccs, melyik okkal).
+
+Az ismert eltéréseket a `data/known_foul_mismatches.json` sorolja fel (gamecode és
+okkód: `timeline`, `team_marks`, `sum`, `unknown_row`, `error`). Ha egy ott szereplő
+meccs ugyanazzal az okkal bukik, az összesítőbe kerül; ha más okkal, vagy a meccs
+nincs a listán (új, eddig nem látott eltérés), egyenként jelez. Ha egy ismert
+eltérés megszűnik (a forrás javult, vagy a fork már javítani tudja), a workflow
+értesít („Ismert fault-eltérés megszűnt”), és a sor törölhető a listából.
+
 ### Ellenőrzés helyben
 
 ```bash
@@ -146,7 +214,10 @@ python3 export_stats.py --db /tmp/javitott.sqlite --out public
    most a játékos sorszámából (`pi`) számolja az ablakot, nem a sor helyéből: ha egy
    sor kimarad, a faultok elcsúsznak, és a +12 px-es kiterjesztés az új sorköznél
    átlóg a következő sorba. A fault-ablak a játékos saját sorához tartozzon, és ne
-   érjen túl a következő sor fault-ablakának tetején.
+   érjen túl a következő sor fault-ablakának tetején (a fork: 8 px-lel a licencsor
+   fölött kezdődik, és a következő sor ugyanilyen pontjáig tart).
+   Az `extract_team_fouls()` a „Negyed” feliratokhoz igazodjon, és a kiolvasó
+   ellenőrizze, hogy negyedenként `min(faultok, 4)` = X-jelölések.
 3. **Önellenőrzés kiolvasáskor.** Ha egy kosár mezszámához nincs játékossor, vagy a
    játékosok összege nem egyezik a végeredménnyel, az `extraction_log` ne `success`
    legyen, hanem figyelmeztetés a mezszámmal.
@@ -157,7 +228,7 @@ python3 export_stats.py --db /tmp/javitott.sqlite --out public
    vagy `szezon + jegyzőkönyvszám`), és a TYPE3-felismerés nézze meg a `huna_cup_1032`-t.
 
 A fork javítása ezt a logikát követi (`box_score_repair.py`: `team_region()`,
-`license_lines()`, `row_lines()`, `extract_rows()`, `extract_fouls()`), átvehető.
-A fork a meglévő sorokat (pl. a kétszer számolt faultokat) szándékosan nem írja át,
-és ha Dani kiolvasója javul, a pótlás magától üres lesz (a sorok már a forrásban
-vannak). Utána a `vendor/` másolat frissíthető vagy törölhető.
+`license_lines()`, `row_lines()`, `extract_rows()`, `extract_fouls()`,
+`team_fouls()`), átvehető. A meglévő sorokból a fork csak a faultot írja át, és csak
+a fenti védőkorláttal; ha Dani kiolvasója javul, a pótlás és a fault-javítás magától
+üres lesz (a forrás már helyes). Utána a `vendor/` másolat frissíthető vagy törölhető.

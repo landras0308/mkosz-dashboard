@@ -31,6 +31,9 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
   fix sorablakok miatt az idei PDF-ekben kihagyhatja az első és a 12. sort). Dani
   kiolvasójának változatlan másolatára épül (`vendor/mkosz_scoresheet/`), csak a
   sorhatárokat adja meg a licencsorokból; kézi tartalék: `data/box_score_overrides.json`.
+  Ugyanígy javítja a Közgáz B meccsein a kétszer számolt faultokat (védőkorláttal:
+  csapatfault-jelölések és Dani időrendje); az ismert, nem javítható eltérések
+  listája: `data/known_foul_mismatches.json`.
   Az ok, a védőkorlát és a Dani kiolvasójához javasolt javítás:
   `docs/scoresheet-extraction-fix.md`. Tesztek: `tests/`.
 - `stats_schema.py` — a séma egy helyen; ebből készül a `schemas/*.schema.json` és a
