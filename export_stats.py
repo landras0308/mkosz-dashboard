@@ -435,14 +435,17 @@ def run_json(r):
 
 def season_team(conn, cfg, tp, competition_of):
     """A csapat nézetei: összes / hazai / idegen, és — ha a szezonban van rájátszás
-    is, mint a honlapon — alapszakasz / rájátszás (különben null)."""
+    is, mint a honlapon — alapszakasz / rájátszás, azok hazai és idegen fele is
+    (`regular_home` …; az app a két szűrőt kombinálja). Rájátszás nélkül ezek null."""
     fn = gd.get_team_stats_pbp if gd._is_pbp(cfg) else gd.get_team_stats
     views = {mode: team_view_json(fn(conn, cfg, tp, hv_filter=hv), competition_of)
              for mode, hv in VIEW_MODES.items()}
     has_phase = bool(cfg.get("mkosz_extra_comps"))
     for mode, phase in PHASE_MODES.items():
-        views[mode] = (team_view_json(fn(conn, cfg, tp, phase_filter=phase), competition_of)
-                       if has_phase else None)
+        for side, hv in VIEW_MODES.items():
+            key = mode if side == "all" else f"{mode}_{side}"
+            views[key] = (team_view_json(fn(conn, cfg, tp, hv_filter=hv, phase_filter=phase), competition_of)
+                          if has_phase else None)
     return {"views": views}
 
 

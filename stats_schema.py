@@ -16,6 +16,7 @@ Törő változásnál a `version` nő (és a fájl mellé a régi is megmarad eg
 import glob
 import json
 import os
+import re
 import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -313,13 +314,23 @@ def views(item, d):
     return OBJ(d, {"all": item, "home": item, "away": item})
 
 
+# A csapat szakasz-nézetei és leírásuk (a docs is ebből írja őket).
+PHASE_VIEWS = {
+    "regular": "az alapszakasz", "playoff": "a rájátszás",
+    "regular_home": "az alapszakasz hazai", "regular_away": "az alapszakasz idegenbeli",
+    "playoff_home": "a rájátszás hazai", "playoff_away": "a rájátszás idegenbeli",
+}
+
+
 def team_views():
     item = team_view()
-    phase = dict(item, type=["object", "null"],
-                 description="Mint a views.all, csak az alapszakasz / rájátszás meccseiből; null, ha a "
-                             "szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).")
-    return OBJ("Nézetek: összes, hazai, idegen; alapszakasz, rájátszás.",
-               {"all": item, "home": item, "away": item, "regular": phase, "playoff": phase})
+
+    def phase(what):
+        return dict(item, type=["object", "null"],
+                    description=f"Mint a views.all, csak {what} meccseiből; null, ha a szezonban nincs "
+                                "rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).")
+    return OBJ("Nézetek: összes, hazai, idegen; alapszakasz, rájátszás, és ezek hazai / idegen fele.",
+               {"all": item, "home": item, "away": item, **{k: phase(w) for k, w in PHASE_VIEWS.items()}})
 
 
 def team_view():
@@ -616,7 +627,8 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   eladott labda, perc és +/- a forrásban nincs, ezért itt sincs.
 - **Nézetek:** a játékos- és csapatadatok `all` / `home` / `away` bontásban, a
   bajnoki meccsekből (alapszakasz + rájátszás); a csapaté rájátszásos szezonban
-  `regular` / `playoff` bontásban is (különben ezek `null`). A kupameccsek (Hepp Kupa) a
+  `regular` / `playoff` bontásban is, és ezek hazai / idegen fele is (`regular_home`,
+  `regular_away`, `playoff_home`, `playoff_away`; különben mind `null`). A kupameccsek (Hepp Kupa) a
   `matches[]`-ben teljes részletességgel benne vannak, a szezonösszesítőkbe nem
   számítanak (mint a honlapon).
 - **Csoport-összehasonlítás:** a `league_comparison[]` a bajnokság minden csapatát
@@ -680,13 +692,13 @@ def render_docs():
             _walk(child, k, rows)
         # A views alatt az all/home/away ugyanaz: csak az all-t írjuk ki, a többire utalunk.
         for path, typ, desc in rows:
-            sub = next((m for m in (".views.home", ".views.away", ".views.regular", ".views.playoff")
-                        if m in path), None)
+            subs = [".views.home", ".views.away", *(f".views.{k}" for k in PHASE_VIEWS)]
+            sub = next((m for m in subs if re.search(re.escape(m) + r"(\.|$)", path)), None)
             if sub:
                 if path.endswith(sub):
-                    if sub in (".views.regular", ".views.playoff"):
-                        out.append(f"| `{path}` | object? | Mint a `views.all`, csak "
-                                   f"{'az alapszakasz' if sub.endswith('regular') else 'a rájátszás'} meccseiből; "
+                    what = PHASE_VIEWS.get(sub.removeprefix(".views."))
+                    if what:
+                        out.append(f"| `{path}` | object? | Mint a `views.all`, csak {what} meccseiből; "
                                    f"null, ha a szezonban nincs rájátszás. |")
                     else:
                         out.append(f"| `{path}` | object | Mint a `views.all`. |")
