@@ -2368,6 +2368,40 @@ def _stats_to_js(d):
     }
 
 
+# A csoport-összehasonlítás mutatói: (kulcs, cím, rendezőkulcs, másodlagos kulcs,
+# növekvő-e, formázás). A csoport.html és az app JSON-ja (export_stats.py) is ebből
+# rangsorol, hogy ne legyen kétféle logika.
+LEAGUE_METRICS = [
+    ("wl", "Győzelem-vereség", lambda d: d["wins"], lambda d: -d["losses"], False,
+     lambda d: f'{d["wins"]}-{d["losses"]}'),
+    ("ppg", "PPG (dobott)", lambda d: d["ppg"], None, False, lambda d: f'{d["ppg"]:.1f}'),
+    ("oppg", "OPPG (kapott)", lambda d: d["oppg"], None, True, lambda d: f'{d["oppg"]:.1f}'),
+    ("ft_pct", "Büntető%", lambda d: d["ft_pct"], None, False, lambda d: f'{d["ft_pct"]:.1f}%'),
+    ("fg2_pg", "2FG / meccs", lambda d: d["fg2_pg"], None, False, lambda d: f'{d["fg2_pg"]:.1f}'),
+    ("fg3_pg", "3FG / meccs", lambda d: d["fg3_pg"], None, False, lambda d: f'{d["fg3_pg"]:.1f}'),
+    ("fta_total", "Dobott büntető / idény", lambda d: d["fta_total"], None, False,
+     lambda d: f'{d["fta_total"]}'),
+    ("ftm_pg", "Büntető pont / meccs", lambda d: d["ftm_pg"], None, False, lambda d: f'{d["ftm_pg"]:.1f}'),
+]
+
+
+def league_is_kg(name, team_short, team_key):
+    """Csapatnév-egyezés: a saját csapatunk-e az adott sor (csoport-összehasonlítás)."""
+    return team_short.upper() in (name or "").upper() or \
+           "KÖZGÁZ" in (name or "").upper() and team_key in ("kozgaz-a", "kozgaz-b") and \
+           (("DSK/A" in name and team_key == "kozgaz-a") or ("DSK/B" in name and team_key == "kozgaz-b"))
+
+
+def rank_league(data, metric):
+    """Egy mutató rangsora: a get_league_comparison sorai a LEAGUE_METRICS szerint rendezve."""
+    _key, _title, sort_key, secondary_key, ascending, _fmt = metric
+    return sorted(
+        data,
+        key=lambda d: (sort_key(d), (secondary_key(d) if secondary_key else 0)),
+        reverse=not ascending,
+    )
+
+
 def generate_league_comparison_page(cfg, alap_data, play_data, team_key=None):
     """Csoport-összehasonlító oldal: 2x6 mini-tábla (alapszakasz + rájátszás).
 
@@ -2379,21 +2413,14 @@ def generate_league_comparison_page(cfg, alap_data, play_data, team_key=None):
     team_name = cfg["team_name"]
     group_name = cfg["group_name"]
 
-    # Csapatnév-egyezés: van-e a saját csapatunk az adott listában?
     def _is_kg(name):
-        return team_short.upper() in (name or "").upper() or \
-               "KÖZGÁZ" in (name or "").upper() and team_key in ("kozgaz-a", "kozgaz-b") and \
-               (("DSK/A" in name and team_key == "kozgaz-a") or ("DSK/B" in name and team_key == "kozgaz-b"))
+        return league_is_kg(name, team_short, team_key)
 
-    def _mini_table(title, data, sort_key, fmt_val, ascending=False, secondary_key=None):
-        """Egy mini-táblázat: rang, csapatnév, érték; rendezve sort_key szerint."""
-        sorted_data = sorted(
-            data,
-            key=lambda d: (sort_key(d), (secondary_key(d) if secondary_key else 0)),
-            reverse=not ascending,
-        )
+    def _mini_table(metric, data):
+        """Egy mini-táblázat: rang, csapatnév, érték; rendezve a mutató szerint."""
+        title, fmt_val = metric[1], metric[5]
         rows_html = ""
-        for i, t in enumerate(sorted_data, 1):
+        for i, t in enumerate(rank_league(data, metric), 1):
             name = calendar_short_name(t["name"])
             is_kg = _is_kg(t["name"])
             row_class = "lg-row lg-kg" if is_kg else "lg-row"
@@ -2413,32 +2440,7 @@ def generate_league_comparison_page(cfg, alap_data, play_data, team_key=None):
         """6 mini-tábla 2x3 grid-ben az adott data list-re."""
         if not data:
             return '<div class="empty-state">Nincs adat ehhez a csoporthoz.</div>'
-        tables = []
-        tables.append(_mini_table("Győzelem-vereség", data,
-            sort_key=lambda d: d["wins"],
-            secondary_key=lambda d: -d["losses"],
-            fmt_val=lambda d: f'{d["wins"]}-{d["losses"]}'))
-        tables.append(_mini_table("PPG (dobott)", data,
-            sort_key=lambda d: d["ppg"],
-            fmt_val=lambda d: f'{d["ppg"]:.1f}'))
-        tables.append(_mini_table("OPPG (kapott)", data,
-            sort_key=lambda d: d["oppg"], ascending=True,
-            fmt_val=lambda d: f'{d["oppg"]:.1f}'))
-        tables.append(_mini_table("Büntető%", data,
-            sort_key=lambda d: d["ft_pct"],
-            fmt_val=lambda d: f'{d["ft_pct"]:.1f}%'))
-        tables.append(_mini_table("2FG / meccs", data,
-            sort_key=lambda d: d["fg2_pg"],
-            fmt_val=lambda d: f'{d["fg2_pg"]:.1f}'))
-        tables.append(_mini_table("3FG / meccs", data,
-            sort_key=lambda d: d["fg3_pg"],
-            fmt_val=lambda d: f'{d["fg3_pg"]:.1f}'))
-        tables.append(_mini_table("Dobott büntető / idény", data,
-            sort_key=lambda d: d["fta_total"],
-            fmt_val=lambda d: f'{d["fta_total"]}'))
-        tables.append(_mini_table("Büntető pont / meccs", data,
-            sort_key=lambda d: d["ftm_pg"],
-            fmt_val=lambda d: f'{d["ftm_pg"]:.1f}'))
+        tables = [_mini_table(metric, data) for metric in LEAGUE_METRICS]
         return '<div class="lg-grid">' + "".join(tables) + '</div>'
 
     alap_label = group_name  # pl. "NB2 Közép B" Közgáz A-hoz

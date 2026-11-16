@@ -291,6 +291,15 @@ def views(item, d):
     return OBJ(d, {"all": item, "home": item, "away": item})
 
 
+def team_views():
+    item = team_view()
+    phase = dict(item, type=["object", "null"],
+                 description="Mint a views.all, csak az alapszakasz / rájátszás meccseiből; null, ha a "
+                             "szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).")
+    return OBJ("Nézetek: összes, hazai, idegen; alapszakasz, rájátszás.",
+               {"all": item, "home": item, "away": item, "regular": phase, "playoff": phase})
+
+
 def team_view():
     run = OBJ("Egy run (válasz nélküli pontsorozat).", {
         "date": STR("Dátum.", **DATE),
@@ -392,8 +401,30 @@ def stats_schema():
                 "views": views(player_view(), "Nézetek: összes, hazai, idegen."),
             })),
             "team_stats": OBJ("Csapatszint (null, ha a szezonban még nincs bajnoki meccs).", {
-                "views": views(team_view(), "Nézetek: összes, hazai, idegen."),
+                "views": team_views(),
             }, null=True),
+            "league_comparison": ARR(
+                "Csoport-összehasonlítás bajnokságonként (a honlap csoport.html-je): a csoport minden "
+                "csapata a jegyzőkönyvek alapján, mutatónként rangsorolva.",
+                OBJ("Egy bajnokság.", {
+                    "competition": STR("Bajnokság-kód."),
+                    "competition_label": STR("Bajnokság neve."),
+                    "phase": ENUM("Szakasz.", PHASE),
+                    "team_count": INT("A csoport csapatainak száma."),
+                    "metrics": ARR("A mutatók, a honlap sorrendjében.", OBJ("Egy mutató rangsora.", {
+                        "key": ENUM("A mutató kulcsa.", ("wl", "ppg", "oppg", "ft_pct", "fg2_pg", "fg3_pg",
+                                                         "fta_total", "ftm_pg")),
+                        "label": STR("A mutató címe (a honlap szerint)."),
+                        "rows": ARR("A csapatok a mutató szerinti sorrendben.", OBJ("Egy csapat.", {
+                            "rank": INT("Helyezés ebben a mutatóban (1-től)."),
+                            "team": STR("Csapat teljes neve."),
+                            "team_short": STR("Csapat rövid neve."),
+                            "is_kozgaz": BOOL("A Közgáz B-e."),
+                            "games": INT("Lejátszott meccsek a bajnokságban."),
+                            "value": STR("Az érték, ahogy a honlap írja (pl. 9-13, 76.9, 67.6%)."),
+                        })),
+                    })),
+                })),
         }),
     }
 
@@ -492,9 +523,12 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   kezdő. Mezőny- és hármaskísérlet, lepattanó, gólpassz, labdaszerzés, blokk,
   eladott labda, perc és +/- a forrásban nincs, ezért itt sincs.
 - **Nézetek:** a játékos- és csapatadatok `all` / `home` / `away` bontásban, a
-  bajnoki meccsekből (alapszakasz + rájátszás). A kupameccsek (Hepp Kupa) a
+  bajnoki meccsekből (alapszakasz + rájátszás); a csapaté rájátszásos szezonban
+  `regular` / `playoff` bontásban is (különben ezek `null`). A kupameccsek (Hepp Kupa) a
   `matches[]`-ben teljes részletességgel benne vannak, a szezonösszesítőkbe nem
   számítanak (mint a honlapon).
+- **Csoport-összehasonlítás:** a `league_comparison[]` a bajnokság minden csapatát
+  rangsorolja a honlap csoport.html-jének mutatói szerint (ugyanazzal a kóddal).
 - **Játékoskulcs:** a licencszám, ha van (`key_type: "license"`), különben a névből
   képzett slug (`key_type: "name_slug"`).
 
@@ -548,9 +582,16 @@ def render_docs():
             _walk(child, k, rows)
         # A views alatt az all/home/away ugyanaz: csak az all-t írjuk ki, a többire utalunk.
         for path, typ, desc in rows:
-            if ".views.home" in path or ".views.away" in path:
-                if path.endswith(".views.home") or path.endswith(".views.away"):
-                    out.append(f"| `{path}` | object | Mint a `views.all`. |")
+            sub = next((m for m in (".views.home", ".views.away", ".views.regular", ".views.playoff")
+                        if m in path), None)
+            if sub:
+                if path.endswith(sub):
+                    if sub in (".views.regular", ".views.playoff"):
+                        out.append(f"| `{path}` | object? | Mint a `views.all`, csak az "
+                                   f"{'alapszakasz' if sub.endswith('regular') else 'rájátszás'} meccseiből; "
+                                   f"null, ha a szezonban nincs rájátszás. |")
+                    else:
+                        out.append(f"| `{path}` | object | Mint a `views.all`. |")
                 continue
             out.append(f"| `{path}` | {typ} | {desc.replace('|', '/')} |")
     return "\n".join(out) + "\n"

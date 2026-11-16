@@ -20,7 +20,10 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
   - `_compute_player_view(..., with_ids=True)` — a meccssorok azonosítókkal;
   - `scrape_standings_tables()` — az MKOSZ-oldal összes tabellája (rájátszásnál
     csoportonként), a `scrape_standings()` ebből az elsőt adja, mint eddig;
-  - `get_match_details()` a játékosoknál a nyers licencszámot is visszaadja.
+  - `get_match_details()` a játékosoknál a nyers licencszámot is visszaadja;
+  - `LEAGUE_METRICS`, `rank_league()`, `league_is_kg()` — a csoport-összehasonlítás
+    mutatói és rangsora; a `generate_league_comparison_page()` és a JSON
+    `league_comparison[]`-je is ebből készül.
 - `stats_schema.py` — a séma egy helyen; ebből készül a `schemas/*.schema.json` és a
   `docs/STATS_JSON.md`, és ez ellenőrzi a kimenetet.
 - `.github/workflows/stats-export.yml` — napi futás 18:47 UTC-kor (Dani mkosz-stats

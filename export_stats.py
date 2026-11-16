@@ -43,6 +43,8 @@ COMP_LABELS = {
     "huna_cup": "Hepp Kupa",
 }
 VIEW_MODES = {"all": None, "home": "H", "away": "V"}
+# A csapat alapszakasz / rájátszás nézete (a honlap Alapszakasz / Rájátszás gombjai).
+PHASE_MODES = {"regular": "alap", "playoff": "play"}
 SCENARIO_LABELS = {
     "HT_LEAD": "Félidőben vezet",
     "HT_TRAIL": "Félidőben hátrányban",
@@ -381,9 +383,46 @@ def run_json(r):
 
 
 def season_team(conn, cfg, tp, competition_of):
+    """A csapat nézetei: összes / hazai / idegen, és — ha a szezonban van rájátszás
+    is, mint a honlapon — alapszakasz / rájátszás (különben null)."""
     fn = gd.get_team_stats_pbp if gd._is_pbp(cfg) else gd.get_team_stats
-    return {"views": {mode: team_view_json(fn(conn, cfg, tp, hv_filter=hv), competition_of)
-                      for mode, hv in VIEW_MODES.items()}}
+    views = {mode: team_view_json(fn(conn, cfg, tp, hv_filter=hv), competition_of)
+             for mode, hv in VIEW_MODES.items()}
+    has_phase = bool(cfg.get("mkosz_extra_comps"))
+    for mode, phase in PHASE_MODES.items():
+        views[mode] = (team_view_json(fn(conn, cfg, tp, phase_filter=phase), competition_of)
+                       if has_phase else None)
+    return {"views": views}
+
+
+def league_comparison_json(conn, league_comps):
+    """A csoport-összehasonlítás bajnokságonként: a honlap csoport.html-jének mutatói
+    (gd.LEAGUE_METRICS), ugyanazzal a rangsorolással (gd.rank_league)."""
+    cfg = gd.TEAMS[TEAM_KEY]
+    out = []
+    for comp in league_comps:
+        data = gd.get_league_comparison(conn, comp)
+        if not data:
+            continue
+        out.append({
+            "competition": comp,
+            "competition_label": comp_label(comp),
+            "phase": comp_phase(comp),
+            "team_count": len(data),
+            "metrics": [{
+                "key": metric[0],
+                "label": metric[1],
+                "rows": [{
+                    "rank": i,
+                    "team": t["name"],
+                    "team_short": gd.calendar_short_name(t["name"]),
+                    "is_kozgaz": bool(gd.league_is_kg(t["name"], cfg["team_short"], TEAM_KEY)),
+                    "games": t["games"],
+                    "value": metric[5](t),
+                } for i, t in enumerate(gd.rank_league(data, metric), 1)],
+            } for metric in gd.LEAGUE_METRICS],
+        })
+    return out
 
 
 # ─────────────────────────────── tabella ───────────────────────────────
@@ -491,6 +530,7 @@ def main():
             "matches": matches,
             "players": season_players(conn, cfg, tp, competition_of) if league else [],
             "team_stats": season_team(conn, cfg, tp, competition_of) if league else None,
+            "league_comparison": league_comparison_json(conn, league),
         }
         previous = fetch_previous(args.previous_base, f"{season}/standings.json")
         standings = standings_json(season, league, season == current, previous)

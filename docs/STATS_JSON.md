@@ -19,9 +19,12 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   kezdő. Mezőny- és hármaskísérlet, lepattanó, gólpassz, labdaszerzés, blokk,
   eladott labda, perc és +/- a forrásban nincs, ezért itt sincs.
 - **Nézetek:** a játékos- és csapatadatok `all` / `home` / `away` bontásban, a
-  bajnoki meccsekből (alapszakasz + rájátszás). A kupameccsek (Hepp Kupa) a
+  bajnoki meccsekből (alapszakasz + rájátszás); a csapaté rájátszásos szezonban
+  `regular` / `playoff` bontásban is (különben ezek `null`). A kupameccsek (Hepp Kupa) a
   `matches[]`-ben teljes részletességgel benne vannak, a szezonösszesítőkbe nem
   számítanak (mint a honlapon).
+- **Csoport-összehasonlítás:** a `league_comparison[]` a bajnokság minden csapatát
+  rangsorolja a honlap csoport.html-jének mutatói szerint (ugyanazzal a kóddal).
 - **Játékoskulcs:** a licencszám, ha van (`key_type: "license"`), különben a névből
   képzett slug (`key_type: "name_slug"`).
 
@@ -242,7 +245,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].views.home` | object | Mint a `views.all`. |
 | `players[].views.away` | object | Mint a `views.all`. |
 | `team_stats` | object? | Csapatszint (null, ha a szezonban még nincs bajnoki meccs). |
-| `team_stats.views` | object | Nézetek: összes, hazai, idegen. |
+| `team_stats.views` | object | Nézetek: összes, hazai, idegen; alapszakasz, rájátszás. |
 | `team_stats.views.all` | object | Egy nézet (összes / hazai / idegen) a bajnoki meccsekből. |
 | `team_stats.views.all.record` | object | Mérleg. |
 | `team_stats.views.all.record.games` | integer | Meccs. |
@@ -312,6 +315,23 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `team_stats.views.all.facts[][].bold` | boolean | Kiemelt-e. |
 | `team_stats.views.home` | object | Mint a `views.all`. |
 | `team_stats.views.away` | object | Mint a `views.all`. |
+| `team_stats.views.regular` | object? | Mint a `views.all`, csak az alapszakasz meccseiből; null, ha a szezonban nincs rájátszás. |
+| `team_stats.views.playoff` | object? | Mint a `views.all`, csak az rájátszás meccseiből; null, ha a szezonban nincs rájátszás. |
+| `league_comparison` | array | Csoport-összehasonlítás bajnokságonként (a honlap csoport.html-je): a csoport minden csapata a jegyzőkönyvek alapján, mutatónként rangsorolva. |
+| `league_comparison[].competition` | string | Bajnokság-kód. |
+| `league_comparison[].competition_label` | string | Bajnokság neve. |
+| `league_comparison[].phase` | string (regular | playoff | cup) | Szakasz. |
+| `league_comparison[].team_count` | integer | A csoport csapatainak száma. |
+| `league_comparison[].metrics` | array | A mutatók, a honlap sorrendjében. |
+| `league_comparison[].metrics[].key` | string (wl | ppg | oppg | ft_pct | fg2_pg | fg3_pg | fta_total | ftm_pg) | A mutató kulcsa. |
+| `league_comparison[].metrics[].label` | string | A mutató címe (a honlap szerint). |
+| `league_comparison[].metrics[].rows` | array | A csapatok a mutató szerinti sorrendben. |
+| `league_comparison[].metrics[].rows[].rank` | integer | Helyezés ebben a mutatóban (1-től). |
+| `league_comparison[].metrics[].rows[].team` | string | Csapat teljes neve. |
+| `league_comparison[].metrics[].rows[].team_short` | string | Csapat rövid neve. |
+| `league_comparison[].metrics[].rows[].is_kozgaz` | boolean | A Közgáz B-e. |
+| `league_comparison[].metrics[].rows[].games` | integer | Lejátszott meccsek a bajnokságban. |
+| `league_comparison[].metrics[].rows[].value` | string | Az érték, ahogy a honlap írja (pl. 9-13, 76.9, 67.6%). |
 
 ## standings.json
 
