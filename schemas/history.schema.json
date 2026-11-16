@@ -75,6 +75,10 @@
                 ],
                 "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
               },
+              "fg2_per_game": {
+                "type": "number",
+                "description": "Bedobott kettes/meccs, egy tizedes."
+              },
               "fg3_per_game": {
                 "type": "number",
                 "description": "Bedobott hármas/meccs, egy tizedes."
@@ -133,6 +137,7 @@
               "opp_ppg",
               "diff_per_game",
               "ft_pct",
+              "fg2_per_game",
               "fg3_per_game",
               "home_wins",
               "home_games",
@@ -246,6 +251,10 @@
                   "type": "integer",
                   "description": "Legtöbb pont egy meccsen."
                 },
+                "fg2_per_game": {
+                  "type": "number",
+                  "description": "Bedobott kettes/meccs, egy tizedes."
+                },
                 "fg3_per_game": {
                   "type": "number",
                   "description": "Bedobott hármas/meccs, egy tizedes."
@@ -276,6 +285,7 @@
                 "points",
                 "ppg",
                 "max_points",
+                "fg2_per_game",
                 "fg3_per_game",
                 "ft_made",
                 "ft_att",

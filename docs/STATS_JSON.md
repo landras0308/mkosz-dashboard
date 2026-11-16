@@ -420,6 +420,7 @@ Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a 
 | `seasons[].team.opp_ppg` | number | Kapott/meccs. |
 | `seasons[].team.diff_per_game` | number | Különbség/meccs. |
 | `seasons[].team.ft_pct` | number? | Büntető%, egy tizedes; null, ha nem volt kísérlet. |
+| `seasons[].team.fg2_per_game` | number | Bedobott kettes/meccs, egy tizedes. |
 | `seasons[].team.fg3_per_game` | number | Bedobott hármas/meccs, egy tizedes. |
 | `seasons[].team.home_wins` | integer | Hazai győzelem. |
 | `seasons[].team.home_games` | integer | Hazai meccs. |
@@ -445,6 +446,7 @@ Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a 
 | `players[].seasons[].points` | integer | Pont. |
 | `players[].seasons[].ppg` | number | Pont/meccs. |
 | `players[].seasons[].max_points` | integer | Legtöbb pont egy meccsen. |
+| `players[].seasons[].fg2_per_game` | number | Bedobott kettes/meccs, egy tizedes. |
 | `players[].seasons[].fg3_per_game` | number | Bedobott hármas/meccs, egy tizedes. |
 | `players[].seasons[].ft_made` | integer | Bedobott büntető. |
 | `players[].seasons[].ft_att` | integer | Büntető-kísérlet. |

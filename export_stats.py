@@ -528,7 +528,8 @@ def team_history(stats):
         "win_pct": round(100 * r["wins"] / g, 1),
         "ppg": r["ppg"], "opp_ppg": r["opp_ppg"], "diff_per_game": r["diff_per_game"],
         "ft_pct": round(100 * sp["ft_made"] / sp["ft_att"], 1) if sp["ft_att"] else None,
-        # A honlap a hármasok pontját fg3 * 3-ként számolja (_stats_to_js).
+        # A honlap a kettesek és hármasok pontját fg2 * 2-ként, fg3 * 3-ként számolja (_stats_to_js).
+        "fg2_per_game": per_game(sp["points_2"] // 2, g),
         "fg3_per_game": per_game(sp["points_3"] // 3, g),
         "home_wins": r["home_wins"], "home_games": r["home_games"],
         "away_wins": r["away_wins"], "away_games": r["away_games"],
@@ -559,7 +560,8 @@ def history_json(per_season):
             entry["name"] = p["name"]  # a legutóbbi szezoné marad
             entry["seasons"].append({
                 "season": stats["season"], "games": s["games"], "points": s["points"], "ppg": s["ppg"],
-                "max_points": s["max_points"], "fg3_per_game": per_game(s["fg3_made"], s["games"]),
+                "max_points": s["max_points"], "fg2_per_game": per_game(s["fg2_made"], s["games"]),
+                "fg3_per_game": per_game(s["fg3_made"], s["games"]),
                 "ft_made": s["ft_made"], "ft_att": s["ft_att"],
                 "ft_pct": s["ft_pct"] if s["ft_att"] else None,
                 "pf_per_game": s["pf_per_game"],
