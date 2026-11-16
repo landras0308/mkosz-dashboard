@@ -133,10 +133,15 @@ def match():
             "tech": INT("Technikai hiba (T)."),
             "unsport": INT("Sportszerűtlen hiba (U)."),
         }),
-        "box_score_check": OBJ("Forrás-ellenőrzés (a honlap figyelmeztetése).", {
+        "box_score_check": OBJ("Forrás-ellenőrzés a pótlás előtti állapotból (a honlap figyelmeztetése; "
+                               "docs/scoresheet-extraction-fix.md).", {
             "official_points": INT("A hivatalos végeredmény Közgáz-pontja."),
-            "box_points": INT("A játékosokhoz rendelt pontok összege."),
-            "difference": INT("official_points − box_points; ha nem 0, a jegyzőkönyv-adat hiányos."),
+            "box_points": INT("A forrás (Dani adatbázisa) játékossoraihoz rendelt pontok összege, a pótolt "
+                              "(repaired) és a kosarakból kiegészített (reconstructed) sorok nélkül."),
+            "difference": INT("official_points − box_points; ha nem 0, a forrás jegyzőkönyv-adata hiányos."),
+            "repaired_points": INT("A fork által a PDF-jegyzőkönyvből vagy kézi felülírásból pótolt sorok pontjai."),
+            "remaining_difference": INT("official_points − box_points − repaired_points: ami a pótlás után is "
+                                        "hiányzik; 0, ha a pótolt box score teljes."),
             "unassigned_fouls": INT("Játékoshoz nem rendelhető (mezszám nélküli) Közgáz-faultok."),
         }),
         "opponent_totals": OBJ("Az ellenfél összesítője.", {
@@ -166,6 +171,8 @@ def match():
             "tech": INT("Technikai hiba (T)."),
             "unsport": INT("Sportszerűtlen hiba (U)."),
             "reconstructed": BOOL("A sor a kosarak listájából pótolt (a jegyzőkönyv box score-jából hiányzott)."),
+            "repaired": BOOL("A sort a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (a forrás "
+                             "adatbázisából hiányzott; docs/scoresheet-extraction-fix.md)."),
         })),
         "progression": OBJ("Az eredmény alakulása (csak a beesett kosarak; NB2-ben nincs kihagyott dobás).", {
             "events": ARR("Kosarak időrendben.", OBJ("Egy kosár.", {
@@ -279,6 +286,8 @@ def player_view():
             "pf": INT("Személyi hiba.", null=True),
             "share_pct": NUM("A csapat pontjaiból való részesedés, %.", null=True),
             "starter": BOOL("Kezdő volt-e.", null=True),
+            "repaired": BOOL("A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból "
+                             "(false, ha nem játszott)."),
         })),
         "insights": OBJ("Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).", {
             "strengths": ARR("Erősségek (legfeljebb 5).", STR("Egy mondat.")),
@@ -597,7 +606,9 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   rangsorolja a honlap csoport.html-jének mutatói szerint (ugyanazzal a kóddal).
 - **Szezonról szezonra:** a `history.json` minden szezon tömör, meccsenkénti mutatóit adja
   (csapat és játékosok), a szezonok összehasonlításához; ugyanazokból a számokból, mint a
-  szezonok `stats.json`-ja.
+  szezonok `stats.json`-ja. A csapat büntető%-a és győzelem-aránya egy tizedesre kerekített
+  (a fun factek és a játékosok `ft_pct`-je egészre). A játékos szezonjait a játékoskulcs köti
+  össze: akinek egy szezonban még nem volt licencszáma (név-slug), az ott külön szerepel.
 - **Játékoskulcs:** a licencszám, ha van (`key_type: "license"`), különben a névből
   képzett slug (`key_type: "name_slug"`).
 

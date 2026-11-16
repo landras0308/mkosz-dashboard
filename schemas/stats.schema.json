@@ -317,7 +317,7 @@
           },
           "box_score_check": {
             "type": "object",
-            "description": "Forrás-ellenőrzés (a honlap figyelmeztetése).",
+            "description": "Forrás-ellenőrzés a pótlás előtti állapotból (a honlap figyelmeztetése; docs/scoresheet-extraction-fix.md).",
             "properties": {
               "official_points": {
                 "type": "integer",
@@ -325,11 +325,19 @@
               },
               "box_points": {
                 "type": "integer",
-                "description": "A játékosokhoz rendelt pontok összege."
+                "description": "A forrás (Dani adatbázisa) játékossoraihoz rendelt pontok összege, a pótolt (repaired) és a kosarakból kiegészített (reconstructed) sorok nélkül."
               },
               "difference": {
                 "type": "integer",
-                "description": "official_points − box_points; ha nem 0, a jegyzőkönyv-adat hiányos."
+                "description": "official_points − box_points; ha nem 0, a forrás jegyzőkönyv-adata hiányos."
+              },
+              "repaired_points": {
+                "type": "integer",
+                "description": "A fork által a PDF-jegyzőkönyvből vagy kézi felülírásból pótolt sorok pontjai."
+              },
+              "remaining_difference": {
+                "type": "integer",
+                "description": "official_points − box_points − repaired_points: ami a pótlás után is hiányzik; 0, ha a pótolt box score teljes."
               },
               "unassigned_fouls": {
                 "type": "integer",
@@ -340,6 +348,8 @@
               "official_points",
               "box_points",
               "difference",
+              "repaired_points",
+              "remaining_difference",
               "unassigned_fouls"
             ],
             "additionalProperties": false
@@ -475,6 +485,10 @@
                 "reconstructed": {
                   "type": "boolean",
                   "description": "A sor a kosarak listájából pótolt (a jegyzőkönyv box score-jából hiányzott)."
+                },
+                "repaired": {
+                  "type": "boolean",
+                  "description": "A sort a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (a forrás adatbázisából hiányzott; docs/scoresheet-extraction-fix.md)."
                 }
               },
               "required": [
@@ -491,7 +505,8 @@
                 "pf",
                 "tech",
                 "unsport",
-                "reconstructed"
+                "reconstructed",
+                "repaired"
               ],
               "additionalProperties": false
             }
@@ -1279,6 +1294,10 @@
                             "null"
                           ],
                           "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
                         }
                       },
                       "required": [
@@ -1299,7 +1318,8 @@
                         "ft_att",
                         "pf",
                         "share_pct",
-                        "starter"
+                        "starter",
+                        "repaired"
                       ],
                       "additionalProperties": false
                     }
@@ -1591,6 +1611,10 @@
                             "null"
                           ],
                           "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
                         }
                       },
                       "required": [
@@ -1611,7 +1635,8 @@
                         "ft_att",
                         "pf",
                         "share_pct",
-                        "starter"
+                        "starter",
+                        "repaired"
                       ],
                       "additionalProperties": false
                     }
@@ -1903,6 +1928,10 @@
                             "null"
                           ],
                           "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
                         }
                       },
                       "required": [
@@ -1923,7 +1952,8 @@
                         "ft_att",
                         "pf",
                         "share_pct",
-                        "starter"
+                        "starter",
+                        "repaired"
                       ],
                       "additionalProperties": false
                     }

@@ -11,7 +11,9 @@ Kimenet (az --out mappába, a GitHub Pages ezt teszi közzé):
 Minden szám a generate_dashboards.py lekérdezéseiből és compute_*/_compute_*
 függvényeiből jön, ugyanazokból, amikből a kozgazkosar.hu oldalai készülnek; itt
 csak JSON-ba rendezzük őket. Forrás: a mkosz-stats nyilvános adatbázisa (Dani napi
-importja után), a tabella a mkosz.hu-ról. A PDF-feldolgozás itt nem fut.
+importja után), a tabella a mkosz.hu-ról. A workflow-ban az adatbázis másolatát a
+box_score_repair.py előbb kiegészíti a hiányzó Közgáz-sorokkal (repaired_rows tábla;
+docs/scoresheet-extraction-fix.md); az export ebből a másolatból fut.
 
 A mezők leírása: docs/STATS_JSON.md (a schemas/*.schema.json-ból generálva).
 
@@ -87,6 +89,33 @@ def player_key(license_number, name):
     return gd.slugify(name or ""), "name_slug"
 
 
+def load_repaired(conn):
+    """A box_score_repair.py által pótolt sorok: {(gamecode, csapat A/B, licencszám)}.
+    Üres, ha az adatbázis nem a javított másolat (nincs repaired_rows tábla)."""
+    has = conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'repaired_rows'").fetchone()
+    if not has:
+        return set()
+    return {(gc, team, lic) for gc, team, lic in
+            conn.execute("SELECT gamecode, team, license_number FROM repaired_rows")}
+
+
+def box_score_check(players, official, unassigned_fouls):
+    """A forrás-ellenőrzés a pótlás előtti állapotból: a box_points csak a forrás
+    sorainak pontjai, a pótolt (repaired) és a generátor által a kosarakból
+    kiegészített (reconstructed) sorok nélkül."""
+    repaired = sum(p["points"] for p in players if p["repaired"])
+    reconstructed = sum(p["points"] for p in players if p["reconstructed"])
+    box = sum(p["points"] for p in players) - repaired - reconstructed
+    return {
+        "official_points": official,
+        "box_points": box,
+        "difference": official - box,
+        "repaired_points": repaired,
+        "remaining_difference": official - box - repaired,
+        "unassigned_fouls": unassigned_fouls,
+    }
+
+
 def discover_seasons(conn):
     """Melyik szezonban mely bajnokságokban van a Közgáz B-nek lejátszott meccse."""
     pat = gd.TEAMS[TEAM_KEY]["team_pattern"]
@@ -128,7 +157,7 @@ def season_configs(season, comps):
 
 # ─────────────────────────────── meccsek ───────────────────────────────
 
-def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id):
+def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id, repaired):
     details = gd.get_match_details(conn, cfg, tp, gamecode)
     if not details:
         return None
@@ -154,6 +183,7 @@ def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id):
             "ft_made": p["ft_made"], "ft_att": p["ft_att"], "pf": p["pf"],
             "tech": p.get("tech", 0), "unsport": p.get("unsport", 0),
             "reconstructed": bool(p.get("_reconstructed")),
+            "repaired": (gamecode, kg_side, p.get("license_number")) in repaired,
         })
 
     opp = v["opp_total"]
@@ -201,12 +231,7 @@ def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id):
         "quarters": [{"quarter": q, "home": sa, "away": sb_} for q, sa, sb_ in v["q_rows"]],
         "quarters_source": "events" if v["progression"] else "quarter_scores",
         "kozgaz_totals": dict(v["totals"]),
-        "box_score_check": {
-            "official_points": v["kg_official"],
-            "box_points": v["totals"]["points"],
-            "difference": v["box_diff"],
-            "unassigned_fouls": v["orphan_fouls"],
-        },
+        "box_score_check": box_score_check(kg_players, v["kg_official"], v["orphan_fouls"]),
         "opponent_totals": {
             "points": opp["points"], "fg2_made": opp["fg2_made"], "fg3_made": opp["fg3_made"],
             "ft_made": opp["ft_made"], "ft_att": opp["ft_att"], "ft_pct": v["opp_ft_pct"],
@@ -245,7 +270,7 @@ def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id):
     }
 
 
-def season_matches(conn, season, comps, cfg, cup_cfgs):
+def season_matches(conn, season, comps, cfg, cup_cfgs, repaired):
     tp_league = gd._team_like(conn, cfg)
     tps = {c: tp_league for c in comps if c not in CUP_COMPS}
     for c, cc in cup_cfgs.items():
@@ -259,7 +284,7 @@ def season_matches(conn, season, comps, cfg, cup_cfgs):
               AND score_a + score_b > 0
         """, (season, comp, tp, tp)).fetchall()
         for gamecode, scoresheet_id in rows:
-            m = match_json(conn, season, comp, gamecode, cup_cfgs.get(comp, cfg), tp, scoresheet_id)
+            m = match_json(conn, season, comp, gamecode, cup_cfgs.get(comp, cfg), tp, scoresheet_id, repaired)
             if m:
                 out.append(m)
     out.sort(key=lambda m: (m["date"], m["time"] or "", m["gamecode"]))
@@ -268,7 +293,7 @@ def season_matches(conn, season, comps, cfg, cup_cfgs):
 
 # ─────────────────────────────── játékosok ───────────────────────────────
 
-def player_view_json(player, bundle, competition_of):
+def player_view_json(player, bundle, competition_of, repaired_games):
     view = gd._compute_player_view(player, bundle, with_ids=True)
     strengths, weaknesses = gd.generate_insights(
         player[1], view["games"], view["ppg"], view["fg3"], view["ft_m"], view["ft_a"],
@@ -297,6 +322,7 @@ def player_view_json(player, bundle, competition_of):
             "pf": g["pf"] if played else None,
             "share_pct": g["share"] if played else None,
             "starter": g["start"] if played else None,
+            "repaired": played and g["gamecode"] in repaired_games,
         })
     return {
         "summary": {
@@ -315,16 +341,17 @@ def player_view_json(player, bundle, competition_of):
     }
 
 
-def season_players(conn, cfg, tp, competition_of):
+def season_players(conn, cfg, tp, competition_of, repaired):
     out = []
     for player in gd.get_roster(conn, cfg, tp):
         lic, name, jersey = player[0], player[1], player[2]
         has_license = lic is not None and lic != name
         key, key_type = player_key(lic if has_license else None, name)
+        repaired_games = {gc for gc, _, rl in repaired if has_license and rl == lic}
         views = {}
         for mode, hv in VIEW_MODES.items():
             bundle = gd.get_player_bundle(conn, cfg, tp, lic, hv_filter=hv)
-            views[mode] = player_view_json(player, bundle, competition_of)
+            views[mode] = player_view_json(player, bundle, competition_of, repaired_games)
         out.append({
             "key": key, "key_type": key_type, "name": name,
             "jersey": jersey, "slug": gd.slugify(name),
@@ -571,6 +598,7 @@ def main():
     if not found:
         sys.exit("Nincs Közgáz B meccs az adatbázisban.")
     current = max(found)
+    repaired = load_repaired(conn)
     season_list = []
     per_season = []
     for season in sorted(found, reverse=True):
@@ -578,7 +606,7 @@ def main():
         gd.SEASON = season  # a generate_dashboards lekérdezései ezt a globálist olvassák
         cfg, league, cup_cfgs = season_configs(season, info["comps"])
         tp = gd._team_like(conn, cfg)
-        matches = season_matches(conn, season, info["comps"], cfg, cup_cfgs)
+        matches = season_matches(conn, season, info["comps"], cfg, cup_cfgs, repaired)
         competition_of = {m["gamecode"]: m["competition"] for m in matches}
         stats = {
             "version": VERSION,
@@ -596,7 +624,7 @@ def main():
                               "is_cup": c in CUP_COMPS, "matches": info["comps"][c]}
                              for c in sorted(info["comps"], key=lambda c: (comp_phase(c) == "cup", comp_phase(c), c))],
             "matches": matches,
-            "players": season_players(conn, cfg, tp, competition_of) if league else [],
+            "players": season_players(conn, cfg, tp, competition_of, repaired) if league else [],
             "team_stats": season_team(conn, cfg, tp, competition_of) if league else None,
             "league_comparison": league_comparison_json(conn, league),
         }

@@ -27,7 +27,9 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
   rangsorolja a honlap csoport.html-jének mutatói szerint (ugyanazzal a kóddal).
 - **Szezonról szezonra:** a `history.json` minden szezon tömör, meccsenkénti mutatóit adja
   (csapat és játékosok), a szezonok összehasonlításához; ugyanazokból a számokból, mint a
-  szezonok `stats.json`-ja.
+  szezonok `stats.json`-ja. A csapat büntető%-a és győzelem-aránya egy tizedesre kerekített
+  (a fun factek és a játékosok `ft_pct`-je egészre). A játékos szezonjait a játékoskulcs köti
+  össze: akinek egy szezonban még nem volt licencszáma (név-slug), az ott külön szerepel.
 - **Játékoskulcs:** a licencszám, ha van (`key_type: "license"`), különben a névből
   képzett slug (`key_type: "name_slug"`).
 
@@ -94,10 +96,12 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `matches[].kozgaz_totals.pf` | integer | Személyi hiba. |
 | `matches[].kozgaz_totals.tech` | integer | Technikai hiba (T). |
 | `matches[].kozgaz_totals.unsport` | integer | Sportszerűtlen hiba (U). |
-| `matches[].box_score_check` | object | Forrás-ellenőrzés (a honlap figyelmeztetése). |
+| `matches[].box_score_check` | object | Forrás-ellenőrzés a pótlás előtti állapotból (a honlap figyelmeztetése; docs/scoresheet-extraction-fix.md). |
 | `matches[].box_score_check.official_points` | integer | A hivatalos végeredmény Közgáz-pontja. |
-| `matches[].box_score_check.box_points` | integer | A játékosokhoz rendelt pontok összege. |
-| `matches[].box_score_check.difference` | integer | official_points − box_points; ha nem 0, a jegyzőkönyv-adat hiányos. |
+| `matches[].box_score_check.box_points` | integer | A forrás (Dani adatbázisa) játékossoraihoz rendelt pontok összege, a pótolt (repaired) és a kosarakból kiegészített (reconstructed) sorok nélkül. |
+| `matches[].box_score_check.difference` | integer | official_points − box_points; ha nem 0, a forrás jegyzőkönyv-adata hiányos. |
+| `matches[].box_score_check.repaired_points` | integer | A fork által a PDF-jegyzőkönyvből vagy kézi felülírásból pótolt sorok pontjai. |
+| `matches[].box_score_check.remaining_difference` | integer | official_points − box_points − repaired_points: ami a pótlás után is hiányzik; 0, ha a pótolt box score teljes. |
 | `matches[].box_score_check.unassigned_fouls` | integer | Játékoshoz nem rendelhető (mezszám nélküli) Közgáz-faultok. |
 | `matches[].opponent_totals` | object | Az ellenfél összesítője. |
 | `matches[].opponent_totals.points` | integer | Pont (a hivatalos eredmény). |
@@ -124,6 +128,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `matches[].players[].tech` | integer | Technikai hiba (T). |
 | `matches[].players[].unsport` | integer | Sportszerűtlen hiba (U). |
 | `matches[].players[].reconstructed` | boolean | A sor a kosarak listájából pótolt (a jegyzőkönyv box score-jából hiányzott). |
+| `matches[].players[].repaired` | boolean | A sort a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (a forrás adatbázisából hiányzott; docs/scoresheet-extraction-fix.md). |
 | `matches[].progression` | object | Az eredmény alakulása (csak a beesett kosarak; NB2-ben nincs kihagyott dobás). |
 | `matches[].progression.events` | array | Kosarak időrendben. |
 | `matches[].progression.events[].seq` | integer | Sorszám a meccsen belül (a grafikon x-tengelye a honlapon). |
@@ -242,6 +247,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].views.all.games[].pf` | integer? | Személyi hiba. |
 | `players[].views.all.games[].share_pct` | number? | A csapat pontjaiból való részesedés, %. |
 | `players[].views.all.games[].starter` | boolean? | Kezdő volt-e. |
+| `players[].views.all.games[].repaired` | boolean | A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott). |
 | `players[].views.all.insights` | object | Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva). |
 | `players[].views.all.insights.strengths` | array | Erősségek (legfeljebb 5). |
 | `players[].views.all.insights.weaknesses` | array | Fejlesztendő területek (legfeljebb 5). |
