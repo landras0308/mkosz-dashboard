@@ -194,6 +194,10 @@
             "type": "string",
             "description": "Az ellenfél rövid neve."
           },
+          "opponent_table_short": {
+            "type": "string",
+            "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+          },
           "home_score": {
             "type": [
               "integer",
@@ -985,6 +989,7 @@
           "is_home",
           "opponent",
           "opponent_short",
+          "opponent_table_short",
           "home_score",
           "away_score",
           "kozgaz_score",
@@ -1219,6 +1224,10 @@
                           "type": "string",
                           "description": "Ellenfél rövid neve."
                         },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        },
                         "result": {
                           "type": "string",
                           "enum": [
@@ -1307,6 +1316,7 @@
                         "is_home",
                         "opponent",
                         "opponent_short",
+                        "opponent_table_short",
                         "result",
                         "kozgaz_score",
                         "opponent_score",
@@ -1536,6 +1546,10 @@
                           "type": "string",
                           "description": "Ellenfél rövid neve."
                         },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        },
                         "result": {
                           "type": "string",
                           "enum": [
@@ -1624,6 +1638,7 @@
                         "is_home",
                         "opponent",
                         "opponent_short",
+                        "opponent_table_short",
                         "result",
                         "kozgaz_score",
                         "opponent_score",
@@ -1853,6 +1868,10 @@
                           "type": "string",
                           "description": "Ellenfél rövid neve."
                         },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        },
                         "result": {
                           "type": "string",
                           "enum": [
@@ -1941,6 +1960,7 @@
                         "is_home",
                         "opponent",
                         "opponent_short",
+                        "opponent_table_short",
                         "result",
                         "kozgaz_score",
                         "opponent_score",
@@ -2149,6 +2169,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "kozgaz_score": {
                         "type": "integer",
                         "description": "Közgáz pont."
@@ -2173,6 +2197,7 @@
                       "is_home",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "kozgaz_score",
                       "opponent_score",
                       "result"
@@ -2326,6 +2351,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -2347,6 +2376,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -2375,6 +2405,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -2396,6 +2430,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -2567,6 +2602,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "kozgaz_score": {
                         "type": "integer",
                         "description": "Közgáz pont."
@@ -2591,6 +2630,7 @@
                       "is_home",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "kozgaz_score",
                       "opponent_score",
                       "result"
@@ -2744,6 +2784,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -2765,6 +2809,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -2793,6 +2838,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -2814,6 +2863,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -2985,6 +3035,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "kozgaz_score": {
                         "type": "integer",
                         "description": "Közgáz pont."
@@ -3009,6 +3063,7 @@
                       "is_home",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "kozgaz_score",
                       "opponent_score",
                       "result"
@@ -3162,6 +3217,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -3183,6 +3242,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -3211,6 +3271,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -3232,6 +3296,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -3406,6 +3471,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "kozgaz_score": {
                         "type": "integer",
                         "description": "Közgáz pont."
@@ -3430,6 +3499,7 @@
                       "is_home",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "kozgaz_score",
                       "opponent_score",
                       "result"
@@ -3583,6 +3653,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -3604,6 +3678,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -3632,6 +3707,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -3653,6 +3732,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -3827,6 +3907,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "kozgaz_score": {
                         "type": "integer",
                         "description": "Közgáz pont."
@@ -3851,6 +3935,7 @@
                       "is_home",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "kozgaz_score",
                       "opponent_score",
                       "result"
@@ -4004,6 +4089,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -4025,6 +4114,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",
@@ -4053,6 +4143,10 @@
                         "type": "string",
                         "description": "Ellenfél rövid neve."
                       },
+                      "opponent_table_short": {
+                        "type": "string",
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                      },
                       "start_quarter": {
                         "type": "integer",
                         "description": "Kezdő negyed."
@@ -4074,6 +4168,7 @@
                       "date",
                       "opponent",
                       "opponent_short",
+                      "opponent_table_short",
                       "start_quarter",
                       "end_quarter",
                       "points",

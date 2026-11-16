@@ -225,6 +225,7 @@ def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id, repaired):
         "is_home": home,
         "opponent": details["opp_team_name"],
         "opponent_short": gd.shorten_opponent(details["opp_team_name"]),
+        "opponent_table_short": gd.calendar_short_name(details["opp_team_name"]),
         "home_score": details["score_a"],
         "away_score": details["score_b"],
         "kozgaz_score": details["kg_score"],
@@ -313,6 +314,7 @@ def player_view_json(player, bundle, competition_of, repaired_games):
             "is_home": g["hv"] == "H",
             "opponent": g["opp_full"],
             "opponent_short": g["opp"],
+            "opponent_table_short": gd.calendar_short_name(g["opp_full"]),
             "result": g["res"],
             "kozgaz_score": g["kg_score"],
             "opponent_score": g["opp_score"],
@@ -392,6 +394,7 @@ def team_view_json(d, competition_of):
         "games": [{
             "gamecode": g[0], "competition": competition_of.get(g[0]), "date": g[1],
             "is_home": g[2] == "H", "opponent": g[3], "opponent_short": gd.shorten_opponent(g[3]),
+            "opponent_table_short": gd.calendar_short_name(g[3]),
             "kozgaz_score": g[4], "opponent_score": g[5], "result": "W" if g[4] > g[5] else "L",
         } for g in d["game_log"] if g[4] is not None and g[5] is not None],
         "quarters": [{"quarter": i + 1, "kozgaz_avg": js["q_kg"][i], "opponent_avg": js["q_op"][i],
@@ -410,6 +413,7 @@ def team_view_json(d, competition_of):
 def run_json(r):
     date, opp, sq, eq, pts, baskets = r[:6]
     return {"date": date, "opponent": opp, "opponent_short": gd.shorten_opponent(opp),
+            "opponent_table_short": gd.calendar_short_name(opp),
             "start_quarter": sq, "end_quarter": eq, "points": pts, "baskets": baskets}
 
 
@@ -507,6 +511,25 @@ def standings_json(season, league_comps, is_current, previous):
         "version": VERSION, "team": TEAM_KEY, "season": season, "season_label": season_label(season),
         "generated_at": now_iso(), "tables": tables,
     }
+
+
+def use_table_names(stats, standings):
+    """Az opponent_table_short a szezon tabellájának rövid neve, ha az ellenfél ott van (a
+    jegyzőkönyv csupa nagybetűs nevét a tabella nevével vetjük össze); különben marad a
+    honlap naptárának rövidítése."""
+    short_of = {r["team"].strip().upper(): r["team_short"] for t in standings["tables"] for r in t["rows"]}
+
+    def walk(node):
+        if isinstance(node, dict):
+            if "opponent_table_short" in node:
+                node["opponent_table_short"] = short_of.get(node["opponent"].strip().upper(),
+                                                            node["opponent_table_short"])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+    walk(stats)
 
 
 # ─────────────────────────────── szezonról szezonra ───────────────────────────────
@@ -635,6 +658,7 @@ def main():
         }
         previous = fetch_previous(args.previous_base, f"{season}/standings.json")
         standings = standings_json(season, league, season == current, previous)
+        use_table_names(stats, standings)
         per_season.append((stats, standings))
         for rel_dir in ([f"{base_rel}/{season}"] + ([base_rel] if season == current else [])):
             write_json(args.out, f"{rel_dir}/stats.json", stats)
