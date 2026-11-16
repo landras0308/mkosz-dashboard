@@ -96,12 +96,12 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `matches[].kozgaz_totals.pf` | integer | Személyi hiba. |
 | `matches[].kozgaz_totals.tech` | integer | Technikai hiba (T). |
 | `matches[].kozgaz_totals.unsport` | integer | Sportszerűtlen hiba (U). |
-| `matches[].box_score_check` | object | Forrás-ellenőrzés a pótlás előtti állapotból (a honlap figyelmeztetése; docs/scoresheet-extraction-fix.md). |
+| `matches[].box_score_check` | object | Forrás-ellenőrzés a pótlás előtti állapotból (docs/scoresheet-extraction-fix.md). A honlap figyelmeztetése a kosarakból kiegészített sorokat is beszámítja, ez nem. |
 | `matches[].box_score_check.official_points` | integer | A hivatalos végeredmény Közgáz-pontja. |
 | `matches[].box_score_check.box_points` | integer | A forrás (Dani adatbázisa) játékossoraihoz rendelt pontok összege, a pótolt (repaired) és a kosarakból kiegészített (reconstructed) sorok nélkül. |
 | `matches[].box_score_check.difference` | integer | official_points − box_points; ha nem 0, a forrás jegyzőkönyv-adata hiányos. |
 | `matches[].box_score_check.repaired_points` | integer | A fork által a PDF-jegyzőkönyvből vagy kézi felülírásból pótolt sorok pontjai. |
-| `matches[].box_score_check.remaining_difference` | integer | official_points − box_points − repaired_points: ami a pótlás után is hiányzik; 0, ha a pótolt box score teljes. |
+| `matches[].box_score_check.remaining_difference` | integer | official_points − box_points − repaired_points: ami a pótlás után is hiányzik; 0, ha a forrás és a pótolt sorok együtt kiadják a hivatalos eredményt. A kosarakból kiegészített (reconstructed) sorok pontjai ebbe beleszámítanak (ellenőrizetlenek). |
 | `matches[].box_score_check.unassigned_fouls` | integer | Játékoshoz nem rendelhető (mezszám nélküli) Közgáz-faultok. |
 | `matches[].opponent_totals` | object | Az ellenfél összesítője. |
 | `matches[].opponent_totals.points` | integer | Pont (a hivatalos eredmény). |

@@ -317,7 +317,7 @@
           },
           "box_score_check": {
             "type": "object",
-            "description": "Forrás-ellenőrzés a pótlás előtti állapotból (a honlap figyelmeztetése; docs/scoresheet-extraction-fix.md).",
+            "description": "Forrás-ellenőrzés a pótlás előtti állapotból (docs/scoresheet-extraction-fix.md). A honlap figyelmeztetése a kosarakból kiegészített sorokat is beszámítja, ez nem.",
             "properties": {
               "official_points": {
                 "type": "integer",
@@ -337,7 +337,7 @@
               },
               "remaining_difference": {
                 "type": "integer",
-                "description": "official_points − box_points − repaired_points: ami a pótlás után is hiányzik; 0, ha a pótolt box score teljes."
+                "description": "official_points − box_points − repaired_points: ami a pótlás után is hiányzik; 0, ha a forrás és a pótolt sorok együtt kiadják a hivatalos eredményt. A kosarakból kiegészített (reconstructed) sorok pontjai ebbe beleszámítanak (ellenőrizetlenek)."
               },
               "unassigned_fouls": {
                 "type": "integer",

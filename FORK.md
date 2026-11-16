@@ -26,18 +26,35 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
   - `LEAGUE_METRICS`, `rank_league()`, `league_is_kg()` — a csoport-összehasonlítás
     mutatói és rangsora; a `generate_league_comparison_page()` és a JSON
     `league_comparison[]`-je is ebből készül.
+- `box_score_repair.py` — a Közgáz B hiányzó box score-sorainak pótlása a PDF-
+  jegyzőkönyvekből, a letöltött adatbázis ideiglenes másolatában (Dani kiolvasója a
+  fix sorablakok miatt az idei PDF-ekben kihagyhatja az első és a 12. sort). Dani
+  kiolvasójának változatlan másolatára épül (`vendor/mkosz_scoresheet/`), csak a
+  sorhatárokat adja meg a licencsorokból; kézi tartalék: `data/box_score_overrides.json`.
+  Az ok, a védőkorlát és a Dani kiolvasójához javasolt javítás:
+  `docs/scoresheet-extraction-fix.md`. Tesztek: `tests/`.
 - `stats_schema.py` — a séma egy helyen; ebből készül a `schemas/*.schema.json` és a
   `docs/STATS_JSON.md`, és ez ellenőrzi a kimenetet.
 - `.github/workflows/stats-export.yml` — napi futás 18:47 UTC-kor (Dani mkosz-stats
-  importja után), közzététel a fork GitHub Pages oldalán. A többi workflow
+  importja után): tesztek, box score-pótlás, export a javított másolatból,
+  közzététel a fork GitHub Pages oldalán. A többi workflow
   (`daily-update.yml`, `update-attendance.yml`) a forkban ki van kapcsolva.
+
+## Függőségek
+
+- `jsonschema` — a kimenet séma-ellenőrzése.
+- `PyMuPDF` (2.1-re rögzítve) — a PDF-jegyzőkönyvek kiolvasása a box score-pótláshoz;
+  Dani kiolvasója és a honlap workflow-ja is ezt használja.
 
 ## Helyben
 
 ```bash
 curl -fsSLo /tmp/mkosz_stats.sqlite https://raw.githubusercontent.com/pozsikdani/mkosz-stats/main/mkosz_stats.sqlite
-python3 export_stats.py --db /tmp/mkosz_stats.sqlite --out public
-pip install jsonschema && python3 stats_schema.py check public
+pip install jsonschema PyMuPDF==2.1
+REQUIRE_PDFS=1 python3 -m unittest discover -s tests -v
+python3 box_score_repair.py --db /tmp/mkosz_stats.sqlite --out /tmp/mkosz_stats_repaired.sqlite --pdf-dir /tmp/kozgaz-pdfs
+python3 export_stats.py --db /tmp/mkosz_stats_repaired.sqlite --out public
+python3 stats_schema.py check public
 # séma vagy leírás változott:
 python3 stats_schema.py write
 ```

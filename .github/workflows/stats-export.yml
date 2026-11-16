@@ -11,6 +11,12 @@ name: Statisztika-JSON (Gametime)
 #
 # A forkban minden más workflow (honlap-építés, edzéslátogatás, .ics) ki van
 # kapcsolva; ez nem kér titkot, csak nyilvános fájlokat olvas.
+#
+# Box score-pótlás (docs/scoresheet-extraction-fix.md): a letöltött adatbázis
+# másolatát a box_score_repair.py kiegészíti a Közgáz B PDF-jegyzőkönyveiből a
+# hiányzó játékossorokkal; az export ebből a másolatból fut. A pótolt sorok,
+# és ha egy meccsen eltérés maradt, figyelmeztetésként és a futás összesítőjében
+# látszanak.
 
 on:
   schedule:
@@ -41,8 +47,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Séma-ellenőrző csomag
-        run: pip install jsonschema
+      - name: Csomagok (séma-ellenőrzés, PDF-kiolvasás)
+        run: pip install jsonschema PyMuPDF==2.1
+
+      # Ha a tesztek elbuknak (vagy a tesztek PDF-jei nem tölthetők le), a pótlás
+      # kimarad, és az export a forrás-adatbázisból fut: a napi közzététel nem áll le,
+      # de hibás pótlás sem megy ki.
+      - name: Tesztek (javított jegyzőkönyv-kiolvasás, pótlás)
+        id: tests
+        continue-on-error: true
+        env:
+          REQUIRE_PDFS: '1'
+        run: python3 -m unittest discover -s tests -v
 
       - name: Adatbázis letöltése (mkosz-stats, nyilvános fájl)
         env:
@@ -58,9 +74,24 @@ jobs:
           echo "DB_UPDATED_AT=$UPDATED" >> "$GITHUB_ENV"
           echo "Adatbázis frissítve: $UPDATED"
 
+      - name: Box score-pótlás kihagyva (a tesztek elbuktak)
+        if: steps.tests.outcome != 'success'
+        run: |
+          echo "::warning title=Box score-pótlás::A tesztek elbuktak, a pótlás kimarad; az export a forrás-adatbázisból fut."
+          cp /tmp/mkosz_stats.sqlite /tmp/mkosz_stats_repaired.sqlite
+
+      - name: Box score-pótlás (Közgáz B jegyzőkönyvek)
+        if: steps.tests.outcome == 'success'
+        run: |
+          # Ha maga a pótlás hibával áll le, az export a forrás-adatbázisból fut (figyelmeztetéssel).
+          python3 box_score_repair.py --db /tmp/mkosz_stats.sqlite --out /tmp/mkosz_stats_repaired.sqlite \
+            --pdf-dir /tmp/kozgaz-pdfs \
+            || { echo "::warning title=Box score-pótlás::A pótlás hibával leállt, az export a forrás-adatbázisból fut."; \
+                 cp /tmp/mkosz_stats.sqlite /tmp/mkosz_stats_repaired.sqlite; }
+
       - name: JSON-export
         run: |
-          python3 export_stats.py --db /tmp/mkosz_stats.sqlite --out public \
+          python3 export_stats.py --db /tmp/mkosz_stats_repaired.sqlite --out public \
             --previous-base "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/kozgaz-b" \
             --db-updated-at "$DB_UPDATED_AT"
           touch public/.nojekyll

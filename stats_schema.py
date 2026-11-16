@@ -133,15 +133,18 @@ def match():
             "tech": INT("Technikai hiba (T)."),
             "unsport": INT("Sportszerűtlen hiba (U)."),
         }),
-        "box_score_check": OBJ("Forrás-ellenőrzés a pótlás előtti állapotból (a honlap figyelmeztetése; "
-                               "docs/scoresheet-extraction-fix.md).", {
+        "box_score_check": OBJ("Forrás-ellenőrzés a pótlás előtti állapotból (docs/scoresheet-extraction-fix.md). "
+                               "A honlap figyelmeztetése a kosarakból kiegészített sorokat is beszámítja, "
+                               "ez nem.", {
             "official_points": INT("A hivatalos végeredmény Közgáz-pontja."),
             "box_points": INT("A forrás (Dani adatbázisa) játékossoraihoz rendelt pontok összege, a pótolt "
                               "(repaired) és a kosarakból kiegészített (reconstructed) sorok nélkül."),
             "difference": INT("official_points − box_points; ha nem 0, a forrás jegyzőkönyv-adata hiányos."),
             "repaired_points": INT("A fork által a PDF-jegyzőkönyvből vagy kézi felülírásból pótolt sorok pontjai."),
             "remaining_difference": INT("official_points − box_points − repaired_points: ami a pótlás után is "
-                                        "hiányzik; 0, ha a pótolt box score teljes."),
+                                        "hiányzik; 0, ha a forrás és a pótolt sorok együtt kiadják a hivatalos "
+                                        "eredményt. A kosarakból kiegészített (reconstructed) sorok pontjai "
+                                        "ebbe beleszámítanak (ellenőrizetlenek)."),
             "unassigned_fouls": INT("Játékoshoz nem rendelhető (mezszám nélküli) Közgáz-faultok."),
         }),
         "opponent_totals": OBJ("Az ellenfél összesítője.", {

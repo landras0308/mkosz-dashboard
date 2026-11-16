@@ -96,13 +96,16 @@ def load_repaired(conn):
     if not has:
         return set()
     return {(gc, team, lic) for gc, team, lic in
-            conn.execute("SELECT gamecode, team, license_number FROM repaired_rows")}
+            conn.execute("SELECT gamecode, team, license_number FROM repaired_rows") if lic}
 
 
 def box_score_check(players, official, unassigned_fouls):
     """A forrás-ellenőrzés a pótlás előtti állapotból: a box_points csak a forrás
     sorainak pontjai, a pótolt (repaired) és a generátor által a kosarakból
-    kiegészített (reconstructed) sorok nélkül."""
+    kiegészített (reconstructed) sorok nélkül. A remaining_difference a pótlás után
+    is hiányzó pont; a reconstructed sorok ebbe beleszámítanak, mert azok
+    ellenőrizetlenek (csak a kosarak mezszámából, név nélkül vagy más meccsről vett
+    névvel)."""
     repaired = sum(p["points"] for p in players if p["repaired"])
     reconstructed = sum(p["points"] for p in players if p["reconstructed"])
     box = sum(p["points"] for p in players) - repaired - reconstructed

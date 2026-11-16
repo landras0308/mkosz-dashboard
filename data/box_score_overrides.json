@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "about": "Kézi felülírás a Közgáz B hiányzó box score-soraira, tartaléknak a PDF-ből pótlás mellé (box_score_repair.py, docs/scoresheet-extraction-fix.md). Egy sor: gamecode, side (home/away, a Közgáz oldala), jersey, license_key (python3 box_score_repair.py key <licencszám>), starter, és nem kötelezően pf (alapból 0). A pontok a kosarakból (scoring_events) jönnek. A license_key csak olyan játékoshoz oldható fel, aki legalább egy Közgáz B-meccsen licenccel szerepel. Csak akkor érvényes, ha a sor hiányzik, a meccs box score-ja hiányos, és utána a játékosok összege egyezik a hivatalos eredménnyel és a kosarak összegével; ha a sor már megvan (a forrásban vagy a PDF-ből pótolva), magától hatástalan.",
+  "overrides": []
+}
