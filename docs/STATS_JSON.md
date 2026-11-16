@@ -316,7 +316,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `team_stats.views.home` | object | Mint a `views.all`. |
 | `team_stats.views.away` | object | Mint a `views.all`. |
 | `team_stats.views.regular` | object? | Mint a `views.all`, csak az alapszakasz meccseiből; null, ha a szezonban nincs rájátszás. |
-| `team_stats.views.playoff` | object? | Mint a `views.all`, csak az rájátszás meccseiből; null, ha a szezonban nincs rájátszás. |
+| `team_stats.views.playoff` | object? | Mint a `views.all`, csak a rájátszás meccseiből; null, ha a szezonban nincs rájátszás. |
 | `league_comparison` | array | Csoport-összehasonlítás bajnokságonként (a honlap csoport.html-je): a csoport minden csapata a jegyzőkönyvek alapján, mutatónként rangsorolva. |
 | `league_comparison[].competition` | string | Bajnokság-kód. |
 | `league_comparison[].competition_label` | string | Bajnokság neve. |

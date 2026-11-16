@@ -587,8 +587,8 @@ def render_docs():
             if sub:
                 if path.endswith(sub):
                     if sub in (".views.regular", ".views.playoff"):
-                        out.append(f"| `{path}` | object? | Mint a `views.all`, csak az "
-                                   f"{'alapszakasz' if sub.endswith('regular') else 'rájátszás'} meccseiből; "
+                        out.append(f"| `{path}` | object? | Mint a `views.all`, csak "
+                                   f"{'az alapszakasz' if sub.endswith('regular') else 'a rájátszás'} meccseiből; "
                                    f"null, ha a szezonban nincs rájátszás. |")
                     else:
                         out.append(f"| `{path}` | object | Mint a `views.all`. |")
