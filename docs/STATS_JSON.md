@@ -207,8 +207,8 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].name` | string | Név (a jegyzőkönyv szerint). |
 | `players[].jersey` | integer? | Mezszám (a szezonban a legnagyobb előforduló). |
 | `players[].slug` | string | A névből képzett slug (a honlap játékosoldalának neve). |
-| `players[].views` | object | Nézetek: összes, hazai, idegen. |
-| `players[].views.all` | object | Egy nézet (összes / hazai / idegen) a bajnoki meccsekből. |
+| `players[].views` | object | Nézetek: összes, hazai, idegen; alapszakasz, rájátszás, és ezek hazai / idegen fele. |
+| `players[].views.all` | object | Egy nézet a bajnoki meccsekből (views.all: mindegyik). |
 | `players[].views.all.summary` | object | Szezonösszesítő. |
 | `players[].views.all.summary.games` | integer | Lejátszott meccs. |
 | `players[].views.all.summary.points` | integer | Összes pont. |
@@ -260,9 +260,15 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].views.all.insights.weaknesses` | array | Fejlesztendő területek (legfeljebb 5). |
 | `players[].views.home` | object | Mint a `views.all`. |
 | `players[].views.away` | object | Mint a `views.all`. |
+| `players[].views.regular` | object? | Mint a `views.all`, csak az alapszakasz meccseiből; null, ha a szezonban nincs rájátszás. |
+| `players[].views.playoff` | object? | Mint a `views.all`, csak a rájátszás meccseiből; null, ha a szezonban nincs rájátszás. |
+| `players[].views.regular_home` | object? | Mint a `views.all`, csak az alapszakasz hazai meccseiből; null, ha a szezonban nincs rájátszás. |
+| `players[].views.regular_away` | object? | Mint a `views.all`, csak az alapszakasz idegenbeli meccseiből; null, ha a szezonban nincs rájátszás. |
+| `players[].views.playoff_home` | object? | Mint a `views.all`, csak a rájátszás hazai meccseiből; null, ha a szezonban nincs rájátszás. |
+| `players[].views.playoff_away` | object? | Mint a `views.all`, csak a rájátszás idegenbeli meccseiből; null, ha a szezonban nincs rájátszás. |
 | `team_stats` | object? | Csapatszint (null, ha a szezonban még nincs bajnoki meccs). |
 | `team_stats.views` | object | Nézetek: összes, hazai, idegen; alapszakasz, rájátszás, és ezek hazai / idegen fele. |
-| `team_stats.views.all` | object | Egy nézet (összes / hazai / idegen) a bajnoki meccsekből. |
+| `team_stats.views.all` | object | Egy nézet a bajnoki meccsekből (views.all: mindegyik). |
 | `team_stats.views.all.record` | object | Mérleg. |
 | `team_stats.views.all.record.games` | integer | Meccs. |
 | `team_stats.views.all.record.wins` | integer | Győzelem. |
@@ -415,7 +421,7 @@ Az elérhető szezonok, a legújabb elöl.
 
 ## history.json
 
-Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki meccsekből, views.all), csak meccsenkéntire osztva; a helyezés a standings.json-ból.
+Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki meccsekből, nézetenként: views.all, views.home …), csak meccsenkéntire osztva; a helyezés a standings.json-ból.
 
 | Mező | Típus | Jelentés |
 |---|---|---|
@@ -425,7 +431,7 @@ Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a 
 | `seasons` | array | A szezonok, a legrégebbi elöl. |
 | `seasons[].season` | string | Szezonkulcs. |
 | `seasons[].label` | string | Felirat (pl. 2025/26). |
-| `seasons[].team` | object? | A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs). |
+| `seasons[].team` | object? | A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs); ugyanaz, mint a team_views.all. |
 | `seasons[].team.games` | integer | Bajnoki meccs. |
 | `seasons[].team.wins` | integer | Győzelem. |
 | `seasons[].team.losses` | integer | Vereség. |
@@ -444,6 +450,34 @@ Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a 
 | `seasons[].team.quarters[].quarter` | integer | Negyed (1–4). |
 | `seasons[].team.quarters[].kozgaz_avg` | number | Közgáz pont/meccs a negyedben. |
 | `seasons[].team.quarters[].opponent_avg` | number | Ellenfél pont/meccs a negyedben. |
+| `seasons[].team_views` | object? | A csapat a stats.json team_stats minden nézetében (null, ha a szezonnak nincs csapatszintje; ha van, de még nincs bajnoki meccs, minden nézet null); az app szűrői a szezonok táblázatát is így bontják. |
+| `seasons[].team_views.all` | object? | Mint a team; null, ha nincs bajnoki meccs. |
+| `seasons[].team_views.all.games` | integer | Bajnoki meccs. |
+| `seasons[].team_views.all.wins` | integer | Győzelem. |
+| `seasons[].team_views.all.losses` | integer | Vereség. |
+| `seasons[].team_views.all.win_pct` | number | Győzelem-arány, % (egy tizedes). |
+| `seasons[].team_views.all.ppg` | number | Dobott/meccs. |
+| `seasons[].team_views.all.opp_ppg` | number | Kapott/meccs. |
+| `seasons[].team_views.all.diff_per_game` | number | Különbség/meccs. |
+| `seasons[].team_views.all.ft_pct` | number? | Büntető%, egy tizedes; null, ha nem volt kísérlet. |
+| `seasons[].team_views.all.fg2_per_game` | number | Bedobott kettes/meccs, egy tizedes. |
+| `seasons[].team_views.all.fg3_per_game` | number | Bedobott hármas/meccs, egy tizedes. |
+| `seasons[].team_views.all.home_wins` | integer | Hazai győzelem. |
+| `seasons[].team_views.all.home_games` | integer | Hazai meccs. |
+| `seasons[].team_views.all.away_wins` | integer | Idegenbeli győzelem. |
+| `seasons[].team_views.all.away_games` | integer | Idegenbeli meccs. |
+| `seasons[].team_views.all.quarters` | array | Negyedátlagok. |
+| `seasons[].team_views.all.quarters[].quarter` | integer | Negyed (1–4). |
+| `seasons[].team_views.all.quarters[].kozgaz_avg` | number | Közgáz pont/meccs a negyedben. |
+| `seasons[].team_views.all.quarters[].opponent_avg` | number | Ellenfél pont/meccs a negyedben. |
+| `seasons[].team_views.home` | object? | Mint a team, csak a hazai meccseiből; null, ha nincs ilyen meccs. |
+| `seasons[].team_views.away` | object? | Mint a team, csak az idegenbeli meccseiből; null, ha nincs ilyen meccs. |
+| `seasons[].team_views.regular` | object? | Mint a team, csak az alapszakasz meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `seasons[].team_views.playoff` | object? | Mint a team, csak a rájátszás meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `seasons[].team_views.regular_home` | object? | Mint a team, csak az alapszakasz hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `seasons[].team_views.regular_away` | object? | Mint a team, csak az alapszakasz idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `seasons[].team_views.playoff_home` | object? | Mint a team, csak a rájátszás hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `seasons[].team_views.playoff_away` | object? | Mint a team, csak a rájátszás idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
 | `seasons[].standings` | array | A Közgáz helyezése a szezon tabelláin (alapszakasz elöl). |
 | `seasons[].standings[].competition` | string | Bajnokság-kód. |
 | `seasons[].standings[].competition_label` | string | Bajnokság neve. |
@@ -466,3 +500,23 @@ Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a 
 | `players[].seasons[].ft_att` | integer | Büntető-kísérlet. |
 | `players[].seasons[].ft_pct` | number? | Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet. |
 | `players[].seasons[].pf_per_game` | number | Fault/meccs. |
+| `players[].seasons[].views` | object | A szezon a stats.json players[].views minden nézetében; az app szűrői a játékos szezonjainak táblázatát is így bontják. |
+| `players[].seasons[].views.all` | object? | Mint a szezon számai; null, ha nincs bajnoki meccs. |
+| `players[].seasons[].views.all.games` | integer | Meccs. |
+| `players[].seasons[].views.all.points` | integer | Pont. |
+| `players[].seasons[].views.all.ppg` | number | Pont/meccs. |
+| `players[].seasons[].views.all.max_points` | integer | Legtöbb pont egy meccsen. |
+| `players[].seasons[].views.all.fg2_per_game` | number | Bedobott kettes/meccs, egy tizedes. |
+| `players[].seasons[].views.all.fg3_per_game` | number | Bedobott hármas/meccs, egy tizedes. |
+| `players[].seasons[].views.all.ft_made` | integer | Bedobott büntető. |
+| `players[].seasons[].views.all.ft_att` | integer | Büntető-kísérlet. |
+| `players[].seasons[].views.all.ft_pct` | number? | Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet. |
+| `players[].seasons[].views.all.pf_per_game` | number | Fault/meccs. |
+| `players[].seasons[].views.home` | object? | Mint a szezon számai, csak a hazai meccseiből; null, ha nincs ilyen meccs. |
+| `players[].seasons[].views.away` | object? | Mint a szezon számai, csak az idegenbeli meccseiből; null, ha nincs ilyen meccs. |
+| `players[].seasons[].views.regular` | object? | Mint a szezon számai, csak az alapszakasz meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `players[].seasons[].views.playoff` | object? | Mint a szezon számai, csak a rájátszás meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `players[].seasons[].views.regular_home` | object? | Mint a szezon számai, csak az alapszakasz hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `players[].seasons[].views.regular_away` | object? | Mint a szezon számai, csak az alapszakasz idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `players[].seasons[].views.playoff_home` | object? | Mint a szezon számai, csak a rájátszás hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |
+| `players[].seasons[].views.playoff_away` | object? | Mint a szezon számai, csak a rájátszás idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig). |

@@ -1065,11 +1065,11 @@
           },
           "views": {
             "type": "object",
-            "description": "Nézetek: összes, hazai, idegen.",
+            "description": "Nézetek: összes, hazai, idegen; alapszakasz, rájátszás, és ezek hazai / idegen fele.",
             "properties": {
               "all": {
                 "type": "object",
-                "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+                "description": "Egy nézet a bajnoki meccsekből (views.all: mindegyik).",
                 "properties": {
                   "summary": {
                     "type": "object",
@@ -1396,7 +1396,7 @@
               },
               "home": {
                 "type": "object",
-                "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+                "description": "Egy nézet a bajnoki meccsekből (views.all: mindegyik).",
                 "properties": {
                   "summary": {
                     "type": "object",
@@ -1723,7 +1723,1987 @@
               },
               "away": {
                 "type": "object",
-                "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+                "description": "Egy nézet a bajnoki meccsekből (views.all: mindegyik).",
+                "properties": {
+                  "summary": {
+                    "type": "object",
+                    "description": "Szezonösszesítő.",
+                    "properties": {
+                      "games": {
+                        "type": "integer",
+                        "description": "Lejátszott meccs."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Összes pont."
+                      },
+                      "ppg": {
+                        "type": "number",
+                        "description": "Pontátlag (1 tizedes)."
+                      },
+                      "fg2_made": {
+                        "type": "integer",
+                        "description": "Bedobott kétpontos."
+                      },
+                      "fg3_made": {
+                        "type": "integer",
+                        "description": "Bedobott hárompontos."
+                      },
+                      "ft_made": {
+                        "type": "integer",
+                        "description": "Bedobott büntető."
+                      },
+                      "ft_att": {
+                        "type": "integer",
+                        "description": "Büntető-kísérlet."
+                      },
+                      "ft_pct": {
+                        "type": "integer",
+                        "description": "Büntető-százalék (egészre kerekítve; 0, ha nem volt kísérlet)."
+                      },
+                      "pf": {
+                        "type": "integer",
+                        "description": "Személyi hiba."
+                      },
+                      "pf_per_game": {
+                        "type": "number",
+                        "description": "Fault/meccs (1 tizedes)."
+                      },
+                      "max_points": {
+                        "type": "integer",
+                        "description": "Csúcs (legtöbb pont egy meccsen)."
+                      },
+                      "starts": {
+                        "type": "integer",
+                        "description": "Kezdések száma."
+                      },
+                      "share_pct": {
+                        "type": "number",
+                        "description": "A csapat pontjaiból való részesedés, % (1 tizedes)."
+                      },
+                      "tech": {
+                        "type": "integer",
+                        "description": "Technikai hiba (T)."
+                      },
+                      "unsport": {
+                        "type": "integer",
+                        "description": "Sportszerűtlen hiba (U)."
+                      }
+                    },
+                    "required": [
+                      "games",
+                      "points",
+                      "ppg",
+                      "fg2_made",
+                      "fg3_made",
+                      "ft_made",
+                      "ft_att",
+                      "ft_pct",
+                      "pf",
+                      "pf_per_game",
+                      "max_points",
+                      "starts",
+                      "share_pct",
+                      "tech",
+                      "unsport"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scoring_split": {
+                    "type": "object",
+                    "description": "Dobásmegoszlás (pontban).",
+                    "properties": {
+                      "points_2": {
+                        "type": "integer",
+                        "description": "Kétpontosokból."
+                      },
+                      "points_3": {
+                        "type": "integer",
+                        "description": "Hárompontosokból."
+                      },
+                      "points_ft": {
+                        "type": "integer",
+                        "description": "Büntetőből."
+                      }
+                    },
+                    "required": [
+                      "points_2",
+                      "points_3",
+                      "points_ft"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedenkénti teljesítmény (a szezon összesen, nem átlag).",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont ebben a negyedben a szezonban."
+                        },
+                        "threes": {
+                          "type": "integer",
+                          "description": "Bedobott hárompontos ebben a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "points",
+                        "threes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "games": {
+                    "type": "array",
+                    "description": "Meccsenkénti sorok, időrendben; a csapat minden bajnoki meccse.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy meccs.",
+                      "properties": {
+                        "gamecode": {
+                          "type": "string",
+                          "description": "A meccs kulcsa (matches[].gamecode)."
+                        },
+                        "competition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Bajnokság-kód."
+                        },
+                        "date": {
+                          "type": "string",
+                          "description": "Dátum.",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "is_home": {
+                          "type": "boolean",
+                          "description": "Hazai meccs-e."
+                        },
+                        "opponent": {
+                          "type": "string",
+                          "description": "Ellenfél teljes neve."
+                        },
+                        "opponent_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve."
+                        },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "W",
+                            "L"
+                          ],
+                          "description": "A csapat eredménye: W / L."
+                        },
+                        "kozgaz_score": {
+                          "type": "integer",
+                          "description": "Közgáz pont."
+                        },
+                        "opponent_score": {
+                          "type": "integer",
+                          "description": "Ellenfél pont."
+                        },
+                        "played": {
+                          "type": "boolean",
+                          "description": "Játszott-e a játékos (false = nem lépett pályára; ilyenkor a statok null)."
+                        },
+                        "points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Pont."
+                        },
+                        "fg2_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott kétpontos."
+                        },
+                        "fg3_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott hárompontos."
+                        },
+                        "ft_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Büntető-kísérlet."
+                        },
+                        "pf": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Személyi hiba."
+                        },
+                        "share_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "A csapat pontjaiból való részesedés, %."
+                        },
+                        "starter": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
+                        }
+                      },
+                      "required": [
+                        "gamecode",
+                        "competition",
+                        "date",
+                        "is_home",
+                        "opponent",
+                        "opponent_short",
+                        "opponent_table_short",
+                        "result",
+                        "kozgaz_score",
+                        "opponent_score",
+                        "played",
+                        "points",
+                        "fg2_made",
+                        "fg3_made",
+                        "ft_made",
+                        "ft_att",
+                        "pf",
+                        "share_pct",
+                        "starter",
+                        "repaired",
+                        "pf_repaired"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "insights": {
+                    "type": "object",
+                    "description": "Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).",
+                    "properties": {
+                      "strengths": {
+                        "type": "array",
+                        "description": "Erősségek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      },
+                      "weaknesses": {
+                        "type": "array",
+                        "description": "Fejlesztendő területek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      }
+                    },
+                    "required": [
+                      "strengths",
+                      "weaknesses"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "summary",
+                  "scoring_split",
+                  "quarters",
+                  "games",
+                  "insights"
+                ],
+                "additionalProperties": false
+              },
+              "regular": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a views.all, csak az alapszakasz meccseiből; null, ha a szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).",
+                "properties": {
+                  "summary": {
+                    "type": "object",
+                    "description": "Szezonösszesítő.",
+                    "properties": {
+                      "games": {
+                        "type": "integer",
+                        "description": "Lejátszott meccs."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Összes pont."
+                      },
+                      "ppg": {
+                        "type": "number",
+                        "description": "Pontátlag (1 tizedes)."
+                      },
+                      "fg2_made": {
+                        "type": "integer",
+                        "description": "Bedobott kétpontos."
+                      },
+                      "fg3_made": {
+                        "type": "integer",
+                        "description": "Bedobott hárompontos."
+                      },
+                      "ft_made": {
+                        "type": "integer",
+                        "description": "Bedobott büntető."
+                      },
+                      "ft_att": {
+                        "type": "integer",
+                        "description": "Büntető-kísérlet."
+                      },
+                      "ft_pct": {
+                        "type": "integer",
+                        "description": "Büntető-százalék (egészre kerekítve; 0, ha nem volt kísérlet)."
+                      },
+                      "pf": {
+                        "type": "integer",
+                        "description": "Személyi hiba."
+                      },
+                      "pf_per_game": {
+                        "type": "number",
+                        "description": "Fault/meccs (1 tizedes)."
+                      },
+                      "max_points": {
+                        "type": "integer",
+                        "description": "Csúcs (legtöbb pont egy meccsen)."
+                      },
+                      "starts": {
+                        "type": "integer",
+                        "description": "Kezdések száma."
+                      },
+                      "share_pct": {
+                        "type": "number",
+                        "description": "A csapat pontjaiból való részesedés, % (1 tizedes)."
+                      },
+                      "tech": {
+                        "type": "integer",
+                        "description": "Technikai hiba (T)."
+                      },
+                      "unsport": {
+                        "type": "integer",
+                        "description": "Sportszerűtlen hiba (U)."
+                      }
+                    },
+                    "required": [
+                      "games",
+                      "points",
+                      "ppg",
+                      "fg2_made",
+                      "fg3_made",
+                      "ft_made",
+                      "ft_att",
+                      "ft_pct",
+                      "pf",
+                      "pf_per_game",
+                      "max_points",
+                      "starts",
+                      "share_pct",
+                      "tech",
+                      "unsport"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scoring_split": {
+                    "type": "object",
+                    "description": "Dobásmegoszlás (pontban).",
+                    "properties": {
+                      "points_2": {
+                        "type": "integer",
+                        "description": "Kétpontosokból."
+                      },
+                      "points_3": {
+                        "type": "integer",
+                        "description": "Hárompontosokból."
+                      },
+                      "points_ft": {
+                        "type": "integer",
+                        "description": "Büntetőből."
+                      }
+                    },
+                    "required": [
+                      "points_2",
+                      "points_3",
+                      "points_ft"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedenkénti teljesítmény (a szezon összesen, nem átlag).",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont ebben a negyedben a szezonban."
+                        },
+                        "threes": {
+                          "type": "integer",
+                          "description": "Bedobott hárompontos ebben a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "points",
+                        "threes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "games": {
+                    "type": "array",
+                    "description": "Meccsenkénti sorok, időrendben; a csapat minden bajnoki meccse.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy meccs.",
+                      "properties": {
+                        "gamecode": {
+                          "type": "string",
+                          "description": "A meccs kulcsa (matches[].gamecode)."
+                        },
+                        "competition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Bajnokság-kód."
+                        },
+                        "date": {
+                          "type": "string",
+                          "description": "Dátum.",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "is_home": {
+                          "type": "boolean",
+                          "description": "Hazai meccs-e."
+                        },
+                        "opponent": {
+                          "type": "string",
+                          "description": "Ellenfél teljes neve."
+                        },
+                        "opponent_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve."
+                        },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "W",
+                            "L"
+                          ],
+                          "description": "A csapat eredménye: W / L."
+                        },
+                        "kozgaz_score": {
+                          "type": "integer",
+                          "description": "Közgáz pont."
+                        },
+                        "opponent_score": {
+                          "type": "integer",
+                          "description": "Ellenfél pont."
+                        },
+                        "played": {
+                          "type": "boolean",
+                          "description": "Játszott-e a játékos (false = nem lépett pályára; ilyenkor a statok null)."
+                        },
+                        "points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Pont."
+                        },
+                        "fg2_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott kétpontos."
+                        },
+                        "fg3_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott hárompontos."
+                        },
+                        "ft_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Büntető-kísérlet."
+                        },
+                        "pf": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Személyi hiba."
+                        },
+                        "share_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "A csapat pontjaiból való részesedés, %."
+                        },
+                        "starter": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
+                        }
+                      },
+                      "required": [
+                        "gamecode",
+                        "competition",
+                        "date",
+                        "is_home",
+                        "opponent",
+                        "opponent_short",
+                        "opponent_table_short",
+                        "result",
+                        "kozgaz_score",
+                        "opponent_score",
+                        "played",
+                        "points",
+                        "fg2_made",
+                        "fg3_made",
+                        "ft_made",
+                        "ft_att",
+                        "pf",
+                        "share_pct",
+                        "starter",
+                        "repaired",
+                        "pf_repaired"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "insights": {
+                    "type": "object",
+                    "description": "Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).",
+                    "properties": {
+                      "strengths": {
+                        "type": "array",
+                        "description": "Erősségek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      },
+                      "weaknesses": {
+                        "type": "array",
+                        "description": "Fejlesztendő területek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      }
+                    },
+                    "required": [
+                      "strengths",
+                      "weaknesses"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "summary",
+                  "scoring_split",
+                  "quarters",
+                  "games",
+                  "insights"
+                ],
+                "additionalProperties": false
+              },
+              "playoff": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a views.all, csak a rájátszás meccseiből; null, ha a szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).",
+                "properties": {
+                  "summary": {
+                    "type": "object",
+                    "description": "Szezonösszesítő.",
+                    "properties": {
+                      "games": {
+                        "type": "integer",
+                        "description": "Lejátszott meccs."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Összes pont."
+                      },
+                      "ppg": {
+                        "type": "number",
+                        "description": "Pontátlag (1 tizedes)."
+                      },
+                      "fg2_made": {
+                        "type": "integer",
+                        "description": "Bedobott kétpontos."
+                      },
+                      "fg3_made": {
+                        "type": "integer",
+                        "description": "Bedobott hárompontos."
+                      },
+                      "ft_made": {
+                        "type": "integer",
+                        "description": "Bedobott büntető."
+                      },
+                      "ft_att": {
+                        "type": "integer",
+                        "description": "Büntető-kísérlet."
+                      },
+                      "ft_pct": {
+                        "type": "integer",
+                        "description": "Büntető-százalék (egészre kerekítve; 0, ha nem volt kísérlet)."
+                      },
+                      "pf": {
+                        "type": "integer",
+                        "description": "Személyi hiba."
+                      },
+                      "pf_per_game": {
+                        "type": "number",
+                        "description": "Fault/meccs (1 tizedes)."
+                      },
+                      "max_points": {
+                        "type": "integer",
+                        "description": "Csúcs (legtöbb pont egy meccsen)."
+                      },
+                      "starts": {
+                        "type": "integer",
+                        "description": "Kezdések száma."
+                      },
+                      "share_pct": {
+                        "type": "number",
+                        "description": "A csapat pontjaiból való részesedés, % (1 tizedes)."
+                      },
+                      "tech": {
+                        "type": "integer",
+                        "description": "Technikai hiba (T)."
+                      },
+                      "unsport": {
+                        "type": "integer",
+                        "description": "Sportszerűtlen hiba (U)."
+                      }
+                    },
+                    "required": [
+                      "games",
+                      "points",
+                      "ppg",
+                      "fg2_made",
+                      "fg3_made",
+                      "ft_made",
+                      "ft_att",
+                      "ft_pct",
+                      "pf",
+                      "pf_per_game",
+                      "max_points",
+                      "starts",
+                      "share_pct",
+                      "tech",
+                      "unsport"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scoring_split": {
+                    "type": "object",
+                    "description": "Dobásmegoszlás (pontban).",
+                    "properties": {
+                      "points_2": {
+                        "type": "integer",
+                        "description": "Kétpontosokból."
+                      },
+                      "points_3": {
+                        "type": "integer",
+                        "description": "Hárompontosokból."
+                      },
+                      "points_ft": {
+                        "type": "integer",
+                        "description": "Büntetőből."
+                      }
+                    },
+                    "required": [
+                      "points_2",
+                      "points_3",
+                      "points_ft"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedenkénti teljesítmény (a szezon összesen, nem átlag).",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont ebben a negyedben a szezonban."
+                        },
+                        "threes": {
+                          "type": "integer",
+                          "description": "Bedobott hárompontos ebben a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "points",
+                        "threes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "games": {
+                    "type": "array",
+                    "description": "Meccsenkénti sorok, időrendben; a csapat minden bajnoki meccse.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy meccs.",
+                      "properties": {
+                        "gamecode": {
+                          "type": "string",
+                          "description": "A meccs kulcsa (matches[].gamecode)."
+                        },
+                        "competition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Bajnokság-kód."
+                        },
+                        "date": {
+                          "type": "string",
+                          "description": "Dátum.",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "is_home": {
+                          "type": "boolean",
+                          "description": "Hazai meccs-e."
+                        },
+                        "opponent": {
+                          "type": "string",
+                          "description": "Ellenfél teljes neve."
+                        },
+                        "opponent_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve."
+                        },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "W",
+                            "L"
+                          ],
+                          "description": "A csapat eredménye: W / L."
+                        },
+                        "kozgaz_score": {
+                          "type": "integer",
+                          "description": "Közgáz pont."
+                        },
+                        "opponent_score": {
+                          "type": "integer",
+                          "description": "Ellenfél pont."
+                        },
+                        "played": {
+                          "type": "boolean",
+                          "description": "Játszott-e a játékos (false = nem lépett pályára; ilyenkor a statok null)."
+                        },
+                        "points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Pont."
+                        },
+                        "fg2_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott kétpontos."
+                        },
+                        "fg3_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott hárompontos."
+                        },
+                        "ft_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Büntető-kísérlet."
+                        },
+                        "pf": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Személyi hiba."
+                        },
+                        "share_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "A csapat pontjaiból való részesedés, %."
+                        },
+                        "starter": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
+                        }
+                      },
+                      "required": [
+                        "gamecode",
+                        "competition",
+                        "date",
+                        "is_home",
+                        "opponent",
+                        "opponent_short",
+                        "opponent_table_short",
+                        "result",
+                        "kozgaz_score",
+                        "opponent_score",
+                        "played",
+                        "points",
+                        "fg2_made",
+                        "fg3_made",
+                        "ft_made",
+                        "ft_att",
+                        "pf",
+                        "share_pct",
+                        "starter",
+                        "repaired",
+                        "pf_repaired"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "insights": {
+                    "type": "object",
+                    "description": "Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).",
+                    "properties": {
+                      "strengths": {
+                        "type": "array",
+                        "description": "Erősségek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      },
+                      "weaknesses": {
+                        "type": "array",
+                        "description": "Fejlesztendő területek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      }
+                    },
+                    "required": [
+                      "strengths",
+                      "weaknesses"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "summary",
+                  "scoring_split",
+                  "quarters",
+                  "games",
+                  "insights"
+                ],
+                "additionalProperties": false
+              },
+              "regular_home": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a views.all, csak az alapszakasz hazai meccseiből; null, ha a szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).",
+                "properties": {
+                  "summary": {
+                    "type": "object",
+                    "description": "Szezonösszesítő.",
+                    "properties": {
+                      "games": {
+                        "type": "integer",
+                        "description": "Lejátszott meccs."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Összes pont."
+                      },
+                      "ppg": {
+                        "type": "number",
+                        "description": "Pontátlag (1 tizedes)."
+                      },
+                      "fg2_made": {
+                        "type": "integer",
+                        "description": "Bedobott kétpontos."
+                      },
+                      "fg3_made": {
+                        "type": "integer",
+                        "description": "Bedobott hárompontos."
+                      },
+                      "ft_made": {
+                        "type": "integer",
+                        "description": "Bedobott büntető."
+                      },
+                      "ft_att": {
+                        "type": "integer",
+                        "description": "Büntető-kísérlet."
+                      },
+                      "ft_pct": {
+                        "type": "integer",
+                        "description": "Büntető-százalék (egészre kerekítve; 0, ha nem volt kísérlet)."
+                      },
+                      "pf": {
+                        "type": "integer",
+                        "description": "Személyi hiba."
+                      },
+                      "pf_per_game": {
+                        "type": "number",
+                        "description": "Fault/meccs (1 tizedes)."
+                      },
+                      "max_points": {
+                        "type": "integer",
+                        "description": "Csúcs (legtöbb pont egy meccsen)."
+                      },
+                      "starts": {
+                        "type": "integer",
+                        "description": "Kezdések száma."
+                      },
+                      "share_pct": {
+                        "type": "number",
+                        "description": "A csapat pontjaiból való részesedés, % (1 tizedes)."
+                      },
+                      "tech": {
+                        "type": "integer",
+                        "description": "Technikai hiba (T)."
+                      },
+                      "unsport": {
+                        "type": "integer",
+                        "description": "Sportszerűtlen hiba (U)."
+                      }
+                    },
+                    "required": [
+                      "games",
+                      "points",
+                      "ppg",
+                      "fg2_made",
+                      "fg3_made",
+                      "ft_made",
+                      "ft_att",
+                      "ft_pct",
+                      "pf",
+                      "pf_per_game",
+                      "max_points",
+                      "starts",
+                      "share_pct",
+                      "tech",
+                      "unsport"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scoring_split": {
+                    "type": "object",
+                    "description": "Dobásmegoszlás (pontban).",
+                    "properties": {
+                      "points_2": {
+                        "type": "integer",
+                        "description": "Kétpontosokból."
+                      },
+                      "points_3": {
+                        "type": "integer",
+                        "description": "Hárompontosokból."
+                      },
+                      "points_ft": {
+                        "type": "integer",
+                        "description": "Büntetőből."
+                      }
+                    },
+                    "required": [
+                      "points_2",
+                      "points_3",
+                      "points_ft"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedenkénti teljesítmény (a szezon összesen, nem átlag).",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont ebben a negyedben a szezonban."
+                        },
+                        "threes": {
+                          "type": "integer",
+                          "description": "Bedobott hárompontos ebben a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "points",
+                        "threes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "games": {
+                    "type": "array",
+                    "description": "Meccsenkénti sorok, időrendben; a csapat minden bajnoki meccse.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy meccs.",
+                      "properties": {
+                        "gamecode": {
+                          "type": "string",
+                          "description": "A meccs kulcsa (matches[].gamecode)."
+                        },
+                        "competition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Bajnokság-kód."
+                        },
+                        "date": {
+                          "type": "string",
+                          "description": "Dátum.",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "is_home": {
+                          "type": "boolean",
+                          "description": "Hazai meccs-e."
+                        },
+                        "opponent": {
+                          "type": "string",
+                          "description": "Ellenfél teljes neve."
+                        },
+                        "opponent_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve."
+                        },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "W",
+                            "L"
+                          ],
+                          "description": "A csapat eredménye: W / L."
+                        },
+                        "kozgaz_score": {
+                          "type": "integer",
+                          "description": "Közgáz pont."
+                        },
+                        "opponent_score": {
+                          "type": "integer",
+                          "description": "Ellenfél pont."
+                        },
+                        "played": {
+                          "type": "boolean",
+                          "description": "Játszott-e a játékos (false = nem lépett pályára; ilyenkor a statok null)."
+                        },
+                        "points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Pont."
+                        },
+                        "fg2_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott kétpontos."
+                        },
+                        "fg3_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott hárompontos."
+                        },
+                        "ft_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Büntető-kísérlet."
+                        },
+                        "pf": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Személyi hiba."
+                        },
+                        "share_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "A csapat pontjaiból való részesedés, %."
+                        },
+                        "starter": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
+                        }
+                      },
+                      "required": [
+                        "gamecode",
+                        "competition",
+                        "date",
+                        "is_home",
+                        "opponent",
+                        "opponent_short",
+                        "opponent_table_short",
+                        "result",
+                        "kozgaz_score",
+                        "opponent_score",
+                        "played",
+                        "points",
+                        "fg2_made",
+                        "fg3_made",
+                        "ft_made",
+                        "ft_att",
+                        "pf",
+                        "share_pct",
+                        "starter",
+                        "repaired",
+                        "pf_repaired"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "insights": {
+                    "type": "object",
+                    "description": "Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).",
+                    "properties": {
+                      "strengths": {
+                        "type": "array",
+                        "description": "Erősségek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      },
+                      "weaknesses": {
+                        "type": "array",
+                        "description": "Fejlesztendő területek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      }
+                    },
+                    "required": [
+                      "strengths",
+                      "weaknesses"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "summary",
+                  "scoring_split",
+                  "quarters",
+                  "games",
+                  "insights"
+                ],
+                "additionalProperties": false
+              },
+              "regular_away": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a views.all, csak az alapszakasz idegenbeli meccseiből; null, ha a szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).",
+                "properties": {
+                  "summary": {
+                    "type": "object",
+                    "description": "Szezonösszesítő.",
+                    "properties": {
+                      "games": {
+                        "type": "integer",
+                        "description": "Lejátszott meccs."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Összes pont."
+                      },
+                      "ppg": {
+                        "type": "number",
+                        "description": "Pontátlag (1 tizedes)."
+                      },
+                      "fg2_made": {
+                        "type": "integer",
+                        "description": "Bedobott kétpontos."
+                      },
+                      "fg3_made": {
+                        "type": "integer",
+                        "description": "Bedobott hárompontos."
+                      },
+                      "ft_made": {
+                        "type": "integer",
+                        "description": "Bedobott büntető."
+                      },
+                      "ft_att": {
+                        "type": "integer",
+                        "description": "Büntető-kísérlet."
+                      },
+                      "ft_pct": {
+                        "type": "integer",
+                        "description": "Büntető-százalék (egészre kerekítve; 0, ha nem volt kísérlet)."
+                      },
+                      "pf": {
+                        "type": "integer",
+                        "description": "Személyi hiba."
+                      },
+                      "pf_per_game": {
+                        "type": "number",
+                        "description": "Fault/meccs (1 tizedes)."
+                      },
+                      "max_points": {
+                        "type": "integer",
+                        "description": "Csúcs (legtöbb pont egy meccsen)."
+                      },
+                      "starts": {
+                        "type": "integer",
+                        "description": "Kezdések száma."
+                      },
+                      "share_pct": {
+                        "type": "number",
+                        "description": "A csapat pontjaiból való részesedés, % (1 tizedes)."
+                      },
+                      "tech": {
+                        "type": "integer",
+                        "description": "Technikai hiba (T)."
+                      },
+                      "unsport": {
+                        "type": "integer",
+                        "description": "Sportszerűtlen hiba (U)."
+                      }
+                    },
+                    "required": [
+                      "games",
+                      "points",
+                      "ppg",
+                      "fg2_made",
+                      "fg3_made",
+                      "ft_made",
+                      "ft_att",
+                      "ft_pct",
+                      "pf",
+                      "pf_per_game",
+                      "max_points",
+                      "starts",
+                      "share_pct",
+                      "tech",
+                      "unsport"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scoring_split": {
+                    "type": "object",
+                    "description": "Dobásmegoszlás (pontban).",
+                    "properties": {
+                      "points_2": {
+                        "type": "integer",
+                        "description": "Kétpontosokból."
+                      },
+                      "points_3": {
+                        "type": "integer",
+                        "description": "Hárompontosokból."
+                      },
+                      "points_ft": {
+                        "type": "integer",
+                        "description": "Büntetőből."
+                      }
+                    },
+                    "required": [
+                      "points_2",
+                      "points_3",
+                      "points_ft"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedenkénti teljesítmény (a szezon összesen, nem átlag).",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont ebben a negyedben a szezonban."
+                        },
+                        "threes": {
+                          "type": "integer",
+                          "description": "Bedobott hárompontos ebben a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "points",
+                        "threes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "games": {
+                    "type": "array",
+                    "description": "Meccsenkénti sorok, időrendben; a csapat minden bajnoki meccse.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy meccs.",
+                      "properties": {
+                        "gamecode": {
+                          "type": "string",
+                          "description": "A meccs kulcsa (matches[].gamecode)."
+                        },
+                        "competition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Bajnokság-kód."
+                        },
+                        "date": {
+                          "type": "string",
+                          "description": "Dátum.",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "is_home": {
+                          "type": "boolean",
+                          "description": "Hazai meccs-e."
+                        },
+                        "opponent": {
+                          "type": "string",
+                          "description": "Ellenfél teljes neve."
+                        },
+                        "opponent_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve."
+                        },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "W",
+                            "L"
+                          ],
+                          "description": "A csapat eredménye: W / L."
+                        },
+                        "kozgaz_score": {
+                          "type": "integer",
+                          "description": "Közgáz pont."
+                        },
+                        "opponent_score": {
+                          "type": "integer",
+                          "description": "Ellenfél pont."
+                        },
+                        "played": {
+                          "type": "boolean",
+                          "description": "Játszott-e a játékos (false = nem lépett pályára; ilyenkor a statok null)."
+                        },
+                        "points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Pont."
+                        },
+                        "fg2_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott kétpontos."
+                        },
+                        "fg3_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott hárompontos."
+                        },
+                        "ft_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Büntető-kísérlet."
+                        },
+                        "pf": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Személyi hiba."
+                        },
+                        "share_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "A csapat pontjaiból való részesedés, %."
+                        },
+                        "starter": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
+                        }
+                      },
+                      "required": [
+                        "gamecode",
+                        "competition",
+                        "date",
+                        "is_home",
+                        "opponent",
+                        "opponent_short",
+                        "opponent_table_short",
+                        "result",
+                        "kozgaz_score",
+                        "opponent_score",
+                        "played",
+                        "points",
+                        "fg2_made",
+                        "fg3_made",
+                        "ft_made",
+                        "ft_att",
+                        "pf",
+                        "share_pct",
+                        "starter",
+                        "repaired",
+                        "pf_repaired"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "insights": {
+                    "type": "object",
+                    "description": "Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).",
+                    "properties": {
+                      "strengths": {
+                        "type": "array",
+                        "description": "Erősségek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      },
+                      "weaknesses": {
+                        "type": "array",
+                        "description": "Fejlesztendő területek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      }
+                    },
+                    "required": [
+                      "strengths",
+                      "weaknesses"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "summary",
+                  "scoring_split",
+                  "quarters",
+                  "games",
+                  "insights"
+                ],
+                "additionalProperties": false
+              },
+              "playoff_home": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a views.all, csak a rájátszás hazai meccseiből; null, ha a szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).",
+                "properties": {
+                  "summary": {
+                    "type": "object",
+                    "description": "Szezonösszesítő.",
+                    "properties": {
+                      "games": {
+                        "type": "integer",
+                        "description": "Lejátszott meccs."
+                      },
+                      "points": {
+                        "type": "integer",
+                        "description": "Összes pont."
+                      },
+                      "ppg": {
+                        "type": "number",
+                        "description": "Pontátlag (1 tizedes)."
+                      },
+                      "fg2_made": {
+                        "type": "integer",
+                        "description": "Bedobott kétpontos."
+                      },
+                      "fg3_made": {
+                        "type": "integer",
+                        "description": "Bedobott hárompontos."
+                      },
+                      "ft_made": {
+                        "type": "integer",
+                        "description": "Bedobott büntető."
+                      },
+                      "ft_att": {
+                        "type": "integer",
+                        "description": "Büntető-kísérlet."
+                      },
+                      "ft_pct": {
+                        "type": "integer",
+                        "description": "Büntető-százalék (egészre kerekítve; 0, ha nem volt kísérlet)."
+                      },
+                      "pf": {
+                        "type": "integer",
+                        "description": "Személyi hiba."
+                      },
+                      "pf_per_game": {
+                        "type": "number",
+                        "description": "Fault/meccs (1 tizedes)."
+                      },
+                      "max_points": {
+                        "type": "integer",
+                        "description": "Csúcs (legtöbb pont egy meccsen)."
+                      },
+                      "starts": {
+                        "type": "integer",
+                        "description": "Kezdések száma."
+                      },
+                      "share_pct": {
+                        "type": "number",
+                        "description": "A csapat pontjaiból való részesedés, % (1 tizedes)."
+                      },
+                      "tech": {
+                        "type": "integer",
+                        "description": "Technikai hiba (T)."
+                      },
+                      "unsport": {
+                        "type": "integer",
+                        "description": "Sportszerűtlen hiba (U)."
+                      }
+                    },
+                    "required": [
+                      "games",
+                      "points",
+                      "ppg",
+                      "fg2_made",
+                      "fg3_made",
+                      "ft_made",
+                      "ft_att",
+                      "ft_pct",
+                      "pf",
+                      "pf_per_game",
+                      "max_points",
+                      "starts",
+                      "share_pct",
+                      "tech",
+                      "unsport"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "scoring_split": {
+                    "type": "object",
+                    "description": "Dobásmegoszlás (pontban).",
+                    "properties": {
+                      "points_2": {
+                        "type": "integer",
+                        "description": "Kétpontosokból."
+                      },
+                      "points_3": {
+                        "type": "integer",
+                        "description": "Hárompontosokból."
+                      },
+                      "points_ft": {
+                        "type": "integer",
+                        "description": "Büntetőből."
+                      }
+                    },
+                    "required": [
+                      "points_2",
+                      "points_3",
+                      "points_ft"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedenkénti teljesítmény (a szezon összesen, nem átlag).",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont ebben a negyedben a szezonban."
+                        },
+                        "threes": {
+                          "type": "integer",
+                          "description": "Bedobott hárompontos ebben a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "points",
+                        "threes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "games": {
+                    "type": "array",
+                    "description": "Meccsenkénti sorok, időrendben; a csapat minden bajnoki meccse.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy meccs.",
+                      "properties": {
+                        "gamecode": {
+                          "type": "string",
+                          "description": "A meccs kulcsa (matches[].gamecode)."
+                        },
+                        "competition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Bajnokság-kód."
+                        },
+                        "date": {
+                          "type": "string",
+                          "description": "Dátum.",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "is_home": {
+                          "type": "boolean",
+                          "description": "Hazai meccs-e."
+                        },
+                        "opponent": {
+                          "type": "string",
+                          "description": "Ellenfél teljes neve."
+                        },
+                        "opponent_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve."
+                        },
+                        "opponent_table_short": {
+                          "type": "string",
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "W",
+                            "L"
+                          ],
+                          "description": "A csapat eredménye: W / L."
+                        },
+                        "kozgaz_score": {
+                          "type": "integer",
+                          "description": "Közgáz pont."
+                        },
+                        "opponent_score": {
+                          "type": "integer",
+                          "description": "Ellenfél pont."
+                        },
+                        "played": {
+                          "type": "boolean",
+                          "description": "Játszott-e a játékos (false = nem lépett pályára; ilyenkor a statok null)."
+                        },
+                        "points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Pont."
+                        },
+                        "fg2_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott kétpontos."
+                        },
+                        "fg3_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott hárompontos."
+                        },
+                        "ft_made": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Büntető-kísérlet."
+                        },
+                        "pf": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Személyi hiba."
+                        },
+                        "share_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "A csapat pontjaiból való részesedés, %."
+                        },
+                        "starter": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ],
+                          "description": "Kezdő volt-e."
+                        },
+                        "repaired": {
+                          "type": "boolean",
+                          "description": "A meccs sorát a fork pótolta a PDF-jegyzőkönyvből vagy kézi felülírásból (false, ha nem játszott)."
+                        },
+                        "pf_repaired": {
+                          "type": "boolean",
+                          "description": "A meccs faultját a fork javította a PDF-jegyzőkönyvből (false, ha nem játszott)."
+                        }
+                      },
+                      "required": [
+                        "gamecode",
+                        "competition",
+                        "date",
+                        "is_home",
+                        "opponent",
+                        "opponent_short",
+                        "opponent_table_short",
+                        "result",
+                        "kozgaz_score",
+                        "opponent_score",
+                        "played",
+                        "points",
+                        "fg2_made",
+                        "fg3_made",
+                        "ft_made",
+                        "ft_att",
+                        "pf",
+                        "share_pct",
+                        "starter",
+                        "repaired",
+                        "pf_repaired"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "insights": {
+                    "type": "object",
+                    "description": "Elemzői meglátások (a honlap szabályaival, erre a nézetre számolva).",
+                    "properties": {
+                      "strengths": {
+                        "type": "array",
+                        "description": "Erősségek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      },
+                      "weaknesses": {
+                        "type": "array",
+                        "description": "Fejlesztendő területek (legfeljebb 5).",
+                        "items": {
+                          "type": "string",
+                          "description": "Egy mondat."
+                        }
+                      }
+                    },
+                    "required": [
+                      "strengths",
+                      "weaknesses"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "summary",
+                  "scoring_split",
+                  "quarters",
+                  "games",
+                  "insights"
+                ],
+                "additionalProperties": false
+              },
+              "playoff_away": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a views.all, csak a rájátszás idegenbeli meccseiből; null, ha a szezonban nincs rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).",
                 "properties": {
                   "summary": {
                     "type": "object",
@@ -2052,7 +4032,13 @@
             "required": [
               "all",
               "home",
-              "away"
+              "away",
+              "regular",
+              "playoff",
+              "regular_home",
+              "regular_away",
+              "playoff_home",
+              "playoff_away"
             ],
             "additionalProperties": false
           }
@@ -2081,7 +4067,7 @@
           "properties": {
             "all": {
               "type": "object",
-              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+              "description": "Egy nézet a bajnoki meccsekből (views.all: mindegyik).",
               "properties": {
                 "record": {
                   "type": "object",
@@ -2514,7 +4500,7 @@
             },
             "home": {
               "type": "object",
-              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+              "description": "Egy nézet a bajnoki meccsekből (views.all: mindegyik).",
               "properties": {
                 "record": {
                   "type": "object",
@@ -2947,7 +4933,7 @@
             },
             "away": {
               "type": "object",
-              "description": "Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.",
+              "description": "Egy nézet a bajnoki meccsekből (views.all: mindegyik).",
               "properties": {
                 "record": {
                   "type": "object",

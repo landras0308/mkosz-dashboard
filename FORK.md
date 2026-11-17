@@ -39,6 +39,11 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
 - `export_stats.py` `APP_SHORT_NAMES` — ahol az app rövid neve eltér a honlap
   szótárától (`CALENDAR_SHORT`), pl. „RADOBASKET Törökbálint” → „Rado.Tbálint”
   (a honlapon marad „Rado.bálint”); csak a JSON tabellás rövid neveire hat.
+- `export_stats.py` szakasz-nézetek — a játékosoknak is van alapszakasz / rájátszás
+  nézetük (`players[].views.regular` …, a honlap játékosoldalának Alapszakasz /
+  Rájátszás gombja szerint, hazai és idegen felével), és a `history.json` minden
+  szezont nézetenként is ad (`team_views`, `players[].seasons[].views`): az app szűrői
+  a szezonok táblázatát is így bontják.
 - `stats_schema.py` — a séma egy helyen; ebből készül a `schemas/*.schema.json` és a
   `docs/STATS_JSON.md`, és ez ellenőrzi a kimenetet.
 - `.github/workflows/stats-export.yml` — napi futás 18:47 UTC-kor (Dani mkosz-stats

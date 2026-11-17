@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Közgáz B szezonról szezonra (history.json)",
   "type": "object",
-  "description": "Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki meccsekből, views.all), csak meccsenkéntire osztva; a helyezés a standings.json-ból.",
+  "description": "Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki meccsekből, nézetenként: views.all, views.home …), csak meccsenkéntire osztva; a helyezés a standings.json-ból.",
   "properties": {
     "version": {
       "const": 1,
@@ -38,7 +38,7 @@
               "object",
               "null"
             ],
-            "description": "A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs).",
+            "description": "A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs); ugyanaz, mint a team_views.all.",
             "properties": {
               "games": {
                 "type": "integer",
@@ -147,6 +147,1053 @@
             ],
             "additionalProperties": false
           },
+          "team_views": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A csapat a stats.json team_stats minden nézetében (null, ha a szezonnak nincs csapatszintje; ha van, de még nincs bajnoki meccs, minden nézet null); az app szűrői a szezonok táblázatát is így bontják.",
+            "properties": {
+              "all": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team; null, ha nincs bajnoki meccs.",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "home": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak a hazai meccseiből; null, ha nincs ilyen meccs.",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "away": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak az idegenbeli meccseiből; null, ha nincs ilyen meccs.",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "regular": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak az alapszakasz meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "playoff": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak a rájátszás meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "regular_home": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak az alapszakasz hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "regular_away": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak az alapszakasz idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "playoff_home": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak a rájátszás hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              },
+              "playoff_away": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "Mint a team, csak a rájátszás idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                "properties": {
+                  "games": {
+                    "type": "integer",
+                    "description": "Bajnoki meccs."
+                  },
+                  "wins": {
+                    "type": "integer",
+                    "description": "Győzelem."
+                  },
+                  "losses": {
+                    "type": "integer",
+                    "description": "Vereség."
+                  },
+                  "win_pct": {
+                    "type": "number",
+                    "description": "Győzelem-arány, % (egy tizedes)."
+                  },
+                  "ppg": {
+                    "type": "number",
+                    "description": "Dobott/meccs."
+                  },
+                  "opp_ppg": {
+                    "type": "number",
+                    "description": "Kapott/meccs."
+                  },
+                  "diff_per_game": {
+                    "type": "number",
+                    "description": "Különbség/meccs."
+                  },
+                  "ft_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Büntető%, egy tizedes; null, ha nem volt kísérlet."
+                  },
+                  "fg2_per_game": {
+                    "type": "number",
+                    "description": "Bedobott kettes/meccs, egy tizedes."
+                  },
+                  "fg3_per_game": {
+                    "type": "number",
+                    "description": "Bedobott hármas/meccs, egy tizedes."
+                  },
+                  "home_wins": {
+                    "type": "integer",
+                    "description": "Hazai győzelem."
+                  },
+                  "home_games": {
+                    "type": "integer",
+                    "description": "Hazai meccs."
+                  },
+                  "away_wins": {
+                    "type": "integer",
+                    "description": "Idegenbeli győzelem."
+                  },
+                  "away_games": {
+                    "type": "integer",
+                    "description": "Idegenbeli meccs."
+                  },
+                  "quarters": {
+                    "type": "array",
+                    "description": "Negyedátlagok.",
+                    "items": {
+                      "type": "object",
+                      "description": "Egy negyed.",
+                      "properties": {
+                        "quarter": {
+                          "type": "integer",
+                          "description": "Negyed (1–4)."
+                        },
+                        "kozgaz_avg": {
+                          "type": "number",
+                          "description": "Közgáz pont/meccs a negyedben."
+                        },
+                        "opponent_avg": {
+                          "type": "number",
+                          "description": "Ellenfél pont/meccs a negyedben."
+                        }
+                      },
+                      "required": [
+                        "quarter",
+                        "kozgaz_avg",
+                        "opponent_avg"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "games",
+                  "wins",
+                  "losses",
+                  "win_pct",
+                  "ppg",
+                  "opp_ppg",
+                  "diff_per_game",
+                  "ft_pct",
+                  "fg2_per_game",
+                  "fg3_per_game",
+                  "home_wins",
+                  "home_games",
+                  "away_wins",
+                  "away_games",
+                  "quarters"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "all",
+              "home",
+              "away",
+              "regular",
+              "playoff",
+              "regular_home",
+              "regular_away",
+              "playoff_home",
+              "playoff_away"
+            ],
+            "additionalProperties": false
+          },
           "standings": {
             "type": "array",
             "description": "A Közgáz helyezése a szezon tabelláin (alapszakasz elöl).",
@@ -195,6 +1242,7 @@
           "season",
           "label",
           "team",
+          "team_views",
           "standings"
         ],
         "additionalProperties": false
@@ -277,6 +1325,609 @@
                 "pf_per_game": {
                   "type": "number",
                   "description": "Fault/meccs."
+                },
+                "views": {
+                  "type": "object",
+                  "description": "A szezon a stats.json players[].views minden nézetében; az app szűrői a játékos szezonjainak táblázatát is így bontják.",
+                  "properties": {
+                    "all": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai; null, ha nincs bajnoki meccs.",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "home": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak a hazai meccseiből; null, ha nincs ilyen meccs.",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "away": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak az idegenbeli meccseiből; null, ha nincs ilyen meccs.",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "regular": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak az alapszakasz meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "playoff": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak a rájátszás meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "regular_home": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak az alapszakasz hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "regular_away": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak az alapszakasz idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "playoff_home": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak a rájátszás hazai meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "playoff_away": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Mint a szezon számai, csak a rájátszás idegenbeli meccseiből; null, ha nincs ilyen meccs (rájátszás nélküli szezonban mindig).",
+                      "properties": {
+                        "games": {
+                          "type": "integer",
+                          "description": "Meccs."
+                        },
+                        "points": {
+                          "type": "integer",
+                          "description": "Pont."
+                        },
+                        "ppg": {
+                          "type": "number",
+                          "description": "Pont/meccs."
+                        },
+                        "max_points": {
+                          "type": "integer",
+                          "description": "Legtöbb pont egy meccsen."
+                        },
+                        "fg2_per_game": {
+                          "type": "number",
+                          "description": "Bedobott kettes/meccs, egy tizedes."
+                        },
+                        "fg3_per_game": {
+                          "type": "number",
+                          "description": "Bedobott hármas/meccs, egy tizedes."
+                        },
+                        "ft_made": {
+                          "type": "integer",
+                          "description": "Bedobott büntető."
+                        },
+                        "ft_att": {
+                          "type": "integer",
+                          "description": "Büntető-kísérlet."
+                        },
+                        "ft_pct": {
+                          "type": [
+                            "number",
+                            "null"
+                          ],
+                          "description": "Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet."
+                        },
+                        "pf_per_game": {
+                          "type": "number",
+                          "description": "Fault/meccs."
+                        }
+                      },
+                      "required": [
+                        "games",
+                        "points",
+                        "ppg",
+                        "max_points",
+                        "fg2_per_game",
+                        "fg3_per_game",
+                        "ft_made",
+                        "ft_att",
+                        "ft_pct",
+                        "pf_per_game"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "all",
+                    "home",
+                    "away",
+                    "regular",
+                    "playoff",
+                    "regular_home",
+                    "regular_away",
+                    "playoff_home",
+                    "playoff_away"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
@@ -290,7 +1941,8 @@
                 "ft_made",
                 "ft_att",
                 "ft_pct",
-                "pf_per_game"
+                "pf_per_game",
+                "views"
               ],
               "additionalProperties": false
             }

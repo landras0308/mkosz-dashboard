@@ -374,6 +374,7 @@ def player_view_json(player, bundle, competition_of, repaired_games, pf_repaired
 
 
 def season_players(conn, cfg, tp, competition_of, repaired, repaired_fouls):
+    has_phase = bool(cfg.get("mkosz_extra_comps"))
     out = []
     for player in gd.get_roster(conn, cfg, tp):
         lic, name, jersey = player[0], player[1], player[2]
@@ -385,6 +386,14 @@ def season_players(conn, cfg, tp, competition_of, repaired, repaired_fouls):
         for mode, hv in VIEW_MODES.items():
             bundle = gd.get_player_bundle(conn, cfg, tp, lic, hv_filter=hv)
             views[mode] = player_view_json(player, bundle, competition_of, repaired_games, pf_repaired_games)
+        # A szakaszok, mint a csapatnál (season_team): rájátszás nélküli szezonban null.
+        for mode, phase in PHASE_MODES.items():
+            for side, hv in VIEW_MODES.items():
+                bundle = (gd.get_player_bundle(conn, cfg, tp, lic, hv_filter=hv, phase_filter=phase)
+                          if has_phase else None)
+                views[mode if side == "all" else f"{mode}_{side}"] = (
+                    player_view_json(player, bundle, competition_of, repaired_games, pf_repaired_games)
+                    if bundle else None)
         out.append({
             "key": key, "key_type": key_type, "name": name,
             "jersey": jersey, "slug": gd.slugify(name),
@@ -582,13 +591,12 @@ def per_game(total, games):
     return round(total / games, 1) if games else 0.0
 
 
-def team_history(stats):
-    """A csapat egy szezonja meccsenkénti mutatókkal: a stats.json views.all számaiból."""
-    ts = stats["team_stats"]
-    if not ts or not ts["views"]["all"]["record"]["games"]:
+def team_history(view):
+    """A csapat egy szezonjának egy nézete meccsenkénti mutatókkal (a stats.json team_stats
+    nézetéből); None, ha a nézetben nincs meccs."""
+    if not view or not view["record"]["games"]:
         return None
-    v = ts["views"]["all"]
-    r, sp = v["record"], v["scoring_split"]
+    r, sp = view["record"], view["scoring_split"]
     g = r["games"]
     return {
         "games": g, "wins": r["wins"], "losses": r["losses"],
@@ -601,7 +609,28 @@ def team_history(stats):
         "home_wins": r["home_wins"], "home_games": r["home_games"],
         "away_wins": r["away_wins"], "away_games": r["away_games"],
         "quarters": [{"quarter": q["quarter"], "kozgaz_avg": q["kozgaz_avg"], "opponent_avg": q["opponent_avg"]}
-                     for q in v["quarters"]],
+                     for q in view["quarters"]],
+    }
+
+
+def team_history_views(stats):
+    """A csapat szezonja a stats.json minden nézetében (összes, hazai, idegen, a szakaszok):
+    az app szűrői a szezonok táblázatát is így bontják."""
+    ts = stats["team_stats"]
+    return {k: team_history(v) for k, v in ts["views"].items()} if ts else None
+
+
+def player_history(s):
+    """Egy játékos egy szezonjának egy nézete (a stats.json summary-jából); None, ha nem játszott benne."""
+    if not s or not s["games"]:
+        return None
+    return {
+        "games": s["games"], "points": s["points"], "ppg": s["ppg"],
+        "max_points": s["max_points"], "fg2_per_game": per_game(s["fg2_made"], s["games"]),
+        "fg3_per_game": per_game(s["fg3_made"], s["games"]),
+        "ft_made": s["ft_made"], "ft_att": s["ft_att"],
+        "ft_pct": s["ft_pct"] if s["ft_att"] else None,
+        "pf_per_game": s["pf_per_game"],
     }
 
 
@@ -626,18 +655,18 @@ def history_json(per_season):
             entry = players.setdefault(p["key"], {"key": p["key"], "key_type": p["key_type"], "seasons": []})
             entry["name"] = p["name"]  # a legutóbbi szezoné marad
             entry["seasons"].append({
-                "season": stats["season"], "games": s["games"], "points": s["points"], "ppg": s["ppg"],
-                "max_points": s["max_points"], "fg2_per_game": per_game(s["fg2_made"], s["games"]),
-                "fg3_per_game": per_game(s["fg3_made"], s["games"]),
-                "ft_made": s["ft_made"], "ft_att": s["ft_att"],
-                "ft_pct": s["ft_pct"] if s["ft_att"] else None,
-                "pf_per_game": s["pf_per_game"],
+                "season": stats["season"], **player_history(s),
+                "views": {k: player_history(v["summary"] if v else None) for k, v in p["views"].items()},
             })
+    seasons = []
+    for stats, standings in per_season:
+        views = team_history_views(stats)
+        seasons.append({"season": stats["season"], "label": stats["season_label"],
+                        "team": views["all"] if views else None, "team_views": views,
+                        "standings": standings_history(standings)})
     return {
         "version": VERSION, "team": TEAM_KEY, "generated_at": now_iso(),
-        "seasons": [{"season": stats["season"], "label": stats["season_label"],
-                     "team": team_history(stats), "standings": standings_history(standings)}
-                    for stats, standings in per_season],
+        "seasons": seasons,
         "players": sorted(({"key": e["key"], "key_type": e["key_type"], "name": e["name"],
                             "seasons": e["seasons"]} for e in players.values()),
                           key=lambda e: e["name"]),

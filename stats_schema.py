@@ -251,7 +251,7 @@ def match():
 
 
 def player_view():
-    return OBJ("Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.", {
+    return OBJ("Egy nézet a bajnoki meccsekből (views.all: mindegyik).", {
         "summary": OBJ("Szezonösszesítő.", {
             "games": INT("Lejátszott meccs."),
             "points": INT("Összes pont."),
@@ -310,10 +310,6 @@ def player_view():
     })
 
 
-def views(item, d):
-    return OBJ(d, {"all": item, "home": item, "away": item})
-
-
 # A csapat szakasz-nézetei és leírásuk (a docs is ebből írja őket).
 PHASE_VIEWS = {
     "regular": "az alapszakasz", "playoff": "a rájátszás",
@@ -322,15 +318,17 @@ PHASE_VIEWS = {
 }
 
 
-def team_views():
-    item = team_view()
-
+def phase_views(item):
     def phase(what):
         return dict(item, type=["object", "null"],
                     description=f"Mint a views.all, csak {what} meccseiből; null, ha a szezonban nincs "
                                 "rájátszás (a honlapon ilyenkor nincs Alapszakasz / Rájátszás gomb).")
     return OBJ("Nézetek: összes, hazai, idegen; alapszakasz, rájátszás, és ezek hazai / idegen fele.",
                {"all": item, "home": item, "away": item, **{k: phase(w) for k, w in PHASE_VIEWS.items()}})
+
+
+def team_views():
+    return phase_views(team_view())
 
 
 def team_view():
@@ -344,7 +342,7 @@ def team_view():
         "points": INT("Pont a runban."),
         "baskets": INT("Kosarak száma a runban."),
     })
-    return OBJ("Egy nézet (összes / hazai / idegen) a bajnoki meccsekből.", {
+    return OBJ("Egy nézet a bajnoki meccsekből (views.all: mindegyik).", {
         "record": OBJ("Mérleg.", {
             "games": INT("Meccs."),
             "wins": INT("Győzelem."),
@@ -433,7 +431,7 @@ def stats_schema():
                 "name": STR("Név (a jegyzőkönyv szerint)."),
                 "jersey": INT("Mezszám (a szezonban a legnagyobb előforduló).", null=True),
                 "slug": STR("A névből képzett slug (a honlap játékosoldalának neve)."),
-                "views": views(player_view(), "Nézetek: összes, hazai, idegen."),
+                "views": phase_views(player_view()),
             })),
             "team_stats": OBJ("Csapatszint (null, ha a szezonban még nincs bajnoki meccs).", {
                 "views": team_views(),
@@ -523,6 +521,58 @@ def seasons_schema():
     }
 
 
+# A history.json nézetei (a stats.json views kulcsai) és leírásuk.
+HISTORY_VIEWS = {"all": None, "home": "a hazai", "away": "az idegenbeli", **PHASE_VIEWS}
+
+
+def history_view_text(like, key):
+    if key == "all":
+        return f"{like}; null, ha nincs bajnoki meccs."
+    if key in ("home", "away"):
+        return f"{like}, csak {HISTORY_VIEWS[key]} meccseiből; null, ha nincs ilyen meccs."
+    return (f"{like}, csak {HISTORY_VIEWS[key]} meccseiből; null, ha nincs ilyen meccs "
+            "(rájátszás nélküli szezonban mindig).")
+
+
+def team_season(d):
+    return OBJ(d, {
+        "games": INT("Bajnoki meccs."),
+        "wins": INT("Győzelem."),
+        "losses": INT("Vereség."),
+        "win_pct": NUM("Győzelem-arány, % (egy tizedes)."),
+        "ppg": NUM("Dobott/meccs."),
+        "opp_ppg": NUM("Kapott/meccs."),
+        "diff_per_game": NUM("Különbség/meccs."),
+        "ft_pct": NUM("Büntető%, egy tizedes; null, ha nem volt kísérlet.", null=True),
+        "fg2_per_game": NUM("Bedobott kettes/meccs, egy tizedes."),
+        "fg3_per_game": NUM("Bedobott hármas/meccs, egy tizedes."),
+        "home_wins": INT("Hazai győzelem."),
+        "home_games": INT("Hazai meccs."),
+        "away_wins": INT("Idegenbeli győzelem."),
+        "away_games": INT("Idegenbeli meccs."),
+        "quarters": ARR("Negyedátlagok.", OBJ("Egy negyed.", {
+            "quarter": INT("Negyed (1–4)."),
+            "kozgaz_avg": NUM("Közgáz pont/meccs a negyedben."),
+            "opponent_avg": NUM("Ellenfél pont/meccs a negyedben."),
+        })),
+    }, null=True)
+
+
+def player_season_props():
+    return {
+        "games": INT("Meccs."),
+        "points": INT("Pont."),
+        "ppg": NUM("Pont/meccs."),
+        "max_points": INT("Legtöbb pont egy meccsen."),
+        "fg2_per_game": NUM("Bedobott kettes/meccs, egy tizedes."),
+        "fg3_per_game": NUM("Bedobott hármas/meccs, egy tizedes."),
+        "ft_made": INT("Bedobott büntető."),
+        "ft_att": INT("Büntető-kísérlet."),
+        "ft_pct": NUM("Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet.", null=True),
+        "pf_per_game": NUM("Fault/meccs."),
+    }
+
+
 def history_schema():
     rank = OBJ("A Közgáz helyezése egy bajnokság tabelláján.", {
         "competition": STR("Bajnokság-kód."),
@@ -536,34 +586,21 @@ def history_schema():
         "title": "Közgáz B szezonról szezonra (history.json)",
         **OBJ("Minden szezon tömör, meccsenkénti mutatói a csapatra és a játékosokra, a szezonok "
               "összehasonlításához. Ugyanazok a számok, mint a szezonok stats.json-jában (a bajnoki "
-              "meccsekből, views.all), csak meccsenkéntire osztva; a helyezés a standings.json-ból.", {
+              "meccsekből, nézetenként: views.all, views.home …), csak meccsenkéntire osztva; a "
+              "helyezés a standings.json-ból.", {
             "version": {"const": 1, "description": "Formátum-verzió."},
             "team": {"const": "kozgaz-b", "description": "Csapatkulcs."},
             "generated_at": STR("A fájl készítése (UTC).", **DATETIME),
             "seasons": ARR("A szezonok, a legrégebbi elöl.", OBJ("Egy szezon.", {
                 "season": STR("Szezonkulcs.", **SEASON),
                 "label": STR("Felirat (pl. 2025/26)."),
-                "team": OBJ("A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs).", {
-                    "games": INT("Bajnoki meccs."),
-                    "wins": INT("Győzelem."),
-                    "losses": INT("Vereség."),
-                    "win_pct": NUM("Győzelem-arány, % (egy tizedes)."),
-                    "ppg": NUM("Dobott/meccs."),
-                    "opp_ppg": NUM("Kapott/meccs."),
-                    "diff_per_game": NUM("Különbség/meccs."),
-                    "ft_pct": NUM("Büntető%, egy tizedes; null, ha nem volt kísérlet.", null=True),
-                    "fg2_per_game": NUM("Bedobott kettes/meccs, egy tizedes."),
-                    "fg3_per_game": NUM("Bedobott hármas/meccs, egy tizedes."),
-                    "home_wins": INT("Hazai győzelem."),
-                    "home_games": INT("Hazai meccs."),
-                    "away_wins": INT("Idegenbeli győzelem."),
-                    "away_games": INT("Idegenbeli meccs."),
-                    "quarters": ARR("Negyedátlagok.", OBJ("Egy negyed.", {
-                        "quarter": INT("Negyed (1–4)."),
-                        "kozgaz_avg": NUM("Közgáz pont/meccs a negyedben."),
-                        "opponent_avg": NUM("Ellenfél pont/meccs a negyedben."),
-                    })),
-                }, null=True),
+                "team": team_season("A csapat a bajnoki meccsekből (null, ha még nincs bajnoki meccs); "
+                                    "ugyanaz, mint a team_views.all."),
+                "team_views": OBJ("A csapat a stats.json team_stats minden nézetében (null, ha a "
+                                  "szezonnak nincs csapatszintje; ha van, de még nincs bajnoki meccs, "
+                                  "minden nézet null); az app szűrői a szezonok táblázatát is így bontják.", {
+                    k: team_season(history_view_text("Mint a team", k))
+                    for k in HISTORY_VIEWS}, null=True),
                 "standings": ARR("A Közgáz helyezése a szezon tabelláin (alapszakasz elöl).", rank),
             })),
             "players": ARR("A játékosok, mindegyik a saját szezonjaival (a legrégebbi elöl). A "
@@ -573,16 +610,11 @@ def history_schema():
                 "name": STR("Név a legutóbbi szezonja jegyzőkönyvei szerint."),
                 "seasons": ARR("A szezonjai, amelyekben bajnoki meccsen pályára lépett.", OBJ("Egy szezon.", {
                     "season": STR("Szezonkulcs.", **SEASON),
-                    "games": INT("Meccs."),
-                    "points": INT("Pont."),
-                    "ppg": NUM("Pont/meccs."),
-                    "max_points": INT("Legtöbb pont egy meccsen."),
-                    "fg2_per_game": NUM("Bedobott kettes/meccs, egy tizedes."),
-                    "fg3_per_game": NUM("Bedobott hármas/meccs, egy tizedes."),
-                    "ft_made": INT("Bedobott büntető."),
-                    "ft_att": INT("Büntető-kísérlet."),
-                    "ft_pct": NUM("Büntető%, ahogy a stats.json-ban; null, ha nem volt kísérlet.", null=True),
-                    "pf_per_game": NUM("Fault/meccs."),
+                    **player_season_props(),
+                    "views": OBJ("A szezon a stats.json players[].views minden nézetében; az app szűrői "
+                                 "a játékos szezonjainak táblázatát is így bontják.", {
+                        k: OBJ(history_view_text("Mint a szezon számai", k), player_season_props(), null=True)
+                        for k in HISTORY_VIEWS}),
                 })),
             })),
         }),
@@ -692,6 +724,12 @@ def render_docs():
             _walk(child, k, rows)
         # A views alatt az all/home/away ugyanaz: csak az all-t írjuk ki, a többire utalunk.
         for path, typ, desc in rows:
+            if name == "history":
+                # A history.json nézetei: az all mezői, a többi nézetnek csak a saját sora.
+                if re.search(r"views\.(?!all\b)\w+\.", path):
+                    continue
+                out.append(f"| `{path}` | {typ} | {desc.replace('|', '/')} |")
+                continue
             subs = [".views.home", ".views.away", *(f".views.{k}" for k in PHASE_VIEWS)]
             sub = next((m for m in subs if re.search(re.escape(m) + r"(\.|$)", path)), None)
             if sub:
