@@ -36,6 +36,9 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
   listája: `data/known_foul_mismatches.json`.
   Az ok, a védőkorlát és a Dani kiolvasójához javasolt javítás:
   `docs/scoresheet-extraction-fix.md`. Tesztek: `tests/`.
+- `export_stats.py` `APP_SHORT_NAMES` — ahol az app rövid neve eltér a honlap
+  szótárától (`CALENDAR_SHORT`), pl. „RADOBASKET Törökbálint” → „Rado.Tbálint”
+  (a honlapon marad „Rado.bálint”); csak a JSON tabellás rövid neveire hat.
 - `stats_schema.py` — a séma egy helyen; ebből készül a `schemas/*.schema.json` és a
   `docs/STATS_JSON.md`, és ez ellenőrzi a kimenetet.
 - `.github/workflows/stats-export.yml` — napi futás 18:47 UTC-kor (Dani mkosz-stats

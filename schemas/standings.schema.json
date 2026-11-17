@@ -80,7 +80,7 @@
                 },
                 "team_short": {
                   "type": "string",
-                  "description": "Csapat rövid neve (a honlap rövidítése)."
+                  "description": "Csapat rövid neve (a honlap rövidítése, az app eltéréseivel)."
                 },
                 "is_kozgaz": {
                   "type": "boolean",

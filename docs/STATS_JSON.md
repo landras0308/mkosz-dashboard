@@ -77,7 +77,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `matches[].is_home` | boolean | A Közgáz B hazai-e. |
 | `matches[].opponent` | string | Az ellenfél teljes neve. |
 | `matches[].opponent_short` | string | Az ellenfél rövid neve. |
-| `matches[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése. |
+| `matches[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES). |
 | `matches[].home_score` | integer? | Hazai pont. |
 | `matches[].away_score` | integer? | Vendég pont. |
 | `matches[].kozgaz_score` | integer? | A Közgáz B pontja. |
@@ -240,7 +240,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `players[].views.all.games[].is_home` | boolean | Hazai meccs-e. |
 | `players[].views.all.games[].opponent` | string | Ellenfél teljes neve. |
 | `players[].views.all.games[].opponent_short` | string | Ellenfél rövid neve. |
-| `players[].views.all.games[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése. |
+| `players[].views.all.games[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES). |
 | `players[].views.all.games[].result` | string (W | L) | A csapat eredménye: W / L. |
 | `players[].views.all.games[].kozgaz_score` | integer | Közgáz pont. |
 | `players[].views.all.games[].opponent_score` | integer | Ellenfél pont. |
@@ -286,7 +286,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `team_stats.views.all.games[].is_home` | boolean | Hazai-e. |
 | `team_stats.views.all.games[].opponent` | string | Ellenfél teljes neve. |
 | `team_stats.views.all.games[].opponent_short` | string | Ellenfél rövid neve. |
-| `team_stats.views.all.games[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése. |
+| `team_stats.views.all.games[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES). |
 | `team_stats.views.all.games[].kozgaz_score` | integer | Közgáz pont. |
 | `team_stats.views.all.games[].opponent_score` | integer | Ellenfél pont. |
 | `team_stats.views.all.games[].result` | string (W | L) | W / L. |
@@ -314,7 +314,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `team_stats.views.all.runs_for[].date` | string | Dátum. |
 | `team_stats.views.all.runs_for[].opponent` | string | Ellenfél teljes neve. |
 | `team_stats.views.all.runs_for[].opponent_short` | string | Ellenfél rövid neve. |
-| `team_stats.views.all.runs_for[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése. |
+| `team_stats.views.all.runs_for[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES). |
 | `team_stats.views.all.runs_for[].start_quarter` | integer | Kezdő negyed. |
 | `team_stats.views.all.runs_for[].end_quarter` | integer | Záró negyed. |
 | `team_stats.views.all.runs_for[].points` | integer | Pont a runban. |
@@ -323,7 +323,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `team_stats.views.all.runs_against[].date` | string | Dátum. |
 | `team_stats.views.all.runs_against[].opponent` | string | Ellenfél teljes neve. |
 | `team_stats.views.all.runs_against[].opponent_short` | string | Ellenfél rövid neve. |
-| `team_stats.views.all.runs_against[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése. |
+| `team_stats.views.all.runs_against[].opponent_table_short` | string | Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES). |
 | `team_stats.views.all.runs_against[].start_quarter` | integer | Kezdő negyed. |
 | `team_stats.views.all.runs_against[].end_quarter` | integer | Záró negyed. |
 | `team_stats.views.all.runs_against[].points` | integer | Pont a runban. |
@@ -351,7 +351,7 @@ Egy szezon minden statisztikája. A szezonösszesítők (players, team) a bajnok
 | `league_comparison[].metrics[].rows` | array | A csapatok a mutató szerinti sorrendben. |
 | `league_comparison[].metrics[].rows[].rank` | integer | Helyezés ebben a mutatóban (1-től). |
 | `league_comparison[].metrics[].rows[].team` | string | Csapat teljes neve. |
-| `league_comparison[].metrics[].rows[].team_short` | string | Csapat rövid neve. |
+| `league_comparison[].metrics[].rows[].team_short` | string | Csapat rövid neve (a honlap rövidítése, az app eltéréseivel). |
 | `league_comparison[].metrics[].rows[].is_kozgaz` | boolean | A Közgáz B-e. |
 | `league_comparison[].metrics[].rows[].games` | integer | Lejátszott meccsek a bajnokságban. |
 | `league_comparison[].metrics[].rows[].value` | string | Az érték, ahogy a honlap írja (pl. 9-13, 76.9, 67.6%). |
@@ -377,7 +377,7 @@ A szezon tabellái bajnokságonként (rájátszásnál a Közgáz B csoportja).
 | `tables[].rows` | array | Sorok helyezés szerint. |
 | `tables[].rows[].rank` | integer | Helyezés. |
 | `tables[].rows[].team` | string | Csapat teljes neve. |
-| `tables[].rows[].team_short` | string | Csapat rövid neve (a honlap rövidítése). |
+| `tables[].rows[].team_short` | string | Csapat rövid neve (a honlap rövidítése, az app eltéréseivel). |
 | `tables[].rows[].is_kozgaz` | boolean | A Közgáz B sora-e. |
 | `tables[].rows[].games` | integer | M: lejátszott meccs. |
 | `tables[].rows[].wins` | integer | Gy: győzelem. |

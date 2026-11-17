@@ -39,6 +39,17 @@ VERSION = 1
 # Kupák: a meccslistában és a meccsoldalakon benne vannak, a szezonösszesítőkben
 # (játékos, csapat) nem — ahogy a kozgazkosar.hu-n sem.
 CUP_COMPS = {"huna_cup"}
+# Az app rövid nevei, ahol a honlap szótárától (gd.CALENDAR_SHORT) eltérnek: csak
+# a JSON-ba kerülnek, a honlap változatlan (Andris, 2026-11-17).
+APP_SHORT_NAMES = {"RADOBASKET TÖRÖKBÁLINT": "Rado.Tbálint"}
+
+
+def table_short(name):
+    """Egy csapat rövid neve a JSON-ban: a honlap naptárának rövidítése, az app
+    eltéréseivel (APP_SHORT_NAMES, a teljes névre)."""
+    return APP_SHORT_NAMES.get(name.strip().upper(), gd.calendar_short_name(name))
+
+
 COMP_LABELS = {
     "hun3k": "NB2 Kelet",
     "hun3kob": "NB2 Közép B",
@@ -237,7 +248,7 @@ def match_json(conn, season, comp, gamecode, cfg, tp, scoresheet_id, repaired, r
         "is_home": home,
         "opponent": details["opp_team_name"],
         "opponent_short": gd.shorten_opponent(details["opp_team_name"]),
-        "opponent_table_short": gd.calendar_short_name(details["opp_team_name"]),
+        "opponent_table_short": table_short(details["opp_team_name"]),
         "home_score": details["score_a"],
         "away_score": details["score_b"],
         "kozgaz_score": details["kg_score"],
@@ -328,7 +339,7 @@ def player_view_json(player, bundle, competition_of, repaired_games, pf_repaired
             "is_home": g["hv"] == "H",
             "opponent": g["opp_full"],
             "opponent_short": g["opp"],
-            "opponent_table_short": gd.calendar_short_name(g["opp_full"]),
+            "opponent_table_short": table_short(g["opp_full"]),
             "result": g["res"],
             "kozgaz_score": g["kg_score"],
             "opponent_score": g["opp_score"],
@@ -410,7 +421,7 @@ def team_view_json(d, competition_of):
         "games": [{
             "gamecode": g[0], "competition": competition_of.get(g[0]), "date": g[1],
             "is_home": g[2] == "H", "opponent": g[3], "opponent_short": gd.shorten_opponent(g[3]),
-            "opponent_table_short": gd.calendar_short_name(g[3]),
+            "opponent_table_short": table_short(g[3]),
             "kozgaz_score": g[4], "opponent_score": g[5], "result": "W" if g[4] > g[5] else "L",
         } for g in d["game_log"] if g[4] is not None and g[5] is not None],
         "quarters": [{"quarter": i + 1, "kozgaz_avg": js["q_kg"][i], "opponent_avg": js["q_op"][i],
@@ -429,7 +440,7 @@ def team_view_json(d, competition_of):
 def run_json(r):
     date, opp, sq, eq, pts, baskets = r[:6]
     return {"date": date, "opponent": opp, "opponent_short": gd.shorten_opponent(opp),
-            "opponent_table_short": gd.calendar_short_name(opp),
+            "opponent_table_short": table_short(opp),
             "start_quarter": sq, "end_quarter": eq, "points": pts, "baskets": baskets}
 
 
@@ -469,7 +480,7 @@ def league_comparison_json(conn, league_comps):
                 "rows": [{
                     "rank": i,
                     "team": t["name"],
-                    "team_short": gd.calendar_short_name(t["name"]),
+                    "team_short": table_short(t["name"]),
                     "is_kozgaz": bool(gd.league_is_kg(t["name"], cfg["team_short"], TEAM_KEY)),
                     "games": t["games"],
                     "value": metric[5](t),
@@ -519,7 +530,7 @@ def standings_json(season, league_comps, is_current, previous):
             "source_url": f"https://mkosz.hu/bajnoksag/{season}/{comp}",
             "fetched_at": now_iso(),
             "rows": [{
-                "rank": r["rank"], "team": r["name"], "team_short": gd.calendar_short_name(r["name"]),
+                "rank": r["rank"], "team": r["name"], "team_short": table_short(r["name"]),
                 "is_kozgaz": bool(kg.match(r["name"])),
                 "games": r["games"], "wins": r["wins"], "losses": r["losses"],
                 "scored": r["scored"], "allowed": r["allowed"], "diff": r["scored"] - r["allowed"],

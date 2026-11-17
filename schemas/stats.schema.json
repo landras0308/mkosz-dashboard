@@ -196,7 +196,7 @@
           },
           "opponent_table_short": {
             "type": "string",
-            "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+            "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
           },
           "home_score": {
             "type": [
@@ -1244,7 +1244,7 @@
                         },
                         "opponent_table_short": {
                           "type": "string",
-                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                         },
                         "result": {
                           "type": "string",
@@ -1571,7 +1571,7 @@
                         },
                         "opponent_table_short": {
                           "type": "string",
-                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                         },
                         "result": {
                           "type": "string",
@@ -1898,7 +1898,7 @@
                         },
                         "opponent_table_short": {
                           "type": "string",
-                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                          "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                         },
                         "result": {
                           "type": "string",
@@ -2204,7 +2204,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -2386,7 +2386,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -2440,7 +2440,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -2637,7 +2637,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -2819,7 +2819,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -2873,7 +2873,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -3070,7 +3070,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -3252,7 +3252,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -3306,7 +3306,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -3506,7 +3506,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -3688,7 +3688,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -3742,7 +3742,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -3942,7 +3942,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -4124,7 +4124,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -4178,7 +4178,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -4378,7 +4378,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -4560,7 +4560,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -4614,7 +4614,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -4814,7 +4814,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -4996,7 +4996,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -5050,7 +5050,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -5250,7 +5250,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -5432,7 +5432,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -5486,7 +5486,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -5686,7 +5686,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "kozgaz_score": {
                         "type": "integer",
@@ -5868,7 +5868,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -5922,7 +5922,7 @@
                       },
                       "opponent_table_short": {
                         "type": "string",
-                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése."
+                        "description": "Ellenfél rövid neve, ahogy a szezon tabelláján (team_short); ha nincs a tabellán (pl. kupaellenfél), a honlap naptárának rövidítése (az app eltéréseivel, export_stats.APP_SHORT_NAMES)."
                       },
                       "start_quarter": {
                         "type": "integer",
@@ -6084,7 +6084,7 @@
                       },
                       "team_short": {
                         "type": "string",
-                        "description": "Csapat rövid neve."
+                        "description": "Csapat rövid neve (a honlap rövidítése, az app eltéréseivel)."
                       },
                       "is_kozgaz": {
                         "type": "boolean",
