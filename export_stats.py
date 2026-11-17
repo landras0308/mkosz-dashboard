@@ -46,8 +46,9 @@ APP_SHORT_NAMES = {"RADOBASKET TÖRÖKBÁLINT": "Rado.Tbálint"}
 
 def table_short(name):
     """Egy csapat rövid neve a JSON-ban: a honlap naptárának rövidítése, az app
-    eltéréseivel (APP_SHORT_NAMES, a teljes névre)."""
-    return APP_SHORT_NAMES.get(name.strip().upper(), gd.calendar_short_name(name))
+    eltéréseivel (APP_SHORT_NAMES, a teljes névre; a szóközök — dupla, nem törő —
+    egyetlen szóközre véve, hogy egy forrás apró eltérése ne ejtse ki)."""
+    return APP_SHORT_NAMES.get(" ".join(name.split()).upper(), gd.calendar_short_name(name))
 
 
 COMP_LABELS = {
@@ -509,7 +510,8 @@ def with_current_shorts(standings):
     is bekerül (2026-11-17: „Rado.Tbálint”)."""
     for table in standings.get("tables", []):
         for row in table.get("rows", []):
-            row["team_short"] = table_short(row["team"])
+            if row.get("team"):
+                row["team_short"] = table_short(row["team"])
     return standings
 
 
