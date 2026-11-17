@@ -503,10 +503,22 @@ def fetch_previous(base, path):
         return None
 
 
+def with_current_shorts(standings):
+    """Egy korábban közzétett tabella a mostani rövid nevekkel: a lekért adat marad,
+    de a team_short a miénk (table_short), így egy új rövid név a lezárt szezonokba
+    is bekerül (2026-11-17: „Rado.Tbálint”)."""
+    for table in standings.get("tables", []):
+        for row in table.get("rows", []):
+            row["team_short"] = table_short(row["team"])
+    return standings
+
+
 def standings_json(season, league_comps, is_current, previous):
     """A szezon tabellái bajnokságonként; a Közgáz B csoportja (rájátszásnál több
     csoport közül). Lezárt szezonnál a korábban közzétett változat marad, ha van;
     sikertelen lekérésnél is a korábbi marad (a régi lekérési idővel)."""
+    if previous:
+        previous = with_current_shorts(previous)
     if previous and not is_current:
         return previous
     kg = pattern_regex(gd.TEAMS[TEAM_KEY]["team_pattern"])
