@@ -649,7 +649,9 @@ függvényeiből jönnek, ugyanazokból, amikből a kozgazkosar.hu oldalai kész
 - **Hol:** a fork GitHub Pages oldalán, `data/kozgaz-b/` alatt:
   `seasons.json`, `{szezon}/stats.json`, `{szezon}/standings.json`, `history.json`, és a
   mostani szezon a `data/kozgaz-b/stats.json` és `standings.json` néven is.
-- **Mikor:** naponta, Dani mkosz-stats importja után (`.github/workflows/stats-export.yml`).
+- **Mikor:** Dani mkosz-stats importja után: a workflow háromóránként nézi, változott-e az
+  adatbázis a legutóbb közzétett `source.database_updated_at`-hoz képest, és csak akkor tesz
+  közzé újat (`.github/workflows/stats-export.yml`).
 - **Forrás:** a mkosz-stats nyilvános `mkosz_stats.sqlite`-ja; a tabella a mkosz.hu-ról.
 - **Szerződés:** mezőt nem nevezünk át és nem törlünk, új mező jöhet; törő változásnál
   a `version` nő. A séma: `schemas/*.schema.json` (JSON Schema 2020-12); a workflow

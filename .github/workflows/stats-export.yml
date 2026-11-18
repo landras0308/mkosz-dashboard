@@ -3,11 +3,20 @@ name: Statisztika-JSON (Gametime)
 # Andris forkja: a Közgáz B statisztikái JSON-ban a Gametime appnak (export_stats.py,
 # docs/STATS_JSON.md), a fork GitHub Pages oldalán.
 #
-# Időzítés: Dani mkosz-stats importja (cron 06:30 UTC) a GitHub késése miatt a
-# gyakorlatban 13:00–17:05 UTC között fut le (2026-10/11 mért futásai), ezért
-# 18:47 UTC — tartalékkal, és nem kerek percre, mert a kerek órás ütemezések
-# késnek a legtöbbet. Ha egy nap mégis korábban futna, a következő napi futás
-# hozza az aznapi adatot.
+# Időzítés: háromóránként (a 47. percben, nem kerek percre, mert a kerek órás
+# ütemezések késnek a legtöbbet). Dani mkosz-stats importja (cron 06:30 UTC) a
+# GitHub késése miatt a gyakorlatban 13:00–17:05 UTC között fut le (2026-10/11
+# mért futásai), és ez a fork napi egyszeri futása is órákat késett; így az új
+# adatbázis legfeljebb egy ütemezésnyi késéssel kerül ki.
+#
+# Változás-ellenőrzés (check job): a futás elején Dani adatbázisának utolsó
+# commitját (ideje és SHA-ja) összeveti a legutóbb közzétett stats.json
+# source.database_updated_at mezőjével. Ha egyezik, a futás itt véget ér:
+# nincs letöltés, generálás és közzététel. Ha eltér, vagy valamelyik nem
+# olvasható ki, az export job a szokásos módon fut, a fájlt pontosan arról a
+# commitról töltve le, amelyiknek az idejét a JSON-ba írja. Kézi indításnál a
+# „force” a változatlan adatbázisból is újragenerál (pl. a fork kódjának
+# változása után).
 #
 # A forkban minden más workflow (honlap-építés, edzéslátogatás, .ics) ki van
 # kapcsolva; ez nem kér titkot, csak nyilvános fájlokat olvas.
@@ -20,8 +29,13 @@ name: Statisztika-JSON (Gametime)
 
 on:
   schedule:
-    - cron: '47 18 * * *'
-  workflow_dispatch: {}
+    - cron: '47 */3 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Újragenerálás akkor is, ha az adatbázis nem változott'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -33,7 +47,57 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+      sha: ${{ steps.compare.outputs.sha }}
+      updated: ${{ steps.compare.outputs.updated }}
+    steps:
+      - name: Változott-e Dani adatbázisa a legutóbb közzétetthez képest?
+        id: compare
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force }}
+          PUBLISHED: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/kozgaz-b/stats.json
+        run: |
+          # Ha valami nem olvasható ki, üres marad, és az export lefut (inkább egy felesleges futás, mint egy kimaradt).
+          LATEST=$(curl -fsSL --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            'https://api.github.com/repos/pozsikdani/mkosz-stats/commits?path=mkosz_stats.sqlite&per_page=1' \
+            | python3 -c 'import json,sys; c=json.load(sys.stdin)[0]; print(c["sha"], c["commit"]["committer"]["date"])' || true)
+          read -r SHA UPDATED <<< "$LATEST" || true
+          # A query string a Pages gyorsítótárát kerüli meg (max-age=600).
+          DONE=$(curl -fsSL --retry 3 "$PUBLISHED?t=$(date +%s)" \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["source"]["database_updated_at"] or "")' || true)
+          if [ "$FORCE" = "true" ]; then
+            CHANGED=true; WHY="kézi indítás, force"
+          elif [ -z "$UPDATED" ]; then
+            CHANGED=true; WHY="Dani adatbázisának ideje nem olvasható ki"
+          elif [ -z "$DONE" ]; then
+            CHANGED=true; WHY="a közzétett stats.json ideje nem olvasható ki"
+          elif [ "$UPDATED" = "$DONE" ]; then
+            CHANGED=false; WHY="az adatbázis nem változott"
+          else
+            CHANGED=true; WHY="az adatbázis változott"
+          fi
+          echo "Dani adatbázisa: ${UPDATED:-?} (${SHA:-?}); legutóbb közzétéve: ${DONE:-?} → $WHY"
+          {
+            echo "changed=$CHANGED"
+            echo "sha=$SHA"
+            echo "updated=$UPDATED"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "### Változás-ellenőrzés"
+            echo "- Dani adatbázisa: \`${UPDATED:-?}\` (\`${SHA:-?}\`)"
+            echo "- Legutóbb közzétéve: \`${DONE:-?}\`"
+            if [ "$CHANGED" = "true" ]; then echo "- **Generálás és közzététel:** $WHY"
+            else echo "- **Nincs generálás és közzététel:** $WHY"; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
   export:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -62,17 +126,16 @@ jobs:
 
       - name: Adatbázis letöltése (mkosz-stats, nyilvános fájl)
         env:
-          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.check.outputs.sha }}
+          UPDATED: ${{ needs.check.outputs.updated }}
         run: |
+          # Az ellenőrzött commit fájlja, hogy a JSON-ba írt idő biztosan ehhez tartozzon;
+          # ha a check nem kapott SHA-t, a main, és az idő üres marad (a következő futás újra generál).
           curl -fsSL --retry 3 -o /tmp/mkosz_stats.sqlite \
-            https://raw.githubusercontent.com/pozsikdani/mkosz-stats/main/mkosz_stats.sqlite
+            "https://raw.githubusercontent.com/pozsikdani/mkosz-stats/${SHA:-main}/mkosz_stats.sqlite"
           ls -la /tmp/mkosz_stats.sqlite
-          # Az adatbázis utolsó commitjának ideje (a JSON-ba kerül); ha nem sikerül, üres marad.
-          UPDATED=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
-            'https://api.github.com/repos/pozsikdani/mkosz-stats/commits?path=mkosz_stats.sqlite&per_page=1' \
-            | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["commit"]["committer"]["date"])' || true)
           echo "DB_UPDATED_AT=$UPDATED" >> "$GITHUB_ENV"
-          echo "Adatbázis frissítve: $UPDATED"
+          echo "Adatbázis: ${SHA:-main}, frissítve: ${UPDATED:-?}"
 
       - name: Box score-pótlás kihagyva (a tesztek elbuktak)
         if: steps.tests.outcome != 'success'

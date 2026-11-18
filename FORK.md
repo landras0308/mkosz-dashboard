@@ -46,9 +46,12 @@ kozgazkosar.hu-t továbbra is Dani repója építi; ez a fork nem épít honlapo
   a szezonok táblázatát is így bontják.
 - `stats_schema.py` — a séma egy helyen; ebből készül a `schemas/*.schema.json` és a
   `docs/STATS_JSON.md`, és ez ellenőrzi a kimenetet.
-- `.github/workflows/stats-export.yml` — napi futás 18:47 UTC-kor (Dani mkosz-stats
-  importja után): tesztek, box score-pótlás, export a javított másolatból,
-  közzététel a fork GitHub Pages oldalán. A többi workflow
+- `.github/workflows/stats-export.yml` — háromóránként fut (a 47. percben), és csak
+  akkor generál, ha Dani mkosz-stats adatbázisa változott a legutóbb közzétett
+  `stats.json` `source.database_updated_at`-jához képest; különben a futás az
+  ellenőrzés után véget ér. Ha változott: tesztek, box score-pótlás, export a
+  javított másolatból, közzététel a fork GitHub Pages oldalán. Kézi indításnál a
+  `force` változatlan adatbázisnál is újragenerál. A többi workflow
   (`daily-update.yml`, `update-attendance.yml`) a forkban ki van kapcsolva.
 
 ## Függőségek
